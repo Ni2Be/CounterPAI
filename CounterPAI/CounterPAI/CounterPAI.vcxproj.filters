@@ -1,48 +1,106 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="alt">
+      <UniqueIdentifier>{6f4350db-a9b9-4edc-8541-100153ec5e9d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Ressourcendateien">
+    <Filter Include="alt\Ressourcendateien">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Event System">
+    <Filter Include="alt\Event System">
       <UniqueIdentifier>{4fe71957-520e-4a4d-8bad-8b97d958fc26}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SVG Parser">
+    <Filter Include="Application">
+      <UniqueIdentifier>{99e63814-a035-451c-9e70-9c64512f14dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Sheet_To_Audio">
+      <UniqueIdentifier>{366611ce-186b-44c8-9367-942c4a1f8b22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Utility">
+      <UniqueIdentifier>{a3d86103-4b94-431b-b950-8de1d7e24343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Evaluator">
+      <UniqueIdentifier>{797c99b5-f488-49f2-bc79-6a0a709423a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\GUI">
+      <UniqueIdentifier>{39ab6034-56b4-438e-9e23-2b3a9c964942}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Utility\SVG Parser">
       <UniqueIdentifier>{4df8e44f-1adc-4af4-b331-0ef3eeacf8c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Evaluator\LSTM_Eval">
+      <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="Net.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Event_System.cpp">
-      <Filter>Event System</Filter>
+      <Filter>alt\Event System</Filter>
     </ClCompile>
     <ClCompile Include="SVG_Parser.cpp">
-      <Filter>SVG Parser</Filter>
+      <Filter>Application\Utility\SVG Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Sheet_Music.cpp">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Midi_Reader.cpp">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Piano_Player.cpp">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Music_Note.cpp">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Sheet_Music_Editor.cpp">
+      <Filter>Application\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Evaluator_Base.cpp">
+      <Filter>Application\Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="Net.cpp">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Net.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="Event_System.h">
-      <Filter>Event System</Filter>
+      <Filter>alt\Event System</Filter>
     </ClInclude>
     <ClInclude Include="SVG_Parser.h">
-      <Filter>SVG Parser</Filter>
+      <Filter>Application\Utility\SVG Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="Sheet_Music.h">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Midi_Reader.h">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Piano_Player.h">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Music_Note.h">
+      <Filter>Application\Sheet_To_Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Sheet_Music_Editor.h">
+      <Filter>Application\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Evaluator_Base.h">
+      <Filter>Application\Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="rapid_csv.h">
+      <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Net.h">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

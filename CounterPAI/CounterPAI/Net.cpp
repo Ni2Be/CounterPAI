@@ -1,10 +1,9 @@
 #include "Net.h"
 
-Net::Net(int64_t input, int64_t hidden, int64_t output)
+Net::Net(int64_t input, int64_t output)
 {
-	in = register_module("in", torch::nn::Linear(input, hidden));
-	h = register_module("h", torch::nn::Linear(hidden, hidden));
-	out = register_module("out", torch::nn::Linear(hidden, output));
+	in = register_module("in", torch::nn::LSTM(input, input));
+	out = register_module("out", torch::nn::Linear(input, output));
 
 	opti = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), m_learning_rate));
 }
@@ -18,8 +17,8 @@ void Net::set_learning_rate(double learning_rate)
 
 at::Tensor Net::forward(at::Tensor x)
 {
-	x = torch::sigmoid(in->forward(x));
-	x = torch::sigmoid(h->forward(x));
+	x = in->forward(x).output.max();
+	//x = torch::sigmoid(h->forward(x));
 	x = torch::sigmoid(out->forward(x));
 	return x;
 }

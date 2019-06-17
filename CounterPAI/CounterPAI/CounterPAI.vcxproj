@@ -120,14 +120,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Evaluator_Base.cpp" />
     <ClCompile Include="Event_System.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Midi_Reader.cpp" />
+    <ClCompile Include="Music_Note.cpp" />
     <ClCompile Include="Net.cpp" />
+    <ClCompile Include="Piano_Player.cpp" />
+    <ClCompile Include="Sheet_Music.cpp" />
+    <ClCompile Include="Sheet_Music_Editor.cpp" />
     <ClCompile Include="SVG_Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Evaluator_Base.h" />
     <ClInclude Include="Event_System.h" />
+    <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Midi_Reader.h" />
+    <ClInclude Include="Music_Note.h" />
     <ClInclude Include="Net.h" />
+    <ClInclude Include="Piano_Player.h" />
+    <ClInclude Include="rapid_csv.h" />
+    <ClInclude Include="Sheet_Music.h" />
+    <ClInclude Include="Sheet_Music_Editor.h" />
     <ClInclude Include="SVG_Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

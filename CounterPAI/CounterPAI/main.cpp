@@ -1,75 +1,116 @@
+#include "Piano_Player.h"
 
-//SFML Test / nanosvg Test / Sound
-//
-#include "SVG_Parser.h"
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 
 int main()
 {
-	//SOUND
-	sf::SoundBuffer buffer;
-	if (!buffer.loadFromFile("data/sounds/full_piano_180bpm.ogg"))
+	Piano_Player player;
+	Sheet_Music sheet;
+
+
+
+	sheet.add_note(Music_Note(Note_Pitch::C4, Note_Value::Whole, Voice::Bass));
+	sheet.add_note(Music_Note(Note_Pitch::E4, Note_Value::Whole, Voice::Bass));
+	sheet.add_note(Music_Note(Note_Pitch::D4, Note_Value::Whole, Voice::Bass));
+	sheet.add_note(Music_Note(Note_Pitch::E4, Note_Value::Whole, Voice::Bass));
+	sheet.add_note(Music_Note(Note_Pitch::C4, Note_Value::Whole, Voice::Bass));
+
+	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Whole, Voice::Soprano));
+
+	sheet.add_note(Music_Note(Note_Pitch::A5, Note_Value::Halfe, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::A5, Note_Value::Halfe, Voice::Soprano));
+	
+	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Quarter, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::D5, Note_Value::Quarter, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::E5, Note_Value::Quarter, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::F5, Note_Value::Quarter, Voice::Soprano));
+
+	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::D5, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::E5, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::F5, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::G5, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::A6, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::B6, Note_Value::Eighth, Voice::Soprano));
+	sheet.add_note(Music_Note(Note_Pitch::C6, Note_Value::Eighth, Voice::Soprano));
+
+	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Whole, Voice::Soprano));
+	player.play_sheet_music(sheet);
+
+
+	char ch = 'n';
+
+	int i = 0;
+	while (ch != 'y')
 	{
-		std::cout << "could not load data/sounds/full_piano_180bpm.ogg\n";
-		char df;
-		std::cin >> df;
-		std::exit(-1);
+		player.update();
 	}
-	sf::Sound sound;
-	sound.setBuffer(buffer);
-	sound.play();
-	sound.pause();
-
-	//WINDOW DRAG SVG LOAD
-	sf::RenderWindow window(sf::VideoMode(400, 480), "SFML works!");
-
-	SVG_Parser bass_clef("data/pictures/icons/clef-bass.svg", "data/pictures/icons/clef-bass.png", 20);
-	sf::Sprite sprite;
-	sprite.setTexture(bass_clef.m_texture);
-	sf::Vector2f sprite_pos;
-	bool mouse_is_down = false;
-	while (window.isOpen())
-	{
-		sf::Event event;
-		
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				sprite_pos = sf::Vector2f(sprite.getPosition().x - sf::Mouse::getPosition(window).x, sprite.getPosition().y - sf::Mouse::getPosition(window).y);
-				mouse_is_down = true;
-				sound.play();
-			}
-			if (event.type == sf::Event::MouseButtonReleased)
-			{
-				mouse_is_down = false;
-				sound.pause();
-			}
-			if (mouse_is_down)
-			{
-				std::cout << sf::Mouse::getPosition(window).x << " " << sf::Mouse::getPosition(window).y  << "\n";
-				sprite.setPosition(sprite_pos.x + sf::Mouse::getPosition(window).x, sprite_pos.y + sf::Mouse::getPosition(window).y);
-			}
-
-		}
-
-		window.clear(sf::Color::White);
-		window.draw(sprite);
-		window.display();
-	}
-
-	return 0;
+	std::cin >> ch;
 }
 
-//Midifile Test
+//
+////SFML Test / nanosvg Test / Sound
+////
+//#include "SVG_Parser.h"
+//#include <iostream>
+//#include <SFML/Graphics.hpp>
+//#include "Keyboard.h"
+//
+//int main()
+//{
+//	//Keyboard
+//	Keyboard keyboard;
+//
+//	//WINDOW DRAG SVG LOAD
+//	sf::RenderWindow window(sf::VideoMode(1200, 480), "CounterPAI");
+//
+//	SVG_Parser bass_clef("data/pictures/icons/clef-bass.svg", "data/pictures/icons/clef-bass.png", 20);
+//	sf::Sprite sprite;
+//	sprite.setTexture(bass_clef.m_texture);
+//	sf::Vector2f sprite_pos;
+//	bool mouse_is_down = false;
+//	while (window.isOpen())
+//	{
+//		sf::Event event;
+//		
+//		while (window.pollEvent(event))
+//		{
+//			if (event.type == sf::Event::Closed)
+//				window.close();
+//
+//			if (event.type == sf::Event::MouseButtonPressed)
+//			{
+//				sprite_pos = sf::Vector2f(sprite.getPosition().x - sf::Mouse::getPosition(window).x, sprite.getPosition().y - sf::Mouse::getPosition(window).y);
+//				mouse_is_down = true;
+//				keyboard.alto_play(44);
+//
+//			}
+//			if (event.type == sf::Event::MouseButtonReleased)
+//			{
+//				mouse_is_down = false; 
+//				keyboard.soprano_play(46);
+//
+//			}
+//			if (mouse_is_down)
+//			{
+//				std::cout << sf::Mouse::getPosition(window).x << " " << sf::Mouse::getPosition(window).y  << "\n";
+//				sprite.setPosition(sprite_pos.x + sf::Mouse::getPosition(window).x, sprite_pos.y + sf::Mouse::getPosition(window).y);
+//			}
+//
+//		}
+//
+//		window.clear(sf::Color::White);
+//		window.draw(sprite);
+//		window.display();
+//	}
+//
+//	return 0;
+//}
+
+////Midifile Test
 //
 //#include <MidiFile.h>
 //#include <Options.h>
+//#include "Keyboard.h"
 //
 //
 //#include <vector>
@@ -79,11 +120,14 @@ int main()
 //using namespace std;
 //using namespace smf;
 //
-//int main(int argc, char** argv) {
+//int main(int argc, char** argv) 
+//{
+//	//Keyboard
+//	Keyboard keyboard;
 //	Options options;
 //	options.process(argc, argv);
 //	MidiFile midifile;
-//	if (options.getArgCount() == 0) midifile.read("D:\\Programmieren\\TH\\CounterPAI\\CounterPAI\\x64\\Release\\testmidi.mid");
+//	if (options.getArgCount() == 0) midifile.read("D:/Programmieren/TH/CounterPAI/CounterPAI/CounterPAI/data/testmidi.mid");
 //	else midifile.read(options.getArg(1));
 //	midifile.doTimeAnalysis();
 //	midifile.linkNotePairs();
@@ -100,7 +144,19 @@ int main()
 //			cout << '\t';
 //			if (midifile[track][event].isNoteOn())
 //				cout << midifile[track][event].getDurationInSeconds();
-//			cout << '\t' << hex;
+//			cout << '\t';// << hex;
+//
+//
+//			//TEST
+//			
+//			cout << (int)midifile[track][event][1] << " <----\n";
+//
+//			if ((int)midifile[track][event][0] == 144)
+//			{
+//				keyboard.alto_play((int)midifile[track][event][1] + 12);
+//				sf::sleep(sf::seconds(midifile[track][event].getDurationInSeconds()));
+//			}
+//
 //			for (int i = 0; i < midifile[track][event].size(); i++)
 //				cout << (int)midifile[track][event][i] << ' ';
 //			cout << endl;
@@ -112,48 +168,17 @@ int main()
 //}
 
 
-
-//LibTorch Test
+//
+////LibTorch Test
 //
 //#include "Net.h"
 //
 //
-//at::Tensor normalize(const at::Tensor& ten)
-//{
-//	at::Tensor t = ten.clone();
-//
-//	auto target_min = t.min().abs();
-//	for (size_t i = 0; i < t.numel(); i++)
-//	{
-//		t[i] += target_min;
-//	}
-//	auto target_max = t.max();
-//	for (size_t i = 0; i < t.numel(); i++)
-//	{
-//		t[i] /= target_max;
-//	}
-//	return t;
-//}
-//at::Tensor denormalize(const at::Tensor& ten, at::Tensor min, at::Tensor max)
-//{
-//	at::Tensor t = ten.clone();	
-//	min = min.abs();
-//	for (size_t i = 0; i < t.numel(); i++)
-//	{
-//		t[i] *= max;
-//	}
-//	for (size_t i = 0; i < t.numel(); i++)
-//	{
-//		t[i] -= min;
-//	}
-//	return t;
-//}
-//
 //int main()
 //{
-//	int in_size = 3, out_size = 3;
+//	int in_size = 3, out_size = 1;
 //
-//	auto model = std::make_shared<Net>(Net(in_size, 4, out_size));
+//	auto model = std::make_shared<Net>(Net(in_size, out_size));
 //	model->set_learning_rate(0.4);
 //	
 //	
@@ -183,8 +208,6 @@ int main()
 //	auto target_data = torch::randn({ out_size });
 //	std::cout << "learn_data :\n" << learn_data << std::endl << std::endl;
 //	std::cout << "target_data :\n" << target_data << std::endl << std::endl;
-//    auto target_normalized = normalize(target_data);
-//	std::cout << "target_normalized :\n" << target_normalized << std::endl << std::endl;
 //
 //
 //	std::cout << std::endl << "Vor lernen: " << std::endl;
@@ -199,7 +222,7 @@ int main()
 //	std::cout << std::endl << "learning..." << std::endl;
 //	for (size_t epoch = 0; epoch < 1000; epoch++)
 //	{
-//		auto loss = model->learn_step(learn_data, target_normalized);
+//		auto loss = model->learn_step(learn_data, target_data);
 //
 //		if (epoch % 100 == 0)
 //		{
@@ -218,11 +241,9 @@ int main()
 //
 //	prediction = model->forward(learn_data);
 //	std::cout << std::endl << std::endl << "inputn_data :\n" << learn_data ;
-//	std::cout << std::endl << std::endl << "target_data normal:\n" << target_normalized;
+//	std::cout << std::endl << std::endl << "target_data normal:\n" << target_data;
 //	std::cout << std::endl << std::endl << "Prediction normal:\n" << prediction << std::endl;
-//	prediction = denormalize(prediction, target_data.min(), target_data.max());
-//	std::cout << std::endl << std::endl << "target_data :\n" << target_data;
-//	std::cout << std::endl << std::endl << "Prediction:\n" << prediction << std::endl;
+//
 //	char ch;
 //	std::cin >> ch;
 //}
