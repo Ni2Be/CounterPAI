@@ -111,6 +111,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\lib\nanosvg\src;$(SolutionDir)..\lib\STB\Include;$(SolutionDir)..\lib\SFML\include;$(SolutionDir)\Midifile;$(SolutionDir)..\lib\libtorch\include;$(SolutionDir)..\lib\libtorch\include\torch\csrc\api\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

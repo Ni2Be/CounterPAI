@@ -1,44 +1,16 @@
 #include "Piano_Player.h"
-
+#include "Midi_Reader.h"
 
 int main()
 {
+	Midi_Reader midi_reader("D:/Programmieren/TH/CounterPAI/CounterPAI/CounterPAI/data/piano.mid", 0);
+
 	Piano_Player player;
-	Sheet_Music sheet;
 
-
-
-	sheet.add_note(Music_Note(Note_Pitch::C4, Note_Value::Whole, Voice::Bass));
-	sheet.add_note(Music_Note(Note_Pitch::E4, Note_Value::Whole, Voice::Bass));
-	sheet.add_note(Music_Note(Note_Pitch::D4, Note_Value::Whole, Voice::Bass));
-	sheet.add_note(Music_Note(Note_Pitch::E4, Note_Value::Whole, Voice::Bass));
-	sheet.add_note(Music_Note(Note_Pitch::C4, Note_Value::Whole, Voice::Bass));
-
-	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Whole, Voice::Soprano));
-
-	sheet.add_note(Music_Note(Note_Pitch::A5, Note_Value::Halfe, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::A5, Note_Value::Halfe, Voice::Soprano));
-	
-	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Quarter, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::D5, Note_Value::Quarter, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::E5, Note_Value::Quarter, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::F5, Note_Value::Quarter, Voice::Soprano));
-
-	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::D5, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::E5, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::F5, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::G5, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::A6, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::B6, Note_Value::Eighth, Voice::Soprano));
-	sheet.add_note(Music_Note(Note_Pitch::C6, Note_Value::Eighth, Voice::Soprano));
-
-	sheet.add_note(Music_Note(Note_Pitch::C5, Note_Value::Whole, Voice::Soprano));
-	player.play_sheet_music(sheet);
+	player.play_sheet_music(midi_reader.sheet);
 
 
 	char ch = 'n';
-
 	int i = 0;
 	while (ch != 'y')
 	{

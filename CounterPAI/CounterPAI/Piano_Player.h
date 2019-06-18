@@ -17,30 +17,33 @@ public:
 	void play_sheet_music(Sheet_Music sheet);
 	void stop();
 private:
+	//plays notes
 	Keyboard keyboard;
+
+	//fancy Event queue stuff for when to start/end a note 
 	std::chrono::milliseconds whole_note_duration = std::chrono::milliseconds(2400);
-
 	using time_point = std::chrono::system_clock::time_point;
-	//first: time when the sound should start/stop, second: Note to stop
-	using note_prio = std::pair<time_point, Music_Note>;
-
-	struct Note_Prio_Comp
+	//A Note_Event is defined by if it's a play or stop event, when it hapens, and which
+	//note is effected
+	struct Note_Event
 	{
-		bool operator()(const note_prio& lhs, const note_prio& rhs)
-		{
-			return lhs.first > rhs.first;
-		}
+		enum class Event
+		{ PLAY, STOP };
+		Note_Event(time_point w, Event e, Music_Note n) : when(w), event(e), note(n) {}
+		time_point when;
+		Event event;
+		Music_Note note;
 	};
+	//returns bigger for the Note_Event that is futher in the future, or bigger for a PLAY
+	//Event if two Events are at the same time (to ensure a note is allways stop first and 
+	//the next note is played)
+	struct Note_Event_Comp
+	{bool operator()(const Note_Event& lhs, const Note_Event& rhs)
+	{return (lhs.when == rhs.when)? ((lhs.event == Note_Event::Event::STOP)? false:true) :lhs.when > rhs.when;}};
+	
+	std::priority_queue<Note_Event,
+		std::vector<Note_Event>,
+		Note_Event_Comp> m_playing_event_q;
 
-	std::priority_queue<note_prio,
-		std::vector<note_prio>,
-		Note_Prio_Comp> m_stop_playing_q;
-
-	std::priority_queue<note_prio,
-		std::vector<note_prio>,
-		Note_Prio_Comp> m_start_playing_q;
-
-	void fill_in_start_q(time_point first_note_time, std::vector<Music_Note> line);
-	std::vector<note_prio> m_sheet_notes;
+	void fill_in_event_q(time_point first_note_time, std::vector<Music_Note> line);
 };
-
