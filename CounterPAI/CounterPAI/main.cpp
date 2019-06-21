@@ -1,25 +1,35 @@
-#include "Piano_Player.h"
-#include "Midi_Reader.h"
+#include "Application.h"
+#include <SFML/Graphics.hpp>
 
 int main()
 {
-	Midi_Reader midi_reader("D:/Programmieren/TH/CounterPAI/CounterPAI/CounterPAI/data/piano.mid", 0);
+	Application app;
 
-	Piano_Player player;
-
-	player.play_sheet_music(midi_reader.sheet);
-
-
-	char ch = 'n';
-	int i = 0;
-	while (ch != 'y')
-	{
-		player.update();
-	}
-	std::cin >> ch;
+	return app.run();
 }
 
+//#include "Piano_Player.h"
+//#include "Midi_Reader.h"
 //
+//int main()
+//{
+//	Midi_Reader midi_reader("data/piano.mid", 0);
+//
+//	Piano_Player player;
+//
+//	player.play_sheet_music(midi_reader.sheet);
+//
+//
+//	char ch = 'n';
+//	int i = 0;
+//	while (ch != 'y')
+//	{
+//		player.update();
+//	}
+//	std::cin >> ch;
+//}
+
+
 ////SFML Test / nanosvg Test / Sound
 ////
 //#include "SVG_Parser.h"
@@ -35,9 +45,14 @@ int main()
 //	//WINDOW DRAG SVG LOAD
 //	sf::RenderWindow window(sf::VideoMode(1200, 480), "CounterPAI");
 //
-//	SVG_Parser bass_clef("data/pictures/icons/clef-bass.svg", "data/pictures/icons/clef-bass.png", 20);
 //	sf::Sprite sprite;
-//	sprite.setTexture(bass_clef.m_texture);
+//	sf::Texture texture;
+//	for (int i = 0; i < 1; i++)
+//	{
+//		SVG_Parser bass_clef("data/pictures/icons/clef-bass.svg", 20);
+//		texture = bass_clef.m_texture;
+//		sprite.setTexture(texture);
+//	}
 //	sf::Vector2f sprite_pos;
 //	bool mouse_is_down = false;
 //	while (window.isOpen())
@@ -48,26 +63,6 @@ int main()
 //		{
 //			if (event.type == sf::Event::Closed)
 //				window.close();
-//
-//			if (event.type == sf::Event::MouseButtonPressed)
-//			{
-//				sprite_pos = sf::Vector2f(sprite.getPosition().x - sf::Mouse::getPosition(window).x, sprite.getPosition().y - sf::Mouse::getPosition(window).y);
-//				mouse_is_down = true;
-//				keyboard.alto_play(44);
-//
-//			}
-//			if (event.type == sf::Event::MouseButtonReleased)
-//			{
-//				mouse_is_down = false; 
-//				keyboard.soprano_play(46);
-//
-//			}
-//			if (mouse_is_down)
-//			{
-//				std::cout << sf::Mouse::getPosition(window).x << " " << sf::Mouse::getPosition(window).y  << "\n";
-//				sprite.setPosition(sprite_pos.x + sf::Mouse::getPosition(window).x, sprite_pos.y + sf::Mouse::getPosition(window).y);
-//			}
-//
 //		}
 //
 //		window.clear(sf::Color::White);

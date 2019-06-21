@@ -1,6 +1,6 @@
 #pragma once
 #include "Music_Note.h"
-#include <vector>
+#include <list>
 
 
 
@@ -15,9 +15,9 @@ public:
 	void change_note(Music_Note& note);
 	void delete_note(Music_Note& note);
 
-	std::vector<Music_Note> m_bass;
+	std::list<Music_Note> m_bass;
 	//std::vector<Music_Note> m_tenor; not used atm
 	//std::vector<Music_Note> m_alto; not used atm
-	std::vector<Music_Note> m_soprano;
+	std::list<Music_Note> m_soprano;
 };
 

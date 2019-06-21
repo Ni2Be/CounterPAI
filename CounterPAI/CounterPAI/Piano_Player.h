@@ -45,5 +45,5 @@ private:
 		std::vector<Note_Event>,
 		Note_Event_Comp> m_playing_event_q;
 
-	void fill_in_event_q(time_point first_note_time, std::vector<Music_Note> line);
+	void fill_in_event_q(time_point first_note_time, std::list<Music_Note> line);
 };

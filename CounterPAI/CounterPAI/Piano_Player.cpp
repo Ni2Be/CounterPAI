@@ -21,7 +21,7 @@ void Piano_Player::play_sheet_music(Sheet_Music sheet)
 	fill_in_event_q(first_note_time, sheet.m_soprano);
 }
 
-void Piano_Player::fill_in_event_q(time_point first_note_time, std::vector<Music_Note> line)
+void Piano_Player::fill_in_event_q(time_point first_note_time, std::list<Music_Note> line)
 {
 	time_point line_offset = first_note_time;
 	for (Music_Note note : line)

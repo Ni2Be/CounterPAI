@@ -121,8 +121,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Clickable.cpp" />
     <ClCompile Include="Evaluator_Base.cpp" />
+    <ClCompile Include="Eventsystem.cpp" />
     <ClCompile Include="Event_System.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi_Reader.cpp" />
@@ -134,8 +138,12 @@
     <ClCompile Include="SVG_Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Clickable.h" />
     <ClInclude Include="Evaluator_Base.h" />
+    <ClInclude Include="Eventsystem.h" />
     <ClInclude Include="Event_System.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Midi_Reader.h" />
     <ClInclude Include="Music_Note.h" />

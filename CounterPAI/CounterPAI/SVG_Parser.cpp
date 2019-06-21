@@ -14,14 +14,23 @@
 #define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvgrast.h"
 
-
-
 //STB
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <STB/stb_image_write.h>
 
 
 SVG_Parser::SVG_Parser(const std::string& svg_in_file, const std::string& png_out_file, float factor)
+{
+	parse(svg_in_file, png_out_file, factor, true);
+}
+
+SVG_Parser::SVG_Parser(const std::string& svg_in_file, float factor)
+{
+	parse(svg_in_file, "SVG_Parser_temp_png_out_file", factor, false);
+}
+
+
+void SVG_Parser::parse(const std::string& svg_in_file, const std::string& png_out_file, float factor, bool save_png)
 {
 
 	NSVGimage *image = NULL;
@@ -67,7 +76,8 @@ SVG_Parser::SVG_Parser(const std::string& svg_in_file, const std::string& png_ou
 	m_texture.loadFromFile(png_out_file);
 
 	//delete all res
-	std::remove(png_out_file.c_str());
+	if(!save_png)
+		std::remove(png_out_file.c_str());
 	nsvgDeleteRasterizer(rast);
 	nsvgDelete(image);
 }

@@ -67,6 +67,18 @@
     <ClCompile Include="main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Application\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Clickable.cpp">
+      <Filter>Application\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Eventsystem.cpp">
+      <Filter>Application\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -96,11 +108,23 @@
     <ClInclude Include="Evaluator_Base.h">
       <Filter>Application\Evaluator</Filter>
     </ClInclude>
+    <ClInclude Include="Net.h">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Application\GUI</Filter>
+    </ClInclude>
     <ClInclude Include="rapid_csv.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Net.h">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    <ClInclude Include="Clickable.h">
+      <Filter>Application\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Eventsystem.h">
+      <Filter>Application\GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
