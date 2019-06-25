@@ -2,6 +2,8 @@
 #define DEBUG
 
 #include <iostream>
+#include <fstream>
+#include <regex>
 #include <cstdio>
 
 //nanosvg
@@ -19,62 +21,78 @@
 #include <STB/stb_image_write.h>
 
 
-SVG_Parser::SVG_Parser(const std::string& svg_in_file, const std::string& png_out_file, float factor)
+SVG_Parser::SVG_Parser(const std::string& svg_in_file, const std::string& png_out_file, float factor, std::string hex_color)
 {
-	parse(svg_in_file, png_out_file, factor, true);
+	parse(svg_in_file, png_out_file, factor, true, hex_color);
 }
 
-SVG_Parser::SVG_Parser(const std::string& svg_in_file, float factor)
+SVG_Parser::SVG_Parser(const std::string& svg_in_file, float factor, std::string hex_color)
 {
-	parse(svg_in_file, "SVG_Parser_temp_png_out_file", factor, false);
+	parse(svg_in_file, "SVG_Parser_temp_png_out_file", factor, false, hex_color);
 }
 
-
-void SVG_Parser::parse(const std::string& svg_in_file, const std::string& png_out_file, float factor, bool save_png)
+void SVG_Parser::parse(const std::string& svg_in_file, const std::string& png_out_file, float factor, bool save_png, std::string hex_color)
 {
+	std::ifstream is(svg_in_file.c_str());
+	if (!is)
+		std::cerr << "could not open: " + svg_in_file << "\n";
+	std::string file_data_string;
+	while (is)
+	{
+		std::string temp;
+		is >> temp;
+		file_data_string.append(temp + "\n" );
+	}
 
-	NSVGimage *image = NULL;
-	NSVGrasterizer *rast = NULL;
-	unsigned char* img = NULL;
-	int w, h;
-	const char* filename = svg_in_file.c_str();
+	std::regex rege("fill:#[a-fA-F0-9]{6}");
+	file_data_string = std::regex_replace(file_data_string, rege, "fill:#" + hex_color);
+	std::regex rege2("fill=\"#[a-fA-F0-9]{6}");
+	file_data_string = std::regex_replace(file_data_string, rege2, "fill=\"#" + hex_color);
 
+	std::ofstream temp_file("temp_svg_file.svg");
+	temp_file << file_data_string;
+	temp_file.close();
 #ifdef DEBUG
-	printf("parsing %s\n", filename);
+	std::cout << "parsing: " + svg_in_file + "\n";
 #endif
-	image = nsvgParseFromFile(filename, "px", 96.0f);
+	NSVGimage *image = NULL;
+	image = nsvgParseFromFile("temp_svg_file.svg", "px", 96.0f);
+	std::remove("temp_svg_file.svg");
+
 	if (image == NULL) {
-		printf("Could not open SVG image.\n");
+		std::cerr << "Could not open temp SVG image.\n";
 		return;
 	}
+	int w, h;
 	w = (int)(image->width * factor);
 	h = (int)(image->height * factor);
 
+	NSVGrasterizer *rast = NULL;
 	rast = nsvgCreateRasterizer();
 	if (rast == NULL) {
-		printf("Could not init rasterizer.\n");
+		std::cerr << "Could not init rasterizer.\n";
 		return;
 	}
 
+	unsigned char* img = NULL;
 	img = (unsigned char*)malloc(w*h * 4);
 	if (img == NULL) {
-		printf("Could not alloc image buffer.\n");
+		std::cerr << "Could not alloc image buffer.\n";
 		return;
 	}
 
 #ifdef DEBUG
-	printf("rasterizing image %d x %d\n", w, h);
+	std::cout << "rasterizing image " << w << ", " << h << "\n";
 #endif
 	nsvgRasterize(rast, image, 0, 0, factor, img, w, h, w * 4);
 
 #ifdef DEBUG
-	printf("writing %s\n", png_out_file.c_str());
+	std::cout << "writing " + png_out_file + "\n";
 #endif
 	//pars png 
 	stbi_write_png(png_out_file.c_str(), w, h, 4, img, w * 4);
 	//load to texture
 	m_texture.loadFromFile(png_out_file);
-
 	//delete all res
 	if(!save_png)
 		std::remove(png_out_file.c_str());

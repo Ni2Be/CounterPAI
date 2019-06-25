@@ -24,17 +24,21 @@ void Piano_Player::play_sheet_music(Sheet_Music sheet)
 void Piano_Player::fill_in_event_q(time_point first_note_time, std::list<Music_Note> line)
 {
 	time_point line_offset = first_note_time;
+	std::list<Music_Note>::iterator successor = line.begin();
 	for (Music_Note note : line)
 	{
-		//push note play event
-		m_playing_event_q.push(
-			Note_Event(line_offset, Note_Event::Event::PLAY, note));
+		successor++;
+		//push note play event / not if note is tied
+		if (!note.m_is_tied)
+			m_playing_event_q.push(
+				Note_Event(line_offset, Note_Event::Event::PLAY, note));
 		//move line_offset to end position of note
 		line_offset += std::chrono::milliseconds(whole_note_duration.count()
 			/ static_cast<int>(note.m_value));
-		//push note stop event
-		m_playing_event_q.push(
-			Note_Event(line_offset, Note_Event::Event::STOP, note));
+		//push note stop event / not if next note is tied 
+		if ((successor != line.end()) && !successor->m_is_tied)
+			m_playing_event_q.push(
+				Note_Event(line_offset, Note_Event::Event::STOP, note));
 	}
 }
 

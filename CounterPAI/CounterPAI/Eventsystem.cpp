@@ -18,7 +18,6 @@ void UI::Event_System::remove_clickable(const Clickable& clickable)
 		return e == &clickable;
 	});
 	m_clickables.erase(new_end, m_clickables.end());
-	std::cout << "\nnew size: " << m_clickables.size();
 }
 
 void UI::Event_System::check_events(sf::RenderWindow& window)
@@ -27,7 +26,10 @@ void UI::Event_System::check_events(sf::RenderWindow& window)
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
+		{
 			Application::m_is_running = false;
+			window.close();
+		}
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
 			for (auto& clickable : m_clickables)

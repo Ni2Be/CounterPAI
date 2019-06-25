@@ -16,9 +16,9 @@ public:
 	Piano_Player player;
 
 	static bool m_is_running;
-private:
+
 	const int m_WINDOW_WIDTH = 1400;
-	const int m_WINDOW_HEIGHT = 500;
+	const int m_WINDOW_HEIGHT = 600;
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;
 

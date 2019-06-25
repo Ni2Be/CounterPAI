@@ -5,7 +5,10 @@ int main()
 {
 	Application app;
 
-	return app.run();
+	app.run();
+
+	char ch;
+	std::cin >> ch;
 }
 
 //#include "Piano_Player.h"

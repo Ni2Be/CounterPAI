@@ -7,6 +7,7 @@
 #include "Sheet_Music_Editor.h"
 
 #include "Eventsystem.h"
+#include "Clickable.h"
 
 class Application;
 namespace UI {
@@ -28,8 +29,23 @@ namespace UI {
 
 		sf::Font& times_new_roman() { return m_times_new_roman; }
 
-	private:
 		Application* m_parent;
+
+		Button m_play_button;
+		Button m_stop_button;
+		Button m_clear_button;
+
+		Button m_whole_button;
+		Button m_half_button;
+		Button m_quater_button;
+
+		Button m_delete_button;
+		Button m_tie_button;
+
+		Button m_overlay_button;
+		Button m_info_button;
+
+		void unclick_all_buttons();
 
 		Sheet_Music_Editor m_sheet_editor;
 
@@ -37,10 +53,15 @@ namespace UI {
 		Draw_Container m_drawables;
 		sf::RenderWindow m_window;
 
+
+
 		//Resources
 		void load_resources();
 		sf::Font m_times_new_roman;
 	};
+
+
+
 }
 
 template <class DRAWABLE>

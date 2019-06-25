@@ -12,10 +12,14 @@ public:
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice);
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied);
 
+	float m_note_probability = 0.0f;
+	std::string m_note_info = "no message!";
+
 	Note_Pitch m_pitch;
 	Note_Value m_value;
 	Voice m_voice;
 	bool m_is_tied = false; //true if a note is tied to the previous note
+
 };
 
 enum class Note_Value
@@ -50,3 +54,4 @@ class Note_Pitch_Enum_Gen
 public:
 	Note_Pitch_Enum_Gen();
 };
+

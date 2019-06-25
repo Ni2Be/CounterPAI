@@ -6,7 +6,6 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice)
 	m_value(value),
 	m_voice(voice)
 {
-
 }
 
 Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied)
@@ -16,8 +15,8 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_
 	m_voice(voice),
 	m_is_tied(is_tied)
 {
-
 }
+
 
 Note_Pitch_Enum_Gen::Note_Pitch_Enum_Gen()
 {

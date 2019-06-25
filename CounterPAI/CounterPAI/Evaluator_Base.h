@@ -1,4 +1,6 @@
 #pragma once
+#include "Sheet_Music.h"
+
 class Evaluator_Base
 {
 public:
