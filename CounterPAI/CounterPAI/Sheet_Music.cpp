@@ -146,9 +146,11 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 	//or there is already a Note at that spot, change it
 	else if (note_pos == find_note_flag::WAS_AT_NOTE)
 	{
-		if(voice.empty() || note == voice.end())
+		if (voice.empty() || note == voice.end())
+		{
 			voice.push_back(new_note);
-
+			return;
+		}
 		*note = new_note;
 		note++;
 		while (note->m_is_tied)
