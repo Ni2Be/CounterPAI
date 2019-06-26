@@ -178,7 +178,7 @@ UI::Cleff_Grid::Cleff_Grid(Sheet* parent, std::list<Music_Note>& line, Voice voi
 						));
 
 			temp.push_back(temp_button);
-			temp.back()->m_debug_message = std::to_string(i) + " " + std::to_string(n);
+			temp.back()->m_debug_message = "(" + std::to_string(i) + "," + std::to_string(n) + ")";
 		}
 		m_grid.push_back(temp);
 	}
@@ -387,18 +387,26 @@ void UI::Sheet_Grid_Button::on_clicked()
 {
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
+		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
 		std::cout << "\nmessage: " << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
 	}
 	else
 	{
 		if (m_parent->m_parent->m_parent->is_deleting)
 		{
+			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Delete N:" + this->m_debug_message);
 			std::cout << "\ndeleting: " << m_sixteenth_distance;
 			m_parent->m_parent->m_sheet.delete_note(m_parent->m_voice, m_sixteenth_distance);
 		}
 		else if (m_parent->m_parent->m_parent->is_tying)
+		{
+			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Tie N:" + this->m_debug_message);
 			m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, true), m_sixteenth_distance);
+		}
 		else
+		{
+			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);
 			m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
+		}
 	}
 }

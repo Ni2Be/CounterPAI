@@ -1,11 +1,13 @@
 #pragma once
 #include <iostream>
-
+#include <string>
 
 enum class Note_Pitch;
 enum class Note_Value;
 enum class Voice;
 
+class Music_Note;
+std::ostream& operator<<(std::ostream& os, const Music_Note& note);
 class Music_Note
 {
 public:
@@ -20,7 +22,10 @@ public:
 	Voice m_voice;
 	bool m_is_tied = false; //true if a note is tied to the previous note
 
+	friend std::ostream& operator<<(std::ostream& os, const Music_Note& note);
 };
+
+
 
 enum class Note_Value
 {

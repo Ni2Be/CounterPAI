@@ -153,11 +153,11 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 		}
 		*note = new_note;
 		note++;
-		while (note->m_is_tied)
+		while (note != voice.end() && note->m_is_tied)
 			note = voice.erase(note);
 	}
 
-	//set tied notes pitches
+	//set all tied notes pitches
 	std::list<Music_Note>::iterator suc_note = voice.begin();
 	suc_note++;
 	std::list<Music_Note>::iterator note_note = voice.begin();

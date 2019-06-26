@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Clickable.cpp" />
+    <ClCompile Include="Debug_Log.cpp" />
     <ClCompile Include="Evaluator_Base.cpp" />
     <ClCompile Include="Eventsystem.cpp" />
     <ClCompile Include="Event_System.cpp" />
@@ -140,6 +141,8 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Clickable.h" />
+    <ClInclude Include="date.h" />
+    <ClInclude Include="Debug_Log.h" />
     <ClInclude Include="Evaluator_Base.h" />
     <ClInclude Include="Eventsystem.h" />
     <ClInclude Include="Event_System.h" />

@@ -18,6 +18,12 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_
 }
 
 
+std::ostream& operator<<(std::ostream& os, const Music_Note& note)
+{
+	os << "p:" << (int) note.m_pitch << " va:" << (int)note.m_value << " vo:" << (int)note.m_voice << " t:" << note.m_is_tied << " i:\"" << note.m_note_info << "\"" << " prob:" << note.m_note_probability;
+	return os;
+}
+
 Note_Pitch_Enum_Gen::Note_Pitch_Enum_Gen()
 {
 	{

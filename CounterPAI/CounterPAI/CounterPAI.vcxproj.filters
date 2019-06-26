@@ -79,6 +79,7 @@
     <ClCompile Include="Eventsystem.cpp">
       <Filter>Application\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Debug_Log.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -125,6 +126,10 @@
     </ClInclude>
     <ClInclude Include="Eventsystem.h">
       <Filter>Application\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug_Log.h" />
+    <ClInclude Include="date.h">
+      <Filter>Application\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	load_resources();
 	m_play_button.func = [](Application* app) {
 		std::cout << "\nPLAY!\n";
+		app->m_debug_log.log("Play Button");
 		app->player.stop();
 		app->player.play_sheet_music(app->m_sheet);
 	};
@@ -32,6 +33,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	
 	m_stop_button.func = [](Application* app) {
 		std::cout << "\nSTOP!\n";
+		app->m_debug_log.log("Stop Button");
 		app->player.stop();
 	};
 	attach_drawable(m_stop_button);
@@ -39,6 +41,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_clear_button.func = [](Application* app) {
 		std::cout << "\nCLEAR!\n";
+		app->m_debug_log.log("Clear Button");
 		app->m_sheet.m_bass.clear();
 		app->m_sheet.m_soprano.clear();
 	};
@@ -47,6 +50,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_whole_button.func = [](Application* app) {
 		std::cout << "\nWhole!\n";
+		app->m_debug_log.log("Whole Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Whole;
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		app->gui.m_half_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -57,6 +61,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_half_button.func = [](Application* app) {
 		std::cout << "\nHalf!\n";
+		app->m_debug_log.log("Half Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Halfe;
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		app->gui.m_half_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -67,6 +72,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_quater_button.func = [](Application* app) {
 		std::cout << "\nQuater!\n";
+		app->m_debug_log.log("Quater Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Quarter;
 
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -78,6 +84,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_tie_button.func = [](Application* app) {
 		std::cout << "\nTie!\n";
+		app->m_debug_log.log("Tie Button");
 		app->gui.m_sheet_editor.is_tying = !app->gui.m_sheet_editor.is_tying;
 		if (app->gui.m_sheet_editor.is_tying)
 			app->gui.m_tie_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -90,6 +97,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_delete_button.func = [](Application* app) {
 		std::cout << "\nDelete!\n";
+		app->m_debug_log.log("Delete Button");
 		app->gui.m_sheet_editor.is_deleting = !app->gui.m_sheet_editor.is_deleting;
 		if(app->gui.m_sheet_editor.is_deleting)
 			app->gui.m_delete_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -102,6 +110,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_overlay_button.func = [](Application* app) {
 		std::cout << "\nOverlay!\n";
+		app->m_debug_log.log("Overlay Button");
 		app->gui.m_sheet_editor.draw_overlay = !app->gui.m_sheet_editor.draw_overlay;
 
 		//DEBUG
@@ -122,6 +131,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_info_button.func = [](Application* app) {
 		std::cout << "\nInfo!\n";
+		app->m_debug_log.log("Info Button");
 		app->gui.m_sheet_editor.wants_info = !app->gui.m_sheet_editor.wants_info;
 
 		if (app->gui.m_sheet_editor.wants_info)

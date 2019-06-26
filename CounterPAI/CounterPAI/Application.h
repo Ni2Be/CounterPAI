@@ -4,6 +4,7 @@
 #include "GUI.h"
 #include "Piano_Player.h"
 #include "Midi_Reader.h"
+#include "Debug_Log.h"
 
 class Application
 {
@@ -22,5 +23,5 @@ public:
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;
 
-
+	Debug_Log m_debug_log;
 };
