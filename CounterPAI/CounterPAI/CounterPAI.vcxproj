@@ -155,6 +155,7 @@
     <ClInclude Include="rapid_csv.h" />
     <ClInclude Include="Sheet_Music.h" />
     <ClInclude Include="Sheet_Music_Editor.h" />
+    <ClInclude Include="Signature.h" />
     <ClInclude Include="SVG_Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
