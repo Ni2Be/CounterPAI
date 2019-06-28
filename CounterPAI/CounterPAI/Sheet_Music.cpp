@@ -123,7 +123,7 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 			if (position_to_pre >= dist && voice.empty())
 			{
 				position_to_pre -= dist;
-				voice.push_back(Music_Note(new_note.m_pitch, val, new_note.m_voice));
+				voice.push_back(new_note);
 				note = voice.end();
 			}		
 			note--;

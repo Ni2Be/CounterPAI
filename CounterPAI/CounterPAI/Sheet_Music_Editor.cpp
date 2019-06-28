@@ -8,13 +8,14 @@ float UI::Sheet::m_button_size      = 5;
 float UI::Sheet::m_note_size        = 3.0f;
 float UI::Sheet::m_treble_clef_size = 7.7f;
 float UI::Sheet::m_bass_clef_size   = 4.2f;
-float UI::Sheet::m_bracket_size     = 0.2f;
+float UI::Sheet::m_bracket_size     = 0.7f;
 
 sf::Vector2f UI::Sheet::m_treble_clef_pos = { 10.0f, 0.0f };
 sf::Vector2f UI::Sheet::m_bass_clef_pos = { 50.0f, 300.0f };
 sf::Vector2f UI::Sheet::m_note_offset     = { 200.0f, 0.0f };
 int UI::Sheet::m_bar_count = 11;
 int UI::Sheet::notes_per_bar = 4;
+//int UI::Sheet::notes_per_bar = 8; TODO should be scalable
 int UI::Sheet::grid_x_offset = 150;
 int UI::Sheet::grid_y_offset = 20;
 int UI::Sheet::grid_button_width = 27;
@@ -126,6 +127,29 @@ void UI::Sheet::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(m_soprano_grid, states);
 	target.draw(m_bass_grid, states);
+
+
+
+	//draw bracket
+	sf::Sprite bracket;
+	bracket.setTexture(Texture_Catalog::instance().m_texture_catalog["bracket"]);
+	bracket.setPosition({ (float)-215.0f, (float)-65.0f });
+	target.draw(bracket, states);
+	//draw vertical lines
+	sf::RectangleShape line({ 1, (float)Sheet::grid_button_height * 9  + m_bass_grid.m_offset.y - m_soprano_grid.m_offset.y - 8 });
+	line.setFillColor(sf::Color::Black);
+	
+	line.setPosition({ m_soprano_grid.m_offset.x - 110.0f ,  (float)m_soprano_grid.m_offset.y + 4 * (float)Sheet::grid_button_height + 3 });
+	line.setSize({ line.getSize().x * 3, line.getSize().y });
+	target.draw(line, states);
+
+	line.setPosition({ Sheet::m_bar_count * Sheet::grid_button_width * Sheet::notes_per_bar + (float)m_soprano_grid.m_offset.x, line.getPosition().y });
+	target.draw(line, states);
+
+	line.setPosition({ line.getPosition().x + 5 ,line.getPosition().y });
+	line.setSize({ line.getSize().x * 3, line.getSize().y });
+	target.draw(line, states);
+		
 }
 
 Note_Value get_note_value_by_grid_pos(int rel_pos)
@@ -197,19 +221,12 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 				sf::RectangleShape temp({ (float)button->m_click_area.width, (float)button->m_click_area.height });
 				temp.setFillColor(sf::Color::White);
 				temp.setOutlineThickness(1.0f);
-				temp.setOutlineColor({ 0xbb,0xbb,0xbb });
+				temp.setOutlineColor({ 0xcc,0xcc,0xcc });
 				temp.setPosition({ (float)button->m_click_area.left, (float)button->m_click_area.top });
 				target.draw(temp, states);
 			}
 		}
 	}
-
-
-	//draw bracket
-	sf::Sprite bracket;
-	bracket.setTexture(Texture_Catalog::instance().m_texture_catalog["bracket"]);
-	bracket.setPosition({ (float)m_offset.x -185.0f, (float)m_offset.y });
-	target.draw(bracket, states);
 
 
 	//draw claf
@@ -255,9 +272,9 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		//TODO richtige Farben
 		if (m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
-				{(sf::Uint8)(255*(2.0f * (1.0f-ui_note.m_note.m_note_probability))),
-				(sf::Uint8)(255 * (2.0f * (1 - (1.0f-ui_note.m_note.m_note_probability)))),
-				(sf::Uint8)0}), states);
+				{ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_note_probability)),
+					(sf::Uint8)(255 * ui_note.m_note.m_note_probability),
+						(sf::Uint8)0 }), states);
 		else
 			target.draw(ui_note.get_sprite(offset), states);
 
@@ -388,6 +405,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
+		//TEST
 		std::cout << "\nmessage: " << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
 	}
 	else
@@ -395,7 +413,6 @@ void UI::Sheet_Grid_Button::on_clicked()
 		if (m_parent->m_parent->m_parent->is_deleting)
 		{
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Delete N:" + this->m_debug_message);
-			std::cout << "\ndeleting: " << m_sixteenth_distance;
 			m_parent->m_parent->m_sheet.delete_note(m_parent->m_voice, m_sixteenth_distance);
 		}
 		else if (m_parent->m_parent->m_parent->is_tying)
