@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Application.h"
 
+#include "Windows_Folder_Dialog.h"
 
 
 
@@ -132,6 +133,13 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_info_button.func = [](Application* app) {
 		std::cout << "\nInfo!\n";
 		app->m_debug_log.log("Info Button");
+
+		app->m_evaluator.evaluate_notes(app->m_sheet.m_bass, app->m_sheet.m_soprano);
+
+		std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
+
+
+
 		app->gui.m_sheet_editor.wants_info = !app->gui.m_sheet_editor.wants_info;
 
 		if (app->gui.m_sheet_editor.wants_info)
@@ -144,6 +152,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	
 	m_window.setActive(false);
+
 }
 
 

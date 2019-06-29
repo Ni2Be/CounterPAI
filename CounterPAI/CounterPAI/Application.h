@@ -5,6 +5,7 @@
 #include "Piano_Player.h"
 #include "Midi_Reader.h"
 #include "Debug_Log.h"
+#include "Evaluator_Base.h"
 
 class Application
 {
@@ -22,6 +23,8 @@ public:
 	const int m_WINDOW_HEIGHT = 600;
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;
+
+	Eval::Evaluator_Base m_evaluator;
 
 	Debug_Log m_debug_log;
 };

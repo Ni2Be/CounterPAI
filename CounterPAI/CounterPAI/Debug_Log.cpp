@@ -3,6 +3,7 @@
 #include "date.h"
 #include <iostream>
 #include <fstream>
+#include "Windows_Folder_Dialog.h"
 
 Debug_Log::Debug_Log()
 {
@@ -15,7 +16,8 @@ Debug_Log::Debug_Log()
 	std::string s = ss.str();
 	std::replace(s.begin(), s.end(), ':', '-');
 	
-	m_file_name = "logs/Log " + s + ".txt";
+	m_file_name = Windows_File_Loader::get_exe_path() + "/logs/Log " + s + ".txt";
+	std::replace(m_file_name.begin(), m_file_name.end(), '\\', '/');
 
 	std::cout << "\nLog file: " << m_file_name;
 }

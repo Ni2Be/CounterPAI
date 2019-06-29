@@ -406,7 +406,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 	{
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
 		//TEST
-		std::cout << "\nmessage: " << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
+		std::cout << "\nNote:\n" << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
 	}
 	else
 	{

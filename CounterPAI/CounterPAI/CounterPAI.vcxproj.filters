@@ -80,6 +80,9 @@
       <Filter>Application\GUI</Filter>
     </ClCompile>
     <ClCompile Include="Debug_Log.cpp" />
+    <ClCompile Include="Windows_Folder_Dialog.cpp">
+      <Filter>Application\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -132,6 +135,9 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Signature.h">
+      <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows_Folder_Dialog.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
   </ItemGroup>

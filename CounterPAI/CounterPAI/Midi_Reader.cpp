@@ -17,7 +17,7 @@ Midi_Reader::Midi_Reader(const std::string& file_name, int track)
 
 void Midi_Reader::convert_to_sheet(int track)
 {
-	std::cout << "Converting..\n";
+	std::cout << "\nConverting..\n";
 	std::vector<start_end_note> all_notes;
 
 	parse_value_pitch(all_notes, track);
