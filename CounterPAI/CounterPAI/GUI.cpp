@@ -134,18 +134,26 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		std::cout << "\nInfo!\n";
 		app->m_debug_log.log("Info Button");
 
-		app->m_evaluator.evaluate_notes(app->m_sheet.m_bass, app->m_sheet.m_soprano);
-
-		std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
-
 
 
 		app->gui.m_sheet_editor.wants_info = !app->gui.m_sheet_editor.wants_info;
 
 		if (app->gui.m_sheet_editor.wants_info)
+		{
+			app->m_evaluator.evaluate_notes(app->m_sheet.m_bass, app->m_sheet.m_soprano);
+			std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
+
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		}
 		else
+		{
+			for (auto& note : app->m_sheet.m_bass)
+				note.m_note_info = "no message!";
+			for (auto& note : app->m_sheet.m_soprano)
+				note.m_note_info = "no message!";
+			
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		}
 	};
 	attach_drawable(m_info_button);
 	m_info_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });

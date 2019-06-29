@@ -24,6 +24,8 @@ void Eval::Evaluator_Base::evaluate_notes(
 	std::list<Music_Note>& cantus_firmus,
 	std::list<Music_Note>& counter_point)
 {
+	m_evaluation.clear();
+
 	int length_cf = get_sixteenth_length(cantus_firmus);
 	int length_CP = get_sixteenth_length(counter_point);
 	if (length_cf != length_CP)
@@ -250,10 +252,7 @@ Eval::Bar_Position Eval::Evaluator_Base::get_bar_pos(std::list<Music_Note>& voic
 	for (; itr != note; itr++)
 	{
 		sixteenth += 16 / static_cast<int>(itr->m_value);
-		std::cout << "\nsix: " << sixteenth;
 	}
-
-	std::cout << "\nend six: " << sixteenth;
 	//
 	if (sixteenth <= 16)
 		return Bar_Position::First_Bar;
@@ -276,7 +275,7 @@ int get_sixteenth_length(std::list<Music_Note> voice)
 
 std::ostream& Eval::operator<<(std::ostream& os, const Note_Evaluation& note)
 {
-	os << std::setw(4) << "\tPosition: " << note.m_position << std::setw(12) << ", \tJump: " << note.m_jump_interval << std::setw(14) << ", Direction: " << note.m_direction << ",\tMotion: " << note.m_motion << ",\tInterval: " << note.m_interval << ",\tsix dist: " << note.m_sixteenth_position;
+	os << std::setw(4) << "\tPosition: " << note.m_position << std::setw(12) << ", \tJump: " << note.m_jump_interval << std::setw(14) << ", Direction: " << note.m_direction << ",\tMotion: " << note.m_motion << ",\tInterval: " << note.m_interval << ",\tsixteenth dist: " << note.m_sixteenth_position;
 	return os;
 }
 std::ostream& Eval::operator<<(std::ostream& os, const Evaluator_Base& eval)
