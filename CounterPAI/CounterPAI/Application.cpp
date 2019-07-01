@@ -11,6 +11,8 @@ Application::Application()
 	//TESTING
 	Midi_Reader midi_reader("data/piano.mid", 0);
 	m_sheet = midi_reader.sheet;
+
+	m_sheet.quater_bpm = 300;
 }
 
 int Application::run()

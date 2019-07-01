@@ -32,6 +32,9 @@
     <Filter Include="Application\Evaluator\LSTM_Eval">
       <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Evaluator\Rule_Eval">
+      <UniqueIdentifier>{acc5686e-d448-423f-848d-56c7812016bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Event_System.cpp">
@@ -79,8 +82,13 @@
     <ClCompile Include="Eventsystem.cpp">
       <Filter>Application\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Debug_Log.cpp" />
     <ClCompile Include="Windows_Folder_Dialog.cpp">
+      <Filter>Application\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Rule_Eval.cpp">
+      <Filter>Application\Evaluator\Rule_Eval</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug_Log.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
   </ItemGroup>
@@ -130,7 +138,6 @@
     <ClInclude Include="Eventsystem.h">
       <Filter>Application\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Debug_Log.h" />
     <ClInclude Include="date.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
@@ -138,6 +145,15 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Windows_Folder_Dialog.h">
+      <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Rule_Eval.h">
+      <Filter>Application\Evaluator\Rule_Eval</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug_Log.h">
+      <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
   </ItemGroup>

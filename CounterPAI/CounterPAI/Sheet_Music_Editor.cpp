@@ -4,6 +4,8 @@
 #include "Application.h"
 #include <SFML/Graphics.hpp>
 
+#include "Utility.h"
+
 float UI::Sheet::m_button_size      = 5;
 float UI::Sheet::m_note_size        = 3.0f;
 float UI::Sheet::m_treble_clef_size = 7.7f;
@@ -272,8 +274,8 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		//TODO richtige Farben
 		if (m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
-				{ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_note_probability)),
-					(sf::Uint8)(255 * ui_note.m_note.m_note_probability),
+				{ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_probability)),
+					(sf::Uint8)(255 * ui_note.m_note.m_probability),
 						(sf::Uint8)0 }), states);
 		else
 			target.draw(ui_note.get_sprite(offset), states);
@@ -405,6 +407,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
+		m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch) + "\n" + m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance));
 		//TEST
 		std::cout << "\nNote:\n" << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
 	}
@@ -423,6 +426,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 		else
 		{
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);
+			m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch));
 			m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
 		}
 	}

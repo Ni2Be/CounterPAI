@@ -5,7 +5,7 @@
 #include "Piano_Player.h"
 #include "Midi_Reader.h"
 #include "Debug_Log.h"
-#include "Evaluator_Base.h"
+#include "Rule_Eval.h"
 
 class Application
 {
@@ -19,12 +19,12 @@ public:
 
 	static bool m_is_running;
 
-	const int m_WINDOW_WIDTH = 1400;
+	const int m_WINDOW_WIDTH = 1600;
 	const int m_WINDOW_HEIGHT = 600;
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;
 
-	Eval::Evaluator_Base m_evaluator;
+	Eval::Rule_Eval m_evaluator;
 
 	Debug_Log m_debug_log;
 };

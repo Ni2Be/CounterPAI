@@ -11,6 +11,19 @@
 
 class Application;
 namespace UI {
+	class Info_Box : public sf::Drawable
+	{
+		public:
+			Info_Box(Application* app, const sf::IntRect draw_area, const std::string& info_text);
+
+			sf::Text m_info_text;
+			sf::IntRect m_draw_area;
+			Application* m_app;
+			void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+			void set_info_text(std::string text);
+	};
+
 	class GUI
 	{
 	public:
@@ -44,6 +57,8 @@ namespace UI {
 
 		Button m_overlay_button;
 		Button m_info_button;
+
+		Info_Box m_info_text;
 
 		void unclick_all_buttons();
 

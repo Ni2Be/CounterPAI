@@ -1,6 +1,7 @@
 #include "Sheet_Music.h"
 
 #include <string>
+#include <regex>
 
 Sheet_Music::Sheet_Music()
 {
@@ -226,7 +227,13 @@ std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
 		std::cout << "\ngettin info";
 		if (voice.empty())
 			return "";
-		return note->m_note_info + " value: " + std::to_string(note->m_note_probability);
+
+		std::string note_info = note->m_note_info;
+		std::replace(note_info.begin(), note_info.end(), '\t', '\n');
+		std::replace(note_info.begin(), note_info.end(), ':', '\n');
+		std::replace(note_info.begin(), note_info.end(), ',', ' ');
+		
+		return  note_info + "\n\nProbability\n" + std::to_string(note->m_probability);
 	}
 	return "";
 }
