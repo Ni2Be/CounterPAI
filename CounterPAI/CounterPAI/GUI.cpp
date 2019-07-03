@@ -55,6 +55,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_play_button(parent,   { {0  ,500},{100,100} }, "play"),
 	m_stop_button(parent,   { {110,500},{100,100} }, "stop"),
 	m_clear_button(parent,  { {220,500},{100,100} }, "clear"),
+	m_100_bpm_button(parent, { { 330, 500 }, { 60, 33 } }, "s"),
+	m_200_bpm_button(parent, { { 330, 533 }, { 60, 33 } }, "m"),
+	m_300_bpm_button(parent, { { 330, 566 }, { 60, 33 } }, "f"),
 	m_sheet_editor(parent->m_sheet, this),
 	m_whole_button(parent,  { {400,500},{100,100} }, "1/1"),
 	m_half_button(parent, { {510,500},{100,100} }, "1/2"),
@@ -63,7 +66,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_delete_button(parent, { {910,500},{100,100} }, "delete"),
 	m_overlay_button(parent, { {1110,500},{100,100} }, "overlay"),
 	m_info_button(parent, { {1220,500},{100,100} }, "note info"),
-	m_info_text(parent, { { 1400, 0 }, { 200, 600 } }, "no Note")
+	m_info_text(parent, { { 1400, 0 }, { 200, 600 } }, "no Note"),
+	m_soprano_cf_button(parent, { { 1370, 100 }, { 20, 20 } }, ""),
+	m_bass_cf_button(parent, { { 1370, 300 }, { 20, 20 } }, "")
 {
 	load_resources();
 	m_play_button.func = [](Application* app) {
@@ -164,11 +169,26 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		//	note.m_note_probability = (rand() % 1000) / 1000.0f;
 		////ENDDEBUG
 
-
 		if (app->gui.m_sheet_editor.draw_overlay)
+		{
+			app->m_evaluator.evaluate_notes(app->m_sheet.get_cf(), app->m_sheet.get_cp());
 			app->gui.m_overlay_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		}
 		else
+		{
+			//TODO should not be set in gui
+			for (auto& note : app->m_sheet.m_bass)
+			{
+				note.m_note_info = "no message!";
+				note.m_probability = 1.0f;
+			}
+			for (auto& note : app->m_sheet.m_soprano)
+			{
+				note.m_note_info = "no message!";
+				note.m_probability = 1.0f;
+			}
 			app->gui.m_overlay_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		}
 	};
 	attach_drawable(m_overlay_button);
 	m_overlay_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -183,7 +203,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.wants_info)
 		{
-			app->m_evaluator.evaluate_notes(app->m_sheet.m_bass, app->m_sheet.m_soprano);
+			app->m_evaluator.evaluate_notes(app->m_sheet.get_cf(), app->m_sheet.get_cp());
 			std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
 
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -192,16 +212,102 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		{
 			//TODO should not be set in gui
 			for (auto& note : app->m_sheet.m_bass)
+			{
 				note.m_note_info = "no message!";
+				note.m_probability = 1.0f;
+			}
 			for (auto& note : app->m_sheet.m_soprano)
+			{
 				note.m_note_info = "no message!";
-			
+				note.m_probability = 1.0f;
+			}
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
 	};
-	attach_drawable(m_info_button);
 	m_info_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	attach_drawable(m_info_button);
 
+	m_100_bpm_button.func = [](Application* app) {
+		std::cout << "\n100_bpm!\n";
+		app->m_debug_log.log("100_bpm Button");
+		app->m_sheet.quater_bpm = 100;
+		if (app->m_sheet.quater_bpm == 100)
+		{
+			app->gui.m_100_bpm_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+			app->gui.m_200_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+			app->gui.m_300_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		}
+	};
+	m_100_bpm_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+	m_parent->m_sheet.quater_bpm = 100;
+	m_200_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	m_300_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	attach_drawable(m_100_bpm_button);
+
+	m_200_bpm_button.func = [](Application* app) {
+		std::cout << "\n200_bpm!\n";
+		app->m_debug_log.log("200_bpm Button");
+
+		app->m_sheet.quater_bpm = 200;
+		if (app->m_sheet.quater_bpm == 200)
+		{
+			app->gui.m_100_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+			app->gui.m_200_bpm_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+			app->gui.m_300_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		}
+	};
+	attach_drawable(m_200_bpm_button);
+	
+	m_300_bpm_button.func = [](Application* app) {
+		std::cout << "\n300_bpm!\n";
+		app->m_debug_log.log("300_bpm Button");
+
+		app->m_sheet.quater_bpm = 300;
+		if (app->m_sheet.quater_bpm == 300)
+		{
+			app->gui.m_100_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+			app->gui.m_200_bpm_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+			app->gui.m_300_bpm_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		}
+	};
+	attach_drawable(m_300_bpm_button);
+	
+	m_cf_marker.setFont(m_times_new_roman);
+	m_cf_marker.setString("cf");
+	m_cf_marker.setFillColor(sf::Color::Black);
+	m_cf_marker.setPosition({ 1370, 10 });
+	attach_drawable(m_cf_marker);
+
+	m_soprano_cf_button.func = [](Application* app) {
+		std::cout << "\nsoprano_cf_button!\n";
+		app->m_debug_log.log("soprano_cf Button");
+
+		app->m_sheet.bass_is_cf = false;
+		if (app->m_sheet.bass_is_cf == false)
+		{
+			app->gui.m_cf_marker.setPosition({ 1366, 60 });
+			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		}
+	};
+	m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	attach_drawable(m_soprano_cf_button);
+
+	m_bass_cf_button.func = [](Application* app) {
+		std::cout << "\nm_bass_cf_button!\n";
+		app->m_debug_log.log("bass_cf Button");
+
+		app->m_sheet.bass_is_cf = true;
+		if (app->m_sheet.bass_is_cf == true)
+		{
+			app->gui.m_cf_marker.setPosition({ 1366, 260 });
+			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 }); 
+			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		}
+	};
+	m_cf_marker.setPosition({ 1366, 260 });
+	m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+	attach_drawable(m_bass_cf_button);
 
 	attach_drawable(m_info_text);
 

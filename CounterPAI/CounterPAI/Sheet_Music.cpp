@@ -247,3 +247,19 @@ std::string Sheet_Music::get_note_info(Voice voice, int sixteenth_distance)
 	default: std::cerr << "invalid voice\n"; break;
 	}
 }
+
+std::list<Music_Note>& Sheet_Music::get_cf()
+{
+	if (bass_is_cf)
+		return m_bass;
+	else
+		return m_soprano;
+}
+
+std::list<Music_Note>& Sheet_Music::get_cp()
+{
+	if (bass_is_cf)
+		return m_soprano;
+	else
+		return m_bass;
+}

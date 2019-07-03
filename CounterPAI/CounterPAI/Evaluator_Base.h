@@ -204,7 +204,7 @@ namespace Eval
 	{
 		static const std::array<std::string, 5> beat_str
 		{
-		"On Beat",
+		"Down Beat",
 		"Weak Beat 1",
 		"Off Beat",
 		"Weak Beat 2",

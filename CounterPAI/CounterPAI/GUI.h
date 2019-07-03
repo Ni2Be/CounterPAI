@@ -55,6 +55,14 @@ namespace UI {
 		Button m_delete_button;
 		Button m_tie_button;
 
+		sf::Text m_cf_marker;
+		Button m_soprano_cf_button;
+		Button m_bass_cf_button;
+		
+		Button m_100_bpm_button;
+		Button m_200_bpm_button;
+		Button m_300_bpm_button;
+
 		Button m_overlay_button;
 		Button m_info_button;
 

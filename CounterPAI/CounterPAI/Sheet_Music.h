@@ -17,6 +17,9 @@ public:
 	void change_note(Music_Note& note);
 	void delete_note(Voice voice, int sixteenth_distance);
 
+	bool bass_is_cf = true;
+	std::list<Music_Note>& get_cf();
+	std::list<Music_Note>& get_cp();
 
 	std::string get_note_info(Voice voice, int sixteenth_distance);
 
