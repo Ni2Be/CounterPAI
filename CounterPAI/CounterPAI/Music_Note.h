@@ -13,17 +13,24 @@ std::istream& operator>>(std::istream& is, Music_Note& note);
 class Music_Note
 {
 public:
-	Music_Note() {};
+	Music_Note();
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice);
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied);
+	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied, bool is_sharp, bool is_flat);
 
 	float m_probability = 1.0f;
 	std::string m_note_info = "no message!";
+
+
+	Note_Pitch get_basic_note();
+	int get_midi_key();
 
 	Note_Pitch m_pitch;
 	Note_Value m_value;
 	Voice m_voice;
 	bool m_is_tied = false; //true if a note is tied to the previous note
+	bool m_is_sharp = false;
+	bool m_is_flat = false;
 
 	friend std::ostream& operator<<(std::ostream& os, const Music_Note& note);
 	friend std::istream& operator>>(std::istream& is, Music_Note& note);

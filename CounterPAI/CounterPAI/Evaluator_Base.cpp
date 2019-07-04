@@ -204,6 +204,9 @@ Eval::Motion Eval::Evaluator_Base::get_motion(Music_Note cf0, Music_Note cf1, Mu
 	int cf_half_tone_dist = static_cast<int>(cf0.m_pitch) - static_cast<int>(cf1.m_pitch);
 	int CP_half_tone_dist = static_cast<int>(CP0.m_pitch) - static_cast<int>(CP1.m_pitch);
 
+	//DEBUG
+	//std::cout << " (cf:" << cf0.m_pitch << ":" << cf1.m_pitch<< ":" << cf_half_tone_dist << ",cp:" << CP0.m_pitch << ":" << CP1.m_pitch << ":" << CP_half_tone_dist << ")";
+
 	Direction cf_dir = get_direction(cf0, cf1);
 	Direction CP_dir = get_direction(CP0, CP1);
 
@@ -288,7 +291,7 @@ Eval::Beat_Position Eval::Evaluator_Base::get_beat_pos(std::list<Music_Note>& vo
 	{
 		case 0: return Beat_Position::Down_Beat; 
 		case 4: return Beat_Position::Weak_Beat_1;
-		case 8: return Beat_Position::Off_Beat;
+		case 8: return Beat_Position::Up_Beat;
 		case 12: return Beat_Position::Weak_Beat_2;
 		default: return Beat_Position::No_Beat;
 	}

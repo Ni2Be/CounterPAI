@@ -30,7 +30,7 @@ void Keyboard::play(Music_Note note)
 	default: std::cerr << "invalid Voice\n"; break;
 	}
 
-	int midi_key = static_cast<int>(note.m_pitch);
+	int midi_key = note.get_midi_key();
 	if (midi_key < 21 || midi_key > 121)
 	{
 		std::cerr << "invalid key: " << midi_key << "\n"; return;

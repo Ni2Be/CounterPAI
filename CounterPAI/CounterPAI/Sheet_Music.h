@@ -26,6 +26,7 @@ public:
 	std::list<Music_Note>& get_cp();
 
 	std::string get_note_info(Voice voice, int sixteenth_distance);
+	Music_Note get_note(Voice voice, int sixteenth_distance);
 
 	std::list<Music_Note> m_bass;
 	//std::vector<Music_Note> m_tenor; not used atm

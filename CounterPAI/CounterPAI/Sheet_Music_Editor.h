@@ -124,6 +124,8 @@ namespace UI {
 		bool m_draw_grid = true;
 		bool draw_overlay = false;
 		bool wants_info = false;
+		bool set_sharp = false;
+		bool set_flat = false;
 	private:
 
 

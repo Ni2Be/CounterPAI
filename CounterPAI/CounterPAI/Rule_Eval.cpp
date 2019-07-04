@@ -36,24 +36,53 @@ void Eval::Rule_Eval::evaluate_notes(
 
 	std::vector<Note_Evaluation>::iterator eval_itr = m_evaluation.begin();
 	std::vector<Note_Evaluation>::iterator prev_eval_itr = m_evaluation.begin();
+	std::vector<Note_Evaluation>::iterator next_eval_itr = m_evaluation.begin();
+	std::vector<Note_Evaluation>::iterator last_db_eval_itr = m_evaluation.begin();
+	next_eval_itr++;
 	std::list<Music_Note>::iterator CP_itr = counter_point.begin();
 	std::list<Music_Note>::iterator prev_CP_itr = counter_point.begin();
-	
-	for (; eval_itr != m_evaluation.end(); eval_itr++, CP_itr++)
+	std::list<Music_Note>::iterator next_CP_itr = counter_point.begin();
+	std::list<Music_Note>::iterator last_db_CP_itr = counter_point.begin();
+	next_CP_itr++;
+
+	std::list<Music_Note>::iterator cf_itr		= cantus_firmus.begin();
+	std::list<Music_Note>::iterator prev_cf_itr = cantus_firmus.begin();
+
+
+	for (; eval_itr != m_evaluation.end() && cf_itr != cantus_firmus.end(); eval_itr++, CP_itr++)
 	{
 		CP_itr->m_note_info += "\n";
 		r1_perfect_FB_LB(*eval_itr, *CP_itr, cantus_firmus.back());
 		r2_use_CoMo_and_ObMo(*eval_itr, *CP_itr);
 		r3_use_imperfects(*eval_itr, *CP_itr);
-		r4_note_before_last(*eval_itr, *CP_itr);
-		r5_motion_to_perfect(*eval_itr, *CP_itr);
 		
-		if (eval_itr != prev_eval_itr)//just skips the first note for this rule
+		if (eval_itr != prev_eval_itr)//just skips the first note for this rules
 		{
+			r4_note_before_last(*eval_itr, *CP_itr, *prev_eval_itr);
+
+			r5_motion_to_perfect(*eval_itr, *CP_itr, *prev_eval_itr, *last_db_eval_itr, *last_db_CP_itr, *prev_cf_itr, *cf_itr);
+
 			r6_prohibited_skips(*eval_itr, *CP_itr, *prev_CP_itr, cantus_firmus.back());
 			prev_eval_itr++;
 			prev_CP_itr++;
 		}
+		if (next_eval_itr != m_evaluation.end())//just skips the last note for this rules
+		{
+			r7_allowed_dissonants(*eval_itr, *CP_itr, *next_eval_itr);
+
+			next_eval_itr++;
+			next_CP_itr++;
+		}
+		if (eval_itr->m_beat_pos == Beat_Position::Down_Beat)
+		{
+			last_db_eval_itr = eval_itr;
+			last_db_CP_itr = CP_itr;
+
+			if (cf_itr != prev_cf_itr)
+				prev_cf_itr++;
+			cf_itr++;
+		}
+
 		CP_itr->m_probability = eval_itr->m_probability;
 	}
 }
@@ -86,12 +115,12 @@ void Eval::Rule_Eval::r2_use_CoMo_and_ObMo(Note_Evaluation& evaluated_note, Musi
 {
 	if (evaluated_note.m_beat_pos == Beat_Position::Down_Beat)
 	{
-		if (evaluated_note.m_motion == Motion::CoMo)
+		/*if (evaluated_note.m_motion == Motion::CoMo)
 		{
 			note.m_note_info += "\n-Contrary Motion is good!";
 			evaluated_note.m_probability *= 1.0f;
 		}
-		else if (evaluated_note.m_motion == Motion::ObMo)
+		else*/ if (evaluated_note.m_motion == Motion::ObMo)
 		{
 			note.m_note_info += "\n-Oblique Motion is Okay!";
 			evaluated_note.m_probability *= 0.9f;
@@ -99,7 +128,7 @@ void Eval::Rule_Eval::r2_use_CoMo_and_ObMo(Note_Evaluation& evaluated_note, Musi
 		else if (evaluated_note.m_motion == Motion::DiMo)
 		{
 			note.m_note_info += "\n-Direct Motion should be avoided!";
-			evaluated_note.m_probability *= 0.3f;
+			evaluated_note.m_probability *= 0.5f;
 		}
 	}
 }
@@ -112,23 +141,23 @@ void Eval::Rule_Eval::r3_use_imperfects(Note_Evaluation& evaluated_note, Music_N
 	{
 		if (is_perfect(evaluated_note.m_interval))
 		{
-			note.m_note_info += "\n-Use more imperfect consonances";
+			note.m_note_info += "\n-To many perfect intervals are bad";
 			evaluated_note.m_probability *= 0.7f;
 		}
-		else if (is_imperfect(evaluated_note.m_interval))
+		/*else if (is_imperfect(evaluated_note.m_interval))
 		{
 			note.m_note_info += "\n-Good an imperfect consonance";
 			evaluated_note.m_probability *= 1.0f;
-		}
-		else if (is_dissonant(evaluated_note.m_interval))
+		}*/
+		else if (is_dissonant(evaluated_note.m_interval))//TODO tied notes
 		{
-			note.m_note_info += "\n-No dissonances on the Down Beat";
+			note.m_note_info += "\n-dissonances on the Down Beat are not allowed";
 			evaluated_note.m_probability *= 0.0f;
 		}
 	}
 }
 
-void Eval::Rule_Eval::r4_note_before_last(Note_Evaluation& evaluated_note, Music_Note& note)
+void Eval::Rule_Eval::r4_note_before_last(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& last_eval)
 {
 	if (evaluated_note.m_position == Bar_Position::Before_Last_Last_Note)
 	{
@@ -144,34 +173,77 @@ void Eval::Rule_Eval::r4_note_before_last(Note_Evaluation& evaluated_note, Music
 			note.m_note_info += "\n-The leading tone must be a Major 6th if the c.f. is in the lower voice";
 			evaluated_note.m_probability *= 0.0f;
 		}
-		else if ((cf_voice == Voice::Bass)
+		/*else if ((cf_voice == Voice::Bass)
 			&& (evaluated_note.m_interval == Interval::M6))
 		{
 			note.m_note_info += "\n-Good the leading tone is a Major 6th an the c.f. is in the lower voice";
-		}
+		}*/
 		else if ((cf_voice == Voice::Soprano)
 			&& (evaluated_note.m_interval != Interval::m3))
 		{
 			note.m_note_info += "\n-The leading tone must be a minor 3rd if the c.f. is in the upper voice";
 			evaluated_note.m_probability *= 0.0f;
 		}
-		else if ((cf_voice == Voice::Soprano)
+		/*else if ((cf_voice == Voice::Soprano)
 			&& (evaluated_note.m_interval == Interval::m3))
 		{
 			note.m_note_info += "\n-Good the leading tone is a minor 3rd an the c.f. is in the upper voice";
+		}*/
+
+		if (evaluated_note.m_beat_pos != Beat_Position::Down_Beat)
+		{
+			if (last_eval.m_interval != Interval::P5)
+			{
+				note.m_note_info += "\n-The leading tone should be prepared by a fith, if not on the downbeat";
+				evaluated_note.m_probability *= 0.25f;
+			}
 		}
 	}
+
 }	
 
 
-void Eval::Rule_Eval::r5_motion_to_perfect(Note_Evaluation& evaluated_note, Music_Note& note)
+void Eval::Rule_Eval::r5_motion_to_perfect(
+	Note_Evaluation& evaluated_note, 
+	Music_Note& note,
+	Note_Evaluation& last_note_eval, 
+	Note_Evaluation& last_db_eval, 
+	Music_Note& last_db_note,
+	Music_Note& last_cf_note,
+	Music_Note& cf_note)
 {
 	if (is_perfect(evaluated_note.m_interval)
 		&& evaluated_note.m_motion != Motion::CoMo
-		&& evaluated_note.m_position != Bar_Position::First_Bar_First_Note)
+		&& evaluated_note.m_position != Bar_Position::First_Bar_First_Note
+		&& evaluated_note.m_beat_pos == Beat_Position::Down_Beat)
 	{
-		note.m_note_info += "\n-To a perfect interval one should only move in contrary motion";
-		evaluated_note.m_probability *= 0.0f;
+		if(!is_perfect(last_note_eval.m_interval))
+		{
+			note.m_note_info += "\n-From an imperfect to a perfect interval one should only move in contrary motion";
+			evaluated_note.m_probability *= 0.0f;
+		}
+		else if (is_perfect(last_note_eval.m_interval)
+			&& evaluated_note.m_motion != Motion::ObMo)
+		{
+			note.m_note_info += "\n-From a perfect to a perfect interval one should only move in contrary or oblique motion";
+			evaluated_note.m_probability *= 0.0f;
+		}
+	}
+
+	//R5a
+	std::cout << "\nn: " << get_motion(last_cf_note, cf_note, last_db_note, note);
+	if ((evaluated_note.m_beat_pos == Beat_Position::Down_Beat)
+		&& is_perfect(last_db_eval.m_interval)
+		&& is_perfect(evaluated_note.m_interval)
+		&& (last_note_eval.m_jump_interval < Interval::P4)
+		&& (evaluated_note.m_jump_interval < Interval::P4))
+	{
+		
+		if (get_motion(last_cf_note, cf_note, last_db_note, note) == Motion::DiMo)
+		{
+			note.m_note_info += "\n-The skip of less then a fourth cannot prevent a succession of either two fifth or two octaves in direct motion";
+			evaluated_note.m_probability *= 0.0f;
+		}
 	}
 }
 
@@ -188,9 +260,39 @@ void Eval::Rule_Eval::r6_prohibited_skips(Note_Evaluation& evaluated_note, Music
 		evaluated_note.m_probability *= 0.0f;
 	}
 	else if (get_interval(last_note, last_cf_note) == Interval::P1
+		&& evaluated_note.m_beat_pos == Beat_Position::Down_Beat
 		&& is_perfect(evaluated_note.m_jump_interval))
 	{
 		note.m_note_info += "\n-No perfect skips from an unison";
 		evaluated_note.m_probability *= 0.0f;
 	}
+}
+
+void Eval::Rule_Eval::r7_allowed_dissonants(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& next_note_eval)
+{
+	if (evaluated_note.m_beat_pos != Beat_Position::Down_Beat)
+	{
+		if (is_dissonant(evaluated_note.m_interval))
+		{
+			if (evaluated_note.m_jump_interval > Interval::M2)
+			{
+				note.m_note_info += "\n-Dissonance on the upbeat is not prepared by a step";
+				evaluated_note.m_probability *= 0.0f;
+			}
+			/*else
+			{
+				note.m_note_info += "\n-Dissonance on the upbeat is prepared by a step";
+			}*/
+			if (next_note_eval.m_jump_interval > Interval::M2)
+			{
+				note.m_note_info += "\n-Dissonance on the upbeat is not released by a step";
+				evaluated_note.m_probability *= 0.0f;
+			}
+			/*else
+			{
+				note.m_note_info += "\n-Dissonance on the upbeat is released by a step";
+			}*/
+		}
+	}
+
 }

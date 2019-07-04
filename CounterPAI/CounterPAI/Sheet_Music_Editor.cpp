@@ -269,9 +269,8 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	{
 		Note ui_note(note);
 
-		offset.y = m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) - (float)get_distance(m_lowest_a_or_c, note.m_pitch) * Sheet::grid_button_height;
+		offset.y = m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) - (float)get_distance(m_lowest_a_or_c, note.get_basic_note()) * Sheet::grid_button_height;
 
-		//TODO richtige Farben
 		if (m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
 				{ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_probability)),
@@ -279,6 +278,23 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 						(sf::Uint8)0 }), states);
 		else
 			target.draw(ui_note.get_sprite(offset), states);
+
+		sf::Text symbol;
+		symbol.setFont(m_parent->m_parent->m_parent->times_new_roman());
+		if (m_parent->m_parent->draw_overlay)
+			symbol.setFillColor({ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_probability)),
+					(sf::Uint8)(255 * ui_note.m_note.m_probability),
+						(sf::Uint8)0 });
+		else
+			symbol.setFillColor(sf::Color::Black);
+		symbol.setPosition({ offset.x + 20, offset.y + 22 });
+
+		if (note.m_is_flat)
+			symbol.setString("b");
+		else if (note.m_is_sharp)
+			symbol.setString("#");
+
+		target.draw(symbol, states);
 
 		offset.x += ui_note.get_offset();
 	}
@@ -407,9 +423,14 @@ void UI::Sheet_Grid_Button::on_clicked()
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
-		m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch) + "\n" + m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance));
-		//TEST
-		std::cout << "\nNote:\n" << m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance);
+		
+		std::string info_text;
+		if (m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).m_is_flat)
+			info_text += "b";
+		if (m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).m_is_sharp)
+			info_text += "#";
+		info_text += Utility::to_str(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).get_basic_note());
+		m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(info_text + "\n" + m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance));
 	}
 	else
 	{
@@ -425,9 +446,24 @@ void UI::Sheet_Grid_Button::on_clicked()
 		}
 		else
 		{
-			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);
-			m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch));
-			m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
+			if (m_parent->m_parent->m_parent->set_flat)
+			{
+				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add b N:" + this->m_debug_message);
+				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(static_cast<Note_Pitch>((int)m_pitch - 1)));
+				m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch - 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, false, true), m_sixteenth_distance);
+			}
+			else if (m_parent->m_parent->m_parent->set_sharp)
+			{
+				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add # N:" + this->m_debug_message);
+				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(static_cast<Note_Pitch>((int)m_pitch + 1)));
+				m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch + 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, true, false), m_sixteenth_distance);
+			}
+			else
+			{
+				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);
+				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch));
+				m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
+			}
 		}
 	}
 }

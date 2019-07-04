@@ -195,7 +195,7 @@ namespace Eval
 	{
 		Down_Beat,
 		Weak_Beat_1,
-		Off_Beat,
+		Up_Beat,
 		Weak_Beat_2,
 		No_Beat,
 	};
@@ -206,7 +206,7 @@ namespace Eval
 		{
 		"Down Beat",
 		"Weak Beat 1",
-		"Off Beat",
+		"Up Beat",
 		"Weak Beat 2",
 		"No Beat"
 		};
