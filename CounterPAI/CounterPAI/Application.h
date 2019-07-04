@@ -16,6 +16,7 @@ public:
 	void shut_down();
 	Sheet_Music m_sheet;
 	Piano_Player player;
+	Keyboard m_feedback_piano;
 
 	static bool m_is_running;
 
