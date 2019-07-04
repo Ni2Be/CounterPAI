@@ -3,7 +3,11 @@
 #include <list>
 #include <string>
 
+#include <iostream>
 
+class Sheet_Music;
+std::ostream& operator<<(std::ostream& os, const Sheet_Music& sheet);
+std::istream& operator>>(std::istream& os, Sheet_Music& sheet);
 class Sheet_Music
 {
 public:
@@ -27,5 +31,9 @@ public:
 	//std::vector<Music_Note> m_tenor; not used atm
 	//std::vector<Music_Note> m_alto; not used atm
 	std::list<Music_Note> m_soprano;
+
+
+	friend std::ostream& operator<<(std::ostream& os, const Sheet_Music& sheet);
+	friend std::istream& operator>>(std::istream& os, Sheet_Music& sheet);
 };
 

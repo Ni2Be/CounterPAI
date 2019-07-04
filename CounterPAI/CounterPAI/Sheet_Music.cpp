@@ -1,6 +1,7 @@
 #include "Sheet_Music.h"
 
 #include <string>
+#include <sstream>
 #include <regex>
 
 Sheet_Music::Sheet_Music()
@@ -262,4 +263,62 @@ std::list<Music_Note>& Sheet_Music::get_cp()
 		return m_soprano;
 	else
 		return m_bass;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Sheet_Music& sheet)
+{
+	std::string temp;
+
+	os << "tempo:\n";
+	os << sheet.quater_bpm << "\n";
+	os << "cf:\n";
+	if (sheet.bass_is_cf)
+		os << "bass\n";
+	else
+		os << "soprano\n";
+	
+	os << "soprano: \n";
+	for (const auto& note : sheet.m_soprano)
+		os << note;
+	os << "bass: \n";
+	for (const auto& note : sheet.m_bass)
+		os << note;
+	os << "end\n";
+	return os;
+}
+
+std::istream& operator>>(std::istream& is, Sheet_Music& sheet)
+{
+	std::string temp;
+
+	is >> temp; //eat "tempo:"
+	is >> sheet.quater_bpm;
+	is >> temp; //eat "cf:"
+	is >> temp;
+	if (temp == "bass")
+		sheet.bass_is_cf = true;
+	else
+		sheet.bass_is_cf = false;
+	is >> temp; //eat "soprano:"
+	std::list<Music_Note>* voice = &sheet.m_soprano;
+	sheet.m_soprano.clear();
+	sheet.m_bass.clear();
+
+	std::cout << "\nstart\n" << temp << "\n";
+	while (is)
+	{
+		is >> temp; 
+		if (temp == "bass:")
+		{
+			voice = &sheet.m_bass;
+			std::cout << "\nstart\n" << temp << "\n";
+			continue;
+		}
+		if (temp == "end")
+			break;
+		Music_Note temp_note;
+		is >> temp_note;
+		voice->push_back(temp_note);
+	}
 }

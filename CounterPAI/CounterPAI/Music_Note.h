@@ -9,9 +9,11 @@ enum class Voice;
 
 class Music_Note;
 std::ostream& operator<<(std::ostream& os, const Music_Note& note);
+std::istream& operator>>(std::istream& is, Music_Note& note);
 class Music_Note
 {
 public:
+	Music_Note() {};
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice);
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied);
 
@@ -24,6 +26,7 @@ public:
 	bool m_is_tied = false; //true if a note is tied to the previous note
 
 	friend std::ostream& operator<<(std::ostream& os, const Music_Note& note);
+	friend std::istream& operator>>(std::istream& is, Music_Note& note);
 };
 
 

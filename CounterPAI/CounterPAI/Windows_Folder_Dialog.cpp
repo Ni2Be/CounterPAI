@@ -77,6 +77,7 @@ std::string Windows_File_Loader::get_save_file_name()
 	{
 		file_path = filename;
 		std::replace(file_path.begin(), file_path.end(), '\\', '/');
+		file_path += ".sheet";
 	}
 	else
 	{

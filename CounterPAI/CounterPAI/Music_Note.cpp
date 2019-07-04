@@ -20,8 +20,41 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_
 
 std::ostream& operator<<(std::ostream& os, const Music_Note& note)
 {
-	os << "p:" << (int) note.m_pitch << " va:" << (int)note.m_value << " vo:" << (int)note.m_voice << " t:" << note.m_is_tied << " i:\"" << note.m_note_info << "\"" << " prob:" << note.m_probability;
+	os << note.m_pitch << " p: " << (int)note.m_pitch << " va: " << (int)note.m_value << " vo: " << (int)note.m_voice << " t: " << note.m_is_tied << " ;\n";
 	return os;
+}
+
+std::istream& operator>>(std::istream& is, Music_Note& note)
+{
+	std::string temp;
+	
+	is >> temp; //eat p:
+	if (temp != "p:")
+		is >> temp; //eat pitch (like C4) if still there
+	std::cout << temp;
+	int temp_int;
+	std::cout << temp;
+	is >> temp_int;
+	std::cout << temp;
+	note.m_pitch = static_cast<Note_Pitch>(temp_int);
+	std::cout << temp;
+	is >> temp; // eat va:
+	std::cout << temp;
+	is >> temp_int;
+	std::cout << temp;
+	note.m_value = static_cast<Note_Value>(temp_int);
+	std::cout << temp;
+	is >> temp; // eat vo:
+	std::cout << temp;
+	is >> temp_int;
+	note.m_voice = static_cast<Voice>(temp_int);
+	is >> temp; // eat t:
+	is >> temp_int;
+	note.m_is_tied = static_cast<bool>(temp_int);
+	is >> temp; // eat ;
+	
+	std::cout << temp << "\n";
+	return is;
 }
 
 Note_Pitch_Enum_Gen::Note_Pitch_Enum_Gen()

@@ -55,6 +55,9 @@ namespace UI {
 		Button m_delete_button;
 		Button m_tie_button;
 
+		Button m_load_button;
+		Button m_save_button;
+
 		sf::Text m_cf_marker;
 		Button m_soprano_cf_button;
 		Button m_bass_cf_button;

@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Application.h"
 
+
 #include "Windows_Folder_Dialog.h"
 
 UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std::string& info_text)
@@ -66,9 +67,12 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_delete_button(parent, { {910,500},{100,100} }, "delete"),
 	m_overlay_button(parent, { {1110,500},{100,100} }, "overlay"),
 	m_info_button(parent, { {1220,500},{100,100} }, "note info"),
-	m_info_text(parent, { { 1400, 0 }, { 200, 600 } }, "no Note"),
+	m_info_text(parent, { { 1400, 0 }, { 200, 550 } }, "no Note"),
 	m_soprano_cf_button(parent, { { 1370, 100 }, { 20, 20 } }, ""),
-	m_bass_cf_button(parent, { { 1370, 300 }, { 20, 20 } }, "")
+	m_bass_cf_button(parent, { { 1370, 300 }, { 20, 20 } }, ""),
+	m_load_button(parent, { { 1400, 550 }, { 100, 50 } }, "load"),
+	m_save_button(parent, { { 1500, 550 }, { 100, 50 } }, "save")
+
 {
 	load_resources();
 	m_play_button.func = [](Application* app) {
@@ -308,6 +312,37 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_cf_marker.setPosition({ 1366, 260 });
 	m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 	attach_drawable(m_bass_cf_button);
+
+	m_load_button.func = [](Application* app) {
+		std::cout << "\nm_load_button!\n";
+		app->m_debug_log.log("load Button");
+
+		std::ifstream fs;
+		std::string file_name = Windows_File_Loader::get_load_file_name();
+		fs.open(file_name.c_str());
+		std::cout << file_name;
+		if(fs)
+			fs >> app->m_sheet;
+	};
+	attach_drawable(m_load_button);
+	m_load_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	m_save_button.func = [](Application* app) {
+		std::cout << "\nm_save_button!\n";
+		app->m_debug_log.log("save Button");
+
+		std::ofstream fs;
+		std::string file_name = Windows_File_Loader::get_save_file_name();
+		fs.open(file_name.c_str());
+		std::cout << file_name;
+		if (!fs)
+			std::cerr << "could not open file\n";
+
+		fs << app->m_sheet;
+	};
+	attach_drawable(m_save_button);
+	m_save_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
 
 	attach_drawable(m_info_text);
 

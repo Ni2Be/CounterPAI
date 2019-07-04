@@ -20,6 +20,5 @@ namespace Eval
 		void r4_note_before_last(Note_Evaluation& evaluated_note, Music_Note& note);
 		void r5_motion_to_perfect(Note_Evaluation& evaluated_note, Music_Note& note);
 		void r6_prohibited_skips(Note_Evaluation& evaluated_note, Music_Note& note, Music_Note& last_note, Music_Note& last_cf_note);
-
 	};
 }

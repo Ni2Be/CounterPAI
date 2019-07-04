@@ -1,6 +1,6 @@
 #include "Application.h"
 #include <iostream>
-
+#include <sstream>
 
 bool Application::m_is_running = true;
 
@@ -11,6 +11,7 @@ Application::Application()
 	//TESTING
 	Midi_Reader midi_reader("data/piano.mid", 0);
 	m_sheet = midi_reader.sheet;
+
 }
 
 int Application::run()
