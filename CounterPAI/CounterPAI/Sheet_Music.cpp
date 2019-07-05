@@ -85,8 +85,9 @@ void arrange_notes(
 	}
 
 	new_note++;
-	while (new_note != voice.end() && new_note->m_is_tied)
-		new_note = voice.erase(new_note);
+	//could be better or worse
+	//while (new_note != voice.end() && new_note->m_is_tied)
+	//	new_note = voice.erase(new_note);
 
 }
 

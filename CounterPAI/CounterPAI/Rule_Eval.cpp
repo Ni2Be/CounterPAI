@@ -54,8 +54,10 @@ void Eval::Rule_Eval::evaluate_notes(
 		CP_itr->m_note_info += "\n";
 		r1_perfect_FB_LB(*eval_itr, *CP_itr, cantus_firmus.back());
 		r2_use_CoMo_and_ObMo(*eval_itr, *CP_itr);
-		r3_use_imperfects(*eval_itr, *CP_itr);
 		
+		r8_tied_only_on_db(*eval_itr, *CP_itr);
+
+
 		if (eval_itr != prev_eval_itr)//just skips the first note for this rules
 		{
 			r4_note_before_last(*eval_itr, *CP_itr, *prev_eval_itr);
@@ -63,12 +65,19 @@ void Eval::Rule_Eval::evaluate_notes(
 			r5_motion_to_perfect(*eval_itr, *CP_itr, *prev_eval_itr, *last_db_eval_itr, *last_db_CP_itr, *prev_cf_itr, *cf_itr);
 
 			r6_prohibited_skips(*eval_itr, *CP_itr, *prev_CP_itr, cantus_firmus.back());
+
+			r9_prohibited_resolves(*eval_itr, *CP_itr, *prev_CP_itr, *prev_eval_itr);
+
 			prev_eval_itr++;
 			prev_CP_itr++;
 		}
 		if (next_eval_itr != m_evaluation.end())//just skips the last note for this rules
 		{
+			r3_use_imperfects(*eval_itr, *CP_itr, *next_eval_itr);
+
 			r7_allowed_dissonants(*eval_itr, *CP_itr, *next_eval_itr);
+
+			r10_eights_notes(*eval_itr, *CP_itr, *next_eval_itr);
 
 			next_eval_itr++;
 			next_CP_itr++;
@@ -133,7 +142,7 @@ void Eval::Rule_Eval::r2_use_CoMo_and_ObMo(Note_Evaluation& evaluated_note, Musi
 	}
 }
 
-void Eval::Rule_Eval::r3_use_imperfects(Note_Evaluation& evaluated_note, Music_Note& note)
+void Eval::Rule_Eval::r3_use_imperfects(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& next_note_eval)
 {
 	if (evaluated_note.m_beat_pos == Beat_Position::Down_Beat
 		&& evaluated_note.m_position != Bar_Position::First_Bar_First_Note
@@ -149,10 +158,35 @@ void Eval::Rule_Eval::r3_use_imperfects(Note_Evaluation& evaluated_note, Music_N
 			note.m_note_info += "\n-Good an imperfect consonance";
 			evaluated_note.m_probability *= 1.0f;
 		}*/
-		else if (is_dissonant(evaluated_note.m_interval))//TODO tied notes
+		else if (is_dissonant(evaluated_note.m_interval)
+			&& !note.m_is_tied)
 		{
 			note.m_note_info += "\n-dissonances on the Down Beat are not allowed";
 			evaluated_note.m_probability *= 0.0f;
+		}
+		else if (is_dissonant(evaluated_note.m_interval)
+			&& note.m_is_tied)
+		{
+			if (next_note_eval.m_direction == Direction::Down
+				&& (is_imperfect(next_note_eval.m_interval) || is_perfect(next_note_eval.m_interval))
+				&& next_note_eval.m_jump_interval < Interval::M3)
+			{
+				//okay
+			}
+			else
+			{
+				if (next_note_eval.m_direction == Direction::Down
+					&& (is_imperfect(next_note_eval.m_interval) || is_perfect(next_note_eval.m_interval)))
+				{
+					note.m_note_info += "\n-dissonances on the Down Beat should be resolved by a step down";
+					evaluated_note.m_probability *= 0.5f;
+				}
+				else
+				{
+					note.m_note_info += "\n-dissonances on the Down Beat must be resolved";
+					evaluated_note.m_probability *= 0.0f;
+				}
+			}
 		}
 	}
 }
@@ -294,5 +328,72 @@ void Eval::Rule_Eval::r7_allowed_dissonants(Note_Evaluation& evaluated_note, Mus
 			}*/
 		}
 	}
+}
 
+void Eval::Rule_Eval::r8_tied_only_on_db(Note_Evaluation& evaluated_note, Music_Note& note)
+{
+	if (evaluated_note.m_beat_pos != Beat_Position::Down_Beat
+		&& note.m_is_tied)
+	{
+		note.m_note_info += "\n-Tied notes are only allowed on the down beat";
+		evaluated_note.m_probability *= 0.0f;
+	}
+}
+
+
+void Eval::Rule_Eval::r9_prohibited_resolves(Note_Evaluation& evaluated_note, Music_Note& note, Music_Note& last_note, Note_Evaluation& last_evaluated_note)
+{
+	Voice cf_voice;
+	if (note.m_voice == Voice::Bass)
+		cf_voice = Voice::Soprano;
+	else
+		cf_voice == Voice::Bass;
+
+	if (last_note.m_is_tied)
+	{
+		if (cf_voice == Voice::Bass)
+		{
+			if (last_evaluated_note.m_interval == Interval::P1
+				&& (evaluated_note.m_interval == Interval::m2 || evaluated_note.m_interval == Interval::M2))
+			{
+				note.m_note_info += "\n-Tied notes should not be resolved from an unison to a second";
+				evaluated_note.m_probability *= 0.5f;
+			}
+			if (evaluated_note.m_interval == Interval::P1
+				&& (last_evaluated_note.m_interval == Interval::m2 || last_evaluated_note.m_interval == Interval::M2))
+			{
+				note.m_note_info += "\n-Tied notes should not be resolved from a second to an unison";
+				evaluated_note.m_probability *= 0.5f;
+			}
+		}
+		else if (cf_voice == Voice::Soprano)
+		{
+			if (evaluated_note.m_interval == Interval::P8
+				&& (last_evaluated_note.m_interval == Interval::m7 || last_evaluated_note.m_interval == Interval::M7))
+			{
+				note.m_note_info += "\n-Tied notes should not be resolved from a seventh to an octave";
+				evaluated_note.m_probability *= 0.5f;
+			}
+		}
+	}
+}
+
+
+void Eval::Rule_Eval::r10_eights_notes(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& next_note_eval)
+{
+	if (note.m_value == Note_Value::Eighth)
+	{
+		if ((evaluated_note.m_beat_pos == Beat_Position::Down_Beat
+			|| evaluated_note.m_beat_pos == Beat_Position::Up_Beat))
+		{
+			note.m_note_info += "\n-Eight notes are only allowed on weak beats";
+			evaluated_note.m_probability *= 0.1f;
+		}
+		if (evaluated_note.m_jump_interval > Interval::M2
+			|| next_note_eval.m_jump_interval > Interval::M2)
+		{
+			note.m_note_info += "\n-Eight notes are only allowed by a stepwise approach";
+			evaluated_note.m_probability *= 0.0f;
+		}
+	}
 }

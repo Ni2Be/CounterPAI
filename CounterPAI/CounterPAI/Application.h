@@ -20,7 +20,7 @@ public:
 
 	static bool m_is_running;
 
-	const int m_WINDOW_WIDTH = 1600;
+	const int m_WINDOW_WIDTH = 1900;
 	const int m_WINDOW_HEIGHT = 600;
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;

@@ -20,7 +20,7 @@ UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std:
 
 void UI::Info_Box::set_info_text(std::string text)
 {
-	int row_chars = 22;
+	int row_chars = m_draw_area.width / 10;
 	std::string::iterator itr = text.begin();
 	for (int i = 0; itr != text.end(); i++, itr++)
 	{
@@ -62,17 +62,18 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_whole_button(parent,  { {400,500},{100,100} }, "1/1"),
 	m_half_button(parent, { {510,500},{100,100} }, "1/2"),
 	m_quater_button(parent, { {620,500},{100,100} }, "1/4"),
-	m_sharp_button(parent, { {730,500},{60, 50} }, "#"),
-	m_flat_button(parent, { {730,550},{60, 50} }, "b"), 
-	m_tie_button(parent, { {800,500},{100,100} }, "tie"),
-	m_delete_button(parent, { {910,500},{100,100} }, "delete"),
-	m_overlay_button(parent, { {1110,500},{100,100} }, "overlay"),
-	m_info_button(parent, { {1220,500},{100,100} }, "note info"),
-	m_info_text(parent, { { 1400, 0 }, { 200, 550 } }, "no Note"),
-	m_soprano_cf_button(parent, { { 1370, 100 }, { 20, 20 } }, ""),
-	m_bass_cf_button(parent, { { 1370, 300 }, { 20, 20 } }, ""),
-	m_load_button(parent, { { 1399, 550 }, { 100, 50 } }, "load"),
-	m_save_button(parent, { { 1500, 550 }, { 100, 50 } }, "save")
+	m_eight_up_button  (parent, { {730,500},{60, 100} }, "1/8"),
+	m_sharp_button(parent, { {800,500},{60, 50} }, "#"),
+	m_flat_button (parent, { {800,550},{60, 50} }, "b"), 
+	m_tie_button(parent, { {900,500},{100,100} }, "tie"),
+	m_delete_button(parent, { {1010,500},{100,100} }, "delete"),
+	m_overlay_button(parent, { {1210,500},{100,100} }, "overlay"),
+	m_info_button(parent, { {1320,500},{100,100} }, "note info"),
+	m_info_text(parent, { { 1600, 0 }, { 300, 550 } }, "no Note"),
+	m_soprano_cf_button(parent, { { 1570, 100 }, { 20, 20 } }, ""),
+	m_bass_cf_button(parent, { { 1570, 300 }, { 20, 20 } }, ""),
+	m_load_button(parent, { { 1599, 550 }, { 100, 50 } }, "load"),
+	m_save_button(parent, { { 1750, 550 }, { 100, 50 } }, "save")
 
 {
 	load_resources();
@@ -106,9 +107,11 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		std::cout << "\nWhole!\n";
 		app->m_debug_log.log("Whole Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Whole;
+
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		app->gui.m_half_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		app->gui.m_quater_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		app->gui.m_eight_up_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	};
 	attach_drawable(m_whole_button);
 	m_whole_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -117,9 +120,11 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		std::cout << "\nHalf!\n";
 		app->m_debug_log.log("Half Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Halfe;
+
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		app->gui.m_half_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		app->gui.m_quater_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		app->gui.m_eight_up_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	};
 	attach_drawable(m_half_button);
 	m_half_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -129,12 +134,28 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		app->m_debug_log.log("Quater Button");
 		app->gui.m_sheet_editor.selected_value = Note_Value::Quarter;
 
+
 		app->gui.m_whole_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		app->gui.m_half_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		app->gui.m_quater_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		app->gui.m_eight_up_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	};
 	attach_drawable(m_quater_button);
 	m_quater_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+
+	m_eight_up_button.func = [](Application* app) {
+		std::cout << "\nEight!\n";
+		app->m_debug_log.log("Eight Button");
+		app->gui.m_sheet_editor.selected_value = Note_Value::Eighth;
+
+		app->gui.m_whole_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		app->gui.m_half_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		app->gui.m_quater_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+		app->gui.m_eight_up_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+	};
+	attach_drawable(m_eight_up_button);
+	m_eight_up_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 
 	m_sharp_button.func = [](Application* app) {
 		std::cout << "\nsharp!\n";
@@ -322,7 +343,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_cf_marker.setFont(m_times_new_roman);
 	m_cf_marker.setString("cf");
 	m_cf_marker.setFillColor(sf::Color::Black);
-	m_cf_marker.setPosition({ 1370, 10 });
+	m_cf_marker.setPosition({ 1574, 10 });
 	attach_drawable(m_cf_marker);
 
 	m_soprano_cf_button.func = [](Application* app) {
@@ -332,7 +353,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		app->m_sheet.bass_is_cf = false;
 		if (app->m_sheet.bass_is_cf == false)
 		{
-			app->gui.m_cf_marker.setPosition({ 1366, 60 });
+			app->gui.m_cf_marker.setPosition({ 1570, 60 });
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
@@ -347,12 +368,12 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		app->m_sheet.bass_is_cf = true;
 		if (app->m_sheet.bass_is_cf == true)
 		{
-			app->gui.m_cf_marker.setPosition({ 1366, 260 });
+			app->gui.m_cf_marker.setPosition({ 1570, 260 });
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 }); 
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 	};
-	m_cf_marker.setPosition({ 1366, 260 });
+	m_cf_marker.setPosition({ 1570, 260 });
 	m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 	attach_drawable(m_bass_cf_button);
 

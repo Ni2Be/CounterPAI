@@ -15,7 +15,7 @@ float UI::Sheet::m_bracket_size     = 0.7f;
 sf::Vector2f UI::Sheet::m_treble_clef_pos = { 10.0f, 0.0f };
 sf::Vector2f UI::Sheet::m_bass_clef_pos = { 50.0f, 300.0f };
 sf::Vector2f UI::Sheet::m_note_offset     = { 200.0f, 0.0f };
-int UI::Sheet::m_bar_count = 11;
+int UI::Sheet::m_bar_count = 13;
 int UI::Sheet::notes_per_bar = 4;
 //int UI::Sheet::notes_per_bar = 8; TODO should be scalable
 int UI::Sheet::grid_x_offset = 150;
@@ -450,21 +450,31 @@ void UI::Sheet_Grid_Button::on_clicked()
 		{
 			if (m_parent->m_parent->m_parent->set_flat)
 			{
+				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
+					m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch - 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, false, true), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add b N:" + this->m_debug_message);
 				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(static_cast<Note_Pitch>((int)m_pitch - 1)));
 				m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch - 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, false, true), m_sixteenth_distance);
 			}
 			else if (m_parent->m_parent->m_parent->set_sharp)
 			{
+				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
+					m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch + 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, true, false), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add # N:" + this->m_debug_message);
 				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(static_cast<Note_Pitch>((int)m_pitch + 1)));
 				m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch + 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, true, false), m_sixteenth_distance);
 			}
 			else
 			{
+				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
+					m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);
 				m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(Utility::to_str(m_pitch));
 				m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
+
 			}
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 		}

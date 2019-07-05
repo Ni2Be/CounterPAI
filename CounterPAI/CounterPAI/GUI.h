@@ -51,6 +51,7 @@ namespace UI {
 		Button m_whole_button;
 		Button m_half_button;
 		Button m_quater_button;
+		Button m_eight_up_button;
 		Button m_sharp_button;
 		Button m_flat_button;
 
