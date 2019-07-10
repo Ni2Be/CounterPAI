@@ -8,15 +8,7 @@ Sheet_Music::Sheet_Music()
 {
 }
 
-void Sheet_Music::add_note(const Music_Note note)
-{
-	switch (note.m_voice)
-	{
-	case Voice::Bass: m_bass.push_back(note); break;
-	case Voice::Soprano: m_soprano.push_back(note); break;
-	default: std::cerr << "invalid voice\n"; break;
-	}
-}
+
 
 enum class find_note_flag
 {
@@ -91,19 +83,97 @@ void arrange_notes(
 
 }
 
+void clean_up(std::list<Music_Note>& voice)
+{
+	//split all notes that sound into the next bar
+	std::list<Music_Note>::iterator note = voice.begin();
+	int sixteenths_counter = 0;
+	while (note != voice.end())
+	{
+		int sixteenths = 16 / (int)note->m_value;
+		//note needs to be split
+		if (sixteenths_counter + sixteenths > 16)
+		{
+			int old_note_value = 16 - sixteenths_counter;//sixteenths left in the bar
+			int new_note_value = (16 / (int)note->m_value) - old_note_value;
+			std::cout << "\nsplit: " << old_note_value << ", new:" << new_note_value;
+			if (old_note_value == 12)
+			{
+				note->m_value = Note_Value::Halfe;
+				note++;
+				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Quarter, note->m_voice, true));
+				note--;
+			}
+			else
+			{
+				note->m_value = static_cast<Note_Value>(16 / old_note_value);
+			}
 
+			if (new_note_value == 12)
+			{
+				note->m_value = Note_Value::Quarter;
+				note++;
+				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Halfe, note->m_voice, true));
+				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Quarter, note->m_voice, true));
+			}
+			else
+			{
+				note++;
+				voice.insert(note, Music_Note(note->m_pitch, static_cast<Note_Value>(16 / new_note_value), note->m_voice, true));
+			}
+			sixteenths_counter = new_note_value;
+		}
+		else if (sixteenths_counter + sixteenths == 16)//note fits in the last bar an begins a new
+		{
+			note++;
+			sixteenths_counter = 0;
+		}
+		else//note fits in the last bar
+		{
+			note++;
+			sixteenths_counter += sixteenths;
+		}
+	}
+
+	//set all tied notes pitches 
+	std::list<Music_Note>::iterator next_note = voice.begin();
+	next_note++;
+	note = voice.begin();
+	while (next_note != voice.end())
+	{
+		if (next_note->m_is_tied)
+		{
+			next_note->m_pitch = note->m_pitch;
+			next_note->m_is_flat = note->m_is_flat;
+			next_note->m_is_sharp = note->m_is_sharp;
+
+		}
+		note++;
+		next_note++;
+	}
+}
+
+void Sheet_Music::add_note(const Music_Note note)
+{
+	switch (note.m_voice)
+	{
+	case Voice::Bass: m_bass.push_back(note); clean_up(m_bass); break;
+	case Voice::Soprano: m_soprano.push_back(note); clean_up(m_soprano); break;
+	default: std::cerr << "invalid voice\n"; break;
+	}
+}
 
 void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int sixteenth_distance)
 {
-	std::cout << "\ninserting.. dist: " << sixteenth_distance << "\n";
+	//std::cout << "\ninserting.. dist: " << sixteenth_distance << "\n";
 
 	//find position in list
 	std::list<Music_Note>::iterator note;
 	int position_to_pre = sixteenth_distance;
 	find_note_flag note_pos = find_note_position(voice, note, position_to_pre);
 
-	std::cout << "\nfind_note_position dist: " << sixteenth_distance << "\n";
-	std::cout << "\nfind_note_position dist: " << position_to_pre << "\n";
+	//std::cout << "\nfind_note_position dist: " << sixteenth_distance << "\n";
+	//std::cout << "\nfind_note_position dist: " << position_to_pre << "\n";
 
 	//inserting between two notes, cut predecessor, stretch or cut new note
 	if (note_pos == find_note_flag::WAS_BETWEEN_NOTES)
@@ -152,6 +222,7 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 		if (voice.empty() || note == voice.end())
 		{
 			voice.push_back(new_note);
+			clean_up(voice);
 			return;
 		}
 		*note = new_note;
@@ -160,17 +231,7 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 			note = voice.erase(note);
 	}
 
-	//set all tied notes pitches
-	std::list<Music_Note>::iterator suc_note = voice.begin();
-	suc_note++;
-	std::list<Music_Note>::iterator note_note = voice.begin();
-	while (suc_note != voice.end())
-	{
-		if (suc_note->m_is_tied)
-			suc_note->m_pitch = note_note->m_pitch;
-		note_note++;
-		suc_note++;
-	}
+	clean_up(voice);
 }
 
 void Sheet_Music::add_note(const Music_Note note, int sixteenth_distance)

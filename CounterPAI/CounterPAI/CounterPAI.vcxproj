@@ -138,6 +138,7 @@
     <ClCompile Include="Sheet_Music.cpp" />
     <ClCompile Include="Sheet_Music_Editor.cpp" />
     <ClCompile Include="SVG_Parser.cpp" />
+    <ClCompile Include="Trainings_Data_Gen.cpp" />
     <ClCompile Include="Windows_Folder_Dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,8 +159,8 @@
     <ClInclude Include="Rule_Eval.h" />
     <ClInclude Include="Sheet_Music.h" />
     <ClInclude Include="Sheet_Music_Editor.h" />
-    <ClInclude Include="Signature.h" />
     <ClInclude Include="SVG_Parser.h" />
+    <ClInclude Include="Trainings_Data_Gen.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Windows_Folder_Dialog.h" />
   </ItemGroup>

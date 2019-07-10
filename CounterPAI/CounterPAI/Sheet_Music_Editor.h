@@ -58,8 +58,7 @@ namespace UI {
 	public:
 		Cleff_Grid(Sheet* parent, std::list<Music_Note>& line, Voice voice, Note_Pitch lowest_note, int note_count, sf::Vector2i offset);
 		std::vector<std::vector<std::shared_ptr<Sheet_Grid_Button>>> m_grid;
-		Note_Pitch get_pitch(Note_Pitch lowest_note, int distance) const;
-		int get_distance(Note_Pitch lowest_note, Note_Pitch note) const;
+
 
 		Voice m_voice;
 		Sheet* m_parent;

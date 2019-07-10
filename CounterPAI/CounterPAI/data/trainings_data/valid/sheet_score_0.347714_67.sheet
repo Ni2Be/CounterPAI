@@ -1,0 +1,55 @@
+tempo:
+100
+cf:
+bass
+soprano: 
+B3 p: 59 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+E4 p: 64 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 0 f: 0 s: 0 t: 1 prob: 0 ;
+E4 p: 64 va: 4 vo: 0 f: 0 s: 0 t: 1 prob: 0 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 1 prob: 0 ;
+B4 p: 71 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+G4 p: 67 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 2 vo: 0 f: 0 s: 0 t: 1 prob: 0 ;
+A3 p: 57 va: 4 vo: 0 f: 0 s: 0 t: 1 prob: 0 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G5 p: 79 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.07 ;
+A5 p: 81 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+A5 p: 81 va: 4 vo: 0 f: 0 s: 0 t: 1 prob: 0 ;
+A5 p: 81 va: 4 vo: 0 f: 0 s: 0 t: 1 prob: 0.9 ;
+A4 p: 69 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+B5 p: 83 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.1 ;
+C6 p: 84 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C6 p: 84 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.9 ;
+B5 p: 83 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G5 p: 79 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+G5 p: 79 va: 2 vo: 0 f: 0 s: 0 t: 1 prob: 0.9 ;
+C6 p: 84 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+D5 p: 74 va: 1 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+A5 p: 81 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.1 ;
+C6 p: 84 va: 8 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+A5 p: 81 va: 8 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+G5 p: 79 va: 8 vo: 1 f: 0 s: 0 t: 0 prob: 0.1 ;
+G5 p: 79 va: 8 vo: 1 f: 0 s: 0 t: 1 prob: 0 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 1 t: 0 prob: 0.1 ;
+E4 p: 64 va: 2 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+A4 p: 69 va: 1 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+F5 p: 77 va: 1 vo: 1 f: 0 s: 0 t: 0 prob: 0 ;
+bass: 
+E4 p: 64 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+B3 p: 59 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+B3 p: 59 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+B3 p: 59 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+B3 p: 59 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+end

@@ -198,7 +198,7 @@ UI::Cleff_Grid::Cleff_Grid(Sheet* parent, std::list<Music_Note>& line, Voice voi
 						this,
 						sf::IntRect( { offset.x + i * UI::Sheet::grid_button_width, offset.y + n * UI::Sheet::grid_button_height}
 						, { UI::Sheet::grid_button_width, UI::Sheet::grid_button_height} ),
-						get_pitch(lowest_a_or_c, note_count - 1 - n),
+						Music_Note::get_ACscale_pitch(lowest_a_or_c, note_count - 1 - n),
 						get_note_value_by_grid_pos(i % Sheet::notes_per_bar),
 						i * (16 / Sheet::notes_per_bar)
 						));
@@ -269,7 +269,7 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	{
 		Note ui_note(note);
 
-		offset.y = m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) - (float)get_distance(m_lowest_a_or_c, note.get_basic_note()) * Sheet::grid_button_height;
+		offset.y = m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) - (float)Music_Note::get_ACscale_distance(m_lowest_a_or_c, note.get_basic_note()) * Sheet::grid_button_height;
 
 		if (m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
@@ -300,113 +300,6 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	}
 }
 
-
-Note_Pitch UI::Cleff_Grid::get_pitch(Note_Pitch lowest_note, int distance) const
-{
-	if (lowest_note == Note_Pitch::C2)
-	{
-		switch (distance)
-		{
-		case 0:  return Note_Pitch::C2;
-		case 1:  return Note_Pitch::D2;
-		case 2:  return Note_Pitch::E2;
-		case 3:  return Note_Pitch::F2;
-		case 4:  return Note_Pitch::G2;
-		case 5:  return Note_Pitch::A2;
-		case 6:  return Note_Pitch::B2;
-		case 7:  return Note_Pitch::C3;
-		case 8:  return Note_Pitch::D3;
-		case 9:  return Note_Pitch::E3;
-		case 10: return Note_Pitch::F3;
-		case 11: return Note_Pitch::G3;
-		case 12: return Note_Pitch::A3;
-		case 13: return Note_Pitch::B3;
-		case 14: return Note_Pitch::C4;
-		case 15: return Note_Pitch::D4;
-		case 16: return Note_Pitch::E4;
-		default: std::cerr << "invalid bass Note\n"; break;
-		}
-	}
-	if (lowest_note == Note_Pitch::A3)
-	{
-		switch (distance)
-		{
-		case 0:  return Note_Pitch::A3;
-		case 1:  return Note_Pitch::B3;
-		case 2:  return Note_Pitch::C4;
-		case 3:  return Note_Pitch::D4;
-		case 4:  return Note_Pitch::E4;
-		case 5:  return Note_Pitch::F4;
-		case 6:  return Note_Pitch::G4;
-		case 7:  return Note_Pitch::A4;
-		case 8:  return Note_Pitch::B4;
-		case 9:  return Note_Pitch::C5;
-		case 10: return Note_Pitch::D5;
-		case 11: return Note_Pitch::E5;
-		case 12: return Note_Pitch::F5;
-		case 13: return Note_Pitch::G5;
-		case 14: return Note_Pitch::A5;
-		case 15: return Note_Pitch::B5;
-		case 16: return Note_Pitch::C6;
-		default: std::cerr << "invalid soprano Note\n"; break;
-		}
-	}
-	return Note_Pitch::A0;
-}
-
-
-int UI::Cleff_Grid::get_distance(Note_Pitch lowest_note, Note_Pitch note) const
-{
-	if (lowest_note == Note_Pitch::C2)
-	{
-		switch (note)
-		{
-		case Note_Pitch::C2: return 0;
-		case Note_Pitch::D2: return 1;
-		case Note_Pitch::E2: return 2;
-		case Note_Pitch::F2: return 3;
-		case Note_Pitch::G2: return 4;
-		case Note_Pitch::A2: return 5;
-		case Note_Pitch::B2: return 6;
-		case Note_Pitch::C3: return 7;
-		case Note_Pitch::D3: return 8;
-		case Note_Pitch::E3: return 9;
-		case Note_Pitch::F3: return 10;
-		case Note_Pitch::G3: return 11;
-		case Note_Pitch::A3: return 12;
-		case Note_Pitch::B3: return 13;
-		case Note_Pitch::C4: return 14;
-		case Note_Pitch::D4: return 15;
-		case Note_Pitch::E4: return 16;
-		default: std::cerr << "invalid bass Note\n"; break;
-		}
-	}
-	if (lowest_note == Note_Pitch::A3)
-	{
-		switch (note)
-		{
-		case Note_Pitch::A3: return 0;
-		case Note_Pitch::B3: return 1;
-		case Note_Pitch::C4: return 2;
-		case Note_Pitch::D4: return 3;
-		case Note_Pitch::E4: return 4;
-		case Note_Pitch::F4: return 5;
-		case Note_Pitch::G4: return 6;
-		case Note_Pitch::A4: return 7;
-		case Note_Pitch::B4: return 8;
-		case Note_Pitch::C5: return 9;
-		case Note_Pitch::D5: return 10;
-		case Note_Pitch::E5: return 11;
-		case Note_Pitch::F5: return 12;
-		case Note_Pitch::G5: return 13;
-		case Note_Pitch::A5: return 14;
-		case Note_Pitch::B5: return 15;
-		case Note_Pitch::C6: return 16;
-		default: std::cerr << "invalid soprano Note: " << (int)note << " \n"; break;
-		}
-	}
-	return -1;
-}
 
 UI::Sheet_Grid_Button::Sheet_Grid_Button(Cleff_Grid* parent, sf::IntRect click_area, Note_Pitch pitch, Note_Value value, int sixteenth_distance)
 	:

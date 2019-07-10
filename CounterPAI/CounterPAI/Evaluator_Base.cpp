@@ -150,7 +150,7 @@ void Eval::Evaluator_Base::evaluate_notes(
 		temp_eval.m_motion = get_motion(*cf0_itr, *cf1_itr, *CP0_itr, *CP1_itr);
 		temp_eval.m_position = get_bar_pos(counter_point, CP1_itr);
 		temp_eval.m_beat_pos = get_beat_pos(counter_point, CP1_itr);
-		std::cout << "\neval: " << temp_eval;
+		//std::cout << "\neval: " << temp_eval;
 		temp_eval.m_sixteenth_position = CP1_sixteenth_distance;
 	
 		m_evaluation.push_back(temp_eval);
@@ -286,7 +286,7 @@ Eval::Beat_Position Eval::Evaluator_Base::get_beat_pos(std::list<Music_Note>& vo
 	}
 
 	int beat_pos = sixteenth % 16;
-	std::cout << "\nbeat_pos: " << beat_pos;
+	//std::cout << "\nbeat_pos: " << beat_pos;
 	switch (beat_pos)
 	{
 		case 0: return Beat_Position::Down_Beat; 

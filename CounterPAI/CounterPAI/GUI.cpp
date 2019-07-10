@@ -272,7 +272,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		if (app->gui.m_sheet_editor.wants_info)
 		{
 			app->m_evaluator.evaluate_notes(app->m_sheet.get_cf(), app->m_sheet.get_cp());
-			std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
+			//std::cout << "\nEvaluated:\n" << app->m_evaluator << "\n";
 
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
@@ -387,6 +387,16 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		std::cout << file_name;
 		if(fs)
 			fs >> app->m_sheet;
+		if (app->m_sheet.bass_is_cf)
+			app->gui.m_bass_cf_button.func(app);
+		else
+			app->gui.m_soprano_cf_button.func(app);
+		if (app->m_sheet.quater_bpm == 100)
+			app->gui.m_100_bpm_button.func(app);
+		else if (app->m_sheet.quater_bpm == 200)
+			app->gui.m_200_bpm_button.func(app);
+		else
+			app->gui.m_300_bpm_button.func(app);
 	};
 	attach_drawable(m_load_button);
 	m_load_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });

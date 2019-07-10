@@ -22,6 +22,9 @@ public:
 	std::string m_note_info = "no message!";
 
 
+	static Note_Pitch get_ACscale_pitch(Note_Pitch lowest_note, int distance);
+	static int get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note);
+
 	Note_Pitch get_basic_note();
 	int get_midi_key();
 

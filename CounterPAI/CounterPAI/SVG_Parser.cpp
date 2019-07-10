@@ -1,5 +1,5 @@
 #include "SVG_Parser.h"
-#define DEBUG
+//#define DEBUG
 
 #include <iostream>
 #include <fstream>

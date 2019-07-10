@@ -91,6 +91,9 @@
     <ClCompile Include="Debug_Log.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Trainings_Data_Gen.cpp">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -141,9 +144,6 @@
     <ClInclude Include="date.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Signature.h">
-      <Filter>Application\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Windows_Folder_Dialog.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
@@ -155,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Trainings_Data_Gen.h">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

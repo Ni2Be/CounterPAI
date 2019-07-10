@@ -131,7 +131,6 @@ void Eval::Rule_Eval::r2_use_CoMo_and_ObMo(Note_Evaluation& evaluated_note, Musi
 		}
 		else*/ if (evaluated_note.m_motion == Motion::ObMo)
 		{
-			note.m_note_info += "\n-Oblique Motion is Okay!";
 			evaluated_note.m_probability *= 0.9f;
 		}
 		else if (evaluated_note.m_motion == Motion::DiMo)
@@ -300,11 +299,16 @@ void Eval::Rule_Eval::r6_prohibited_skips(Note_Evaluation& evaluated_note, Music
 		note.m_note_info += "\n-No perfect skips from an unison";
 		evaluated_note.m_probability *= 0.0f;
 	}
+	else if (std::abs((int)last_note.m_pitch - (int)note.m_pitch) > (int) Interval::P8)
+	{
+		note.m_note_info += "\n-No skips bigger than an octave";
+		evaluated_note.m_probability *= 0.1f;
+	}
 }
 
 void Eval::Rule_Eval::r7_allowed_dissonants(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& next_note_eval)
 {
-	if (evaluated_note.m_beat_pos != Beat_Position::Down_Beat)
+	if (evaluated_note.m_beat_pos == Beat_Position::Up_Beat)
 	{
 		if (is_dissonant(evaluated_note.m_interval))
 		{
@@ -394,6 +398,11 @@ void Eval::Rule_Eval::r10_eights_notes(Note_Evaluation& evaluated_note, Music_No
 		{
 			note.m_note_info += "\n-Eight notes are only allowed by a stepwise approach";
 			evaluated_note.m_probability *= 0.0f;
+		}
+		//both eights get the same probability
+		if (evaluated_note.m_beat_pos != Beat_Position::No_Beat)
+		{
+			next_note_eval.m_probability = evaluated_note.m_probability;
 		}
 	}
 }
