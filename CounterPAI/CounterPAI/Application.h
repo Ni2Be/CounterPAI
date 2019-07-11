@@ -7,6 +7,7 @@
 #include "Debug_Log.h"
 #include "Rule_Eval.h"
 #include "Trainings_Data_Gen.h"
+#include "LSTM_Eval.h"
 
 class Application
 {
@@ -18,7 +19,9 @@ public:
 	Sheet_Music m_sheet;
 	Piano_Player player;
 	Keyboard m_feedback_piano;
-	Trainings_Data_Gen generator;
+
+	Eval::Trainings_Data_Gen generator;
+	Eval::LSTM_Eval lstm_evaluator;
 
 	static bool m_is_running;
 

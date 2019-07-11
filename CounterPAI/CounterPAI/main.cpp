@@ -140,17 +140,20 @@ int main()
 //}
 
 
-//
+
 ////LibTorch Test
+//
+//#include <torch/torch.h>
 //
 //#include "Net.h"
 //
 //
 //int main()
 //{
-//	int in_size = 3, out_size = 1;
+//	using namespace Eval;
+//	int in_size = 3, hidden_size = 10, out_size = 1;
 //
-//	auto model = std::make_shared<Net>(Net(in_size, out_size));
+//	auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size));
 //	model->set_learning_rate(0.4);
 //	
 //	
@@ -176,8 +179,8 @@ int main()
 //	//
 //	
 //
-//	auto learn_data = torch::randn({ in_size });
-//	auto target_data = torch::randn({ out_size });
+//	auto learn_data = torch::randn({ 1, 1, in_size });
+//	auto target_data = torch::randn({ 1, 1, out_size });
 //	std::cout << "learn_data :\n" << learn_data << std::endl << std::endl;
 //	std::cout << "target_data :\n" << target_data << std::endl << std::endl;
 //
@@ -219,4 +222,4 @@ int main()
 //	char ch;
 //	std::cin >> ch;
 //}
-//
+

@@ -2,7 +2,7 @@
 #include <list>
 #include <fstream>
 
-Trainings_Data_Gen::Trainings_Data_Gen()
+Eval::Trainings_Data_Gen::Trainings_Data_Gen()
 	:
 	m_gen(m_rd())
 {
@@ -20,7 +20,7 @@ void save_sheet(Sheet_Music& sheet, const std::string folder)
 	ofs << sheet;
 }
 
-void Trainings_Data_Gen::generate_data(int count, const std::string folder)
+void Eval::Trainings_Data_Gen::generate_data(int count, const std::string folder)
 {
 	for (int i = 0; i < count; i++)
 	{
@@ -35,7 +35,7 @@ void Trainings_Data_Gen::generate_data(int count, const std::string folder)
 	}
 }
 
-Sheet_Music Trainings_Data_Gen::generate_sheet()
+Sheet_Music Eval::Trainings_Data_Gen::generate_sheet()
 {
 	Sheet_Music sheet;
 	std::uniform_int_distribution<> dist(0, 1);
@@ -59,7 +59,7 @@ Sheet_Music Trainings_Data_Gen::generate_sheet()
 }
 
 
-void Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, Note_Pitch min, Voice voice)
+void Eval::Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, Note_Pitch min, Voice voice)
 {
 	//gen first note
 	std::uniform_int_distribution<> all_pitches_dist(0, 16);
@@ -69,19 +69,25 @@ void Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, Note_Pit
 
 
 	//gen mid notes
-	std::uniform_int_distribution<> pitch_distance_dist(0, 7);
-	std::uniform_int_distribution<> pitch_distance_sml_dist(1, 2);
-	std::uniform_int_distribution<> pitch_prob_dist(0, 100);
+	std::uniform_int_distribution<> pitch_big_jump_dist(0, 7);
+	std::uniform_int_distribution<> pitch_small_jump_dist(1, 2);
+	std::uniform_int_distribution<> pitch_jump_prob_dist(0, 100);
 	std::uniform_int_distribution<> up_down_dist(0, 1);
-	for (int i = 1; i < m_sheet_bars - 1; i++)
+	for (int i = 1; i < m_sheet_bars; i++)
 	{
 		int distance = Music_Note::get_ACscale_distance(min, voice_line.back().m_pitch);
 
-		int jump_height = pitch_prob_dist(m_gen);
-		if (jump_height < 80)
-			jump_height = pitch_distance_sml_dist(m_gen);
+		//
+		int jump_height = 0;
+		if (pitch_jump_prob_dist(m_gen) < 80)
+			jump_height = pitch_small_jump_dist(m_gen);
 		else
-			jump_height = pitch_distance_dist(m_gen);
+			jump_height = pitch_big_jump_dist(m_gen);
+
+		//last bar should only be approached by a step
+		if (i == m_sheet_bars - 1)
+			jump_height = 1;
+
 		if(up_down_dist(m_gen) == 0)
 			distance = (distance + jump_height) % 16;
 		else
@@ -102,8 +108,7 @@ void Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, Note_Pit
 	std::uniform_int_distribution<> unifioc_dist(0, 2);
 	int unifioc = unifioc_dist(m_gen);
 
-	Music_Note note = voice_line.front();
-	voice_line.push_back(note);
+	Music_Note note = voice_line.back();
 	voice_line.pop_front();
 	std::cout << "\nuznifi: " << unifioc;
 	if (unifioc == 0)
@@ -136,7 +141,7 @@ void Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, Note_Pit
 	}
 }
 
-void Trainings_Data_Gen::generate_cp(Sheet_Music& sheet, Note_Pitch min, Voice voice)
+void Eval::Trainings_Data_Gen::generate_cp(Sheet_Music& sheet, Note_Pitch min, Voice voice)
 {
 	int sixteenths = (m_sheet_bars - 2) * 16; // before last bar will be filled / last bar will be a whole note
 	Note_Value val;

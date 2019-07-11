@@ -129,6 +129,7 @@
     <ClCompile Include="Event_System.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="LSTM_Eval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi_Reader.cpp" />
     <ClCompile Include="Music_Note.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Event_System.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="LSTM_Eval.h" />
     <ClInclude Include="Midi_Reader.h" />
     <ClInclude Include="Music_Note.h" />
     <ClInclude Include="Net.h" />

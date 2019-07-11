@@ -151,6 +151,9 @@ void clean_up(std::list<Music_Note>& voice)
 		note++;
 		next_note++;
 	}
+
+	//TODO connect tied notes that are in the same bar 
+	//to the biggest possible note
 }
 
 void Sheet_Music::add_note(const Music_Note note)

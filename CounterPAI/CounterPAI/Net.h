@@ -1,22 +1,23 @@
-
-//TEST
 #pragma once
 #include <torch/torch.h>
 
-struct Net : torch::nn::Module
+namespace Eval
 {
-	Net(int64_t input, int64_t output);
-	at::Tensor forward(at::Tensor input);
-	torch::nn::LSTM in{ nullptr };
-	//torch::nn::Linear h{ nullptr };
-	torch::nn::Linear out{ nullptr };
-	at::Tensor another_bias;
+	struct Net : torch::nn::Module
+	{
+		Net(int64_t input, int64_t hidden, int64_t output);
+		torch::Tensor forward(torch::Tensor input);
+		torch::nn::LSTM lstm{ nullptr };
+		torch::nn::Linear out{ nullptr };
 
 
-	float m_learning_rate = 0.001;
 
-	void set_learning_rate(double learning_rate);
-	at::Tensor learn_step(at::Tensor learn_data, at::Tensor target_data);
-	std::shared_ptr<torch::optim::SGD> opti;
-};
-//ENDTEST
+		float m_learning_rate = 0.001;
+
+		void set_learning_rate(double learning_rate);
+		torch::Tensor learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize = true);
+		torch::Tensor test_prediction(torch::Tensor test_data, torch::Tensor target_data);
+
+		std::shared_ptr<torch::optim::SGD> opti;
+	};
+}

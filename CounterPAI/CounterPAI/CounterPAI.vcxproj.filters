@@ -94,6 +94,9 @@
     <ClCompile Include="Trainings_Data_Gen.cpp">
       <Filter>Application\Evaluator\LSTM_Eval</Filter>
     </ClCompile>
+    <ClCompile Include="LSTM_Eval.cpp">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -157,6 +160,9 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Trainings_Data_Gen.h">
+      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+    </ClInclude>
+    <ClInclude Include="LSTM_Eval.h">
       <Filter>Application\Evaluator\LSTM_Eval</Filter>
     </ClInclude>
   </ItemGroup>
