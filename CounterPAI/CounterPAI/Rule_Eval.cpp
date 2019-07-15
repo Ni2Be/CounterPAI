@@ -264,7 +264,7 @@ void Eval::Rule_Eval::r5_motion_to_perfect(
 	}
 
 	//R5a
-	std::cout << "\nn: " << get_motion(last_cf_note, cf_note, last_db_note, note);
+	//std::cout << "\nn: " << get_motion(last_cf_note, cf_note, last_db_note, note);
 	if ((evaluated_note.m_beat_pos == Beat_Position::Down_Beat)
 		&& is_perfect(last_db_eval.m_interval)
 		&& is_perfect(evaluated_note.m_interval)

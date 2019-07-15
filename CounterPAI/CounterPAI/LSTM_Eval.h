@@ -11,9 +11,11 @@ namespace Eval
 	{
 	public:
 		LSTM_Eval();
-		~LSTM_Eval();
 
 		void train();
+		void train_cf();
+
+		void generate_cf();
 
 		void load_data();
 	};

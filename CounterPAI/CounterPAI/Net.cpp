@@ -1,9 +1,14 @@
 #include "Net.h"
 
 Eval::Net::Net(int64_t input, int64_t hidden, int64_t output)
+	:
+	lstm(torch::nn::LSTMOptions(input, hidden).layers(3))
 {
-	lstm = register_module("lstm", torch::nn::LSTM(input, hidden));
+	//lstm = register_module("lstm", torch::nn::LSTM(input, hidden));
+	//lstm->options = torch::nn::LSTMOptions(input, hidden).layers(3);
 	out = register_module("out", torch::nn::Linear(hidden, output));
+	
+	;
 
 	opti = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), m_learning_rate));
 }

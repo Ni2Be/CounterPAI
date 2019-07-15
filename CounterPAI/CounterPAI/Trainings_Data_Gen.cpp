@@ -110,18 +110,18 @@ void Eval::Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, No
 
 	Music_Note note = voice_line.back();
 	voice_line.pop_front();
-	std::cout << "\nuznifi: " << unifioc;
+	//std::cout << "\nuznifi: " << unifioc;
 	if (unifioc == 0)
 		voice_line.push_front(note);
 	else if (unifioc == 1)
 	{
 		int distance = Music_Note::get_ACscale_distance(min, note.m_pitch);
-		std::cout << "\ndi: " << distance;
+		//std::cout << "\ndi: " << distance;
 		if (distance + 4 > 16)
 			distance = (distance + 7) % 17;
 		else
 			distance = (distance + 4);
-		std::cout << "\ndi: " << distance;
+		//std::cout << "\ndi: " << distance;
 		voice_line.push_front(
 			Music_Note(Music_Note::get_ACscale_pitch(min, distance), Note_Value::Whole, voice)
 		);
@@ -129,12 +129,12 @@ void Eval::Trainings_Data_Gen::generate_cf(std::list<Music_Note>& voice_line, No
 	else if (unifioc == 2)
 	{
 		int distance = Music_Note::get_ACscale_distance(min, note.m_pitch);
-		std::cout << "\ndi: " << distance;
+		//std::cout << "\ndi: " << distance;
 		if (distance + 7 > 16)
 			distance = (distance + 10) % 17;
 		else
 			distance = (distance + 7);
-		std::cout << "\ndi: " << distance;
+		//std::cout << "\ndi: " << distance;
 		voice_line.push_front(
 			Music_Note(Music_Note::get_ACscale_pitch(min, distance), Note_Value::Whole, voice)
 		);
@@ -200,8 +200,8 @@ void Eval::Trainings_Data_Gen::generate_cp(Sheet_Music& sheet, Note_Pitch min, V
 	} while (sixteenths >= -4 && sixteenths != 0);
 
 	int sixteenth_left = 16 + sixteenths;
-	std::cout << "\nsixteenth: " << sixteenths;
-	std::cout << "\nsixteenth_left: " << sixteenth_left;
+	//std::cout << "\nsixteenth: " << sixteenths;
+	//std::cout << "\nsixteenth_left: " << sixteenth_left;
 	if (sixteenth_left != 0)
 	{
 		val = static_cast<Note_Value>(16 / sixteenth_left);

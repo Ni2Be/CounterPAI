@@ -25,7 +25,7 @@ find_note_flag find_note_position(
 	pos = voice.begin();
 	if (sixteenth_distance == 0)
 	{
-		std::cout << "\nwas at!";
+		//std::cout << "\nwas at!";
 		return find_note_flag::WAS_AT_NOTE;
 	}
 	for (;
@@ -36,18 +36,18 @@ find_note_flag find_note_position(
 		if (sixteenth_distance == 0)
 		{
 			pos++;
-			std::cout << "\nwas at!";
+			//std::cout << "\nwas at!";
 			return find_note_flag::WAS_AT_NOTE;
 		}
 		if (sixteenth_distance < 0)
 		{
 			sixteenth_distance += 16 / static_cast<int>(pos->m_value);
 			pos++;
-			std::cout << "\nwas between!";
+			//std::cout << "\nwas between!";
 			return find_note_flag::WAS_BETWEEN_NOTES;
 		}
 	}
-	std::cout << "\nwas after!";
+	//std::cout << "\nwas after!";
 	return find_note_flag::WAS_AFTER_LAST_NOTE;
 
 }
@@ -59,7 +59,7 @@ void arrange_notes(
 	std::list<Music_Note>::iterator& new_note,
 	int distance_to_predecessor)
 {
-	std::cout << "\ndist to pre: " << distance_to_predecessor;
+	//std::cout << "\ndist to pre: " << distance_to_predecessor;
 
 	switch (distance_to_predecessor)
 	{
@@ -73,7 +73,7 @@ void arrange_notes(
 	case 4: predecessor ->m_value = Note_Value::Quarter;break;
 	case 2: predecessor ->m_value = Note_Value::Eighth; break;
 	case 1: predecessor ->m_value = Note_Value::Sixteenth; break;
-	default: std::cout << "\ninvalid dist\n"; break;
+	default: std::cerr << "\ninvalid dist\n"; break;
 	}
 
 	new_note++;
@@ -96,7 +96,7 @@ void clean_up(std::list<Music_Note>& voice)
 		{
 			int old_note_value = 16 - sixteenths_counter;//sixteenths left in the bar
 			int new_note_value = (16 / (int)note->m_value) - old_note_value;
-			std::cout << "\nsplit: " << old_note_value << ", new:" << new_note_value;
+			//std::cout << "\nsplit: " << old_note_value << ", new:" << new_note_value;
 			if (old_note_value == 12)
 			{
 				note->m_value = Note_Value::Halfe;
@@ -207,15 +207,15 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 			note++;
 			for (; position_to_pre >= dist; position_to_pre -= dist)
 			{
-				std::cout << "\nnote pitch: " << static_cast<int>(new_note.m_pitch);
-				std::cout << "\npre pitch: " << static_cast<int>( predecessor->m_pitch);
+				//std::cout << "\nnote pitch: " << static_cast<int>(new_note.m_pitch);
+				//std::cout << "\npre pitch: " << static_cast<int>( predecessor->m_pitch);
 				voice.push_back(Music_Note(predecessor->m_pitch, val, new_note.m_voice, true));
 			}
 		};
 		fill_in(16, Note_Value::Whole);
 		fill_in(8, Note_Value::Halfe);
 		fill_in(4, Note_Value::Quarter);
-		std::cout << "\nNEW DIST" << sixteenth_distance;
+		//std::cout << "\nNEW DIST" << sixteenth_distance;
 		voice.push_back(new_note);
 	}
 	//note at the end of the list, insert it,
@@ -240,7 +240,7 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 void Sheet_Music::add_note(const Music_Note note, int sixteenth_distance)
 {
 
-	std::cout << "\n..adding";
+	//std::cout << "\n..adding";
 	switch (note.m_voice)
 	{
 	case Voice::Bass: insert_note(m_bass, note, sixteenth_distance); break;
@@ -263,7 +263,7 @@ void erase_note(std::list<Music_Note>& voice, int sixteenth_distance)
 
 	if (note_pos == find_note_flag::WAS_AT_NOTE)
 	{
-		std::cout << "\ndeleting";
+		//std::cout << "\ndeleting";
 		if (voice.empty())
 			return;
 		voice.erase(note);
@@ -290,7 +290,7 @@ std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
 
 	if (note_pos == find_note_flag::WAS_AT_NOTE)
 	{
-		std::cout << "\ngettin info";
+		//std::cout << "\ngettin info";
 		if (voice.empty())
 			return "";
 
@@ -323,7 +323,7 @@ Music_Note get_note_in_voice(std::list<Music_Note>& voice, int sixteenth_distanc
 
 	if (note_pos == find_note_flag::WAS_AT_NOTE)
 	{
-		std::cout << "\ngettin info";
+		//std::cout << "\ngettin info";
 		if (voice.empty())
 			return Music_Note();
 
@@ -398,14 +398,14 @@ std::istream& operator>>(std::istream& is, Sheet_Music& sheet)
 	sheet.m_soprano.clear();
 	sheet.m_bass.clear();
 
-	std::cout << "\nstart\n" << temp << "\n";
+	//std::cout << "\nstart\n" << temp << "\n";
 	while (is)
 	{
 		is >> temp; 
 		if (temp == "bass:")
 		{
 			voice = &sheet.m_bass;
-			std::cout << "\nstart\n" << temp << "\n";
+			//std::cout << "\nstart\n" << temp << "\n";
 			continue;
 		}
 		if (temp == "end")

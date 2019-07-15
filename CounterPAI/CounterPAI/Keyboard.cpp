@@ -11,7 +11,7 @@ Keyboard::Keyboard()
 		sf::SoundBuffer buffer;
 		if (!buffer.loadFromFile("data/sounds/" + std::to_string(i) + ".wav"))
 		{
-			std::cout << "could not load data/sounds/" + std::to_string(i) + ".wav\n";
+			std::cerr << "could not load data/sounds/" + std::to_string(i) + ".wav\n";
 			char df;
 			std::cin >> df;
 			std::exit(-1);
@@ -35,7 +35,7 @@ void Keyboard::play(Music_Note note)
 	{
 		std::cerr << "invalid key: " << midi_key << "\n"; return;
 	}
-	std::cout << "\nPlaying: midi: " << midi_key << "\n";
+	//std::cout << "\nPlaying: midi: " << midi_key << "\n";
 	voice->stop();
 	voice->setBuffer(m_key_sounds[midi_key]);
 	voice->play();
@@ -50,6 +50,6 @@ void Keyboard::stop(Music_Note note)
 	case Voice::Soprano: voice = &m_soprano; break;
 	default: std::cerr << "invalid Voice\n"; break;
 	}
-	std::cout << "\nStoping voice\n";
+	//std::cout << "\nStoping voice\n";
 	voice->stop();
 }

@@ -13,15 +13,16 @@ Application::Application()
 	gui(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, m_WINDOW_TITLE, this)
 {
 	//TESTING
+	//std::cout << "\nGENERATE DATA!";
 	//std::cout.setstate(std::ios_base::failbit);
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/train"))
 	//	std::experimental::filesystem::remove(entry.path());
-	//generator.generate_data(5, "data/trainings_data/train");
+	//generator.generate_data(10000, "data/trainings_data/train");
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/test"))
 	//	std::experimental::filesystem::remove(entry.path());
-	//generator.generate_data(2, "data/trainings_data/test");
+	//generator.generate_data(500, "data/trainings_data/test");
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/valid"))
 	//	std::experimental::filesystem::remove(entry.path());
@@ -38,7 +39,7 @@ Application::Application()
 	//ifs >> m_sheet;
 
 
-	lstm_evaluator.train();
+	lstm_evaluator.train_cf();
 }
 
 int Application::run()

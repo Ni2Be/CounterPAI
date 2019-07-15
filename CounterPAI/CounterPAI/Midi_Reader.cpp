@@ -17,7 +17,7 @@ Midi_Reader::Midi_Reader(const std::string& file_name, int track)
 
 void Midi_Reader::convert_to_sheet(int track)
 {
-	std::cout << "\nConverting..\n";
+	//std::cout << "\nConverting..\n";
 	std::vector<start_end_note> all_notes;
 
 	parse_value_pitch(all_notes, track);
@@ -88,8 +88,8 @@ void Midi_Reader::set_voice(std::vector<start_end_note>& all_notes, int track)
 	{ return lhs.first.first < rhs.first.first; });
 	for (int i = 0; i < all_notes.size(); i++)
 	{
-		std::cout << "note:" << (int)all_notes[i].second.m_pitch << ", ";
-		std::cout << "start: " << all_notes[i].first.first << ", end: " << all_notes[i].first.second << std::endl; 
+		//std::cout << "note:" << (int)all_notes[i].second.m_pitch << ", ";
+		//std::cout << "start: " << all_notes[i].first.first << ", end: " << all_notes[i].first.second << std::endl; 
 		//TODO check for union starts
 		//find the soprano notes
 		for(int other = 0; other < all_notes.size(); other++)
@@ -97,16 +97,16 @@ void Midi_Reader::set_voice(std::vector<start_end_note>& all_notes, int track)
 			if (all_notes[i].first.second > all_notes[other].first.first + 0.1
 				&& all_notes[i].first.first < all_notes[other].first.second - 0.1)
 			{
-				std::cout << "other: " <<(int)all_notes[other].second.m_pitch << ", ";
-				std::cout << "start: " << all_notes[other].first.first << ", end: " << all_notes[other].first.second << std::endl;
+				//std::cout << "other: " <<(int)all_notes[other].second.m_pitch << ", ";
+				//std::cout << "start: " << all_notes[other].first.first << ", end: " << all_notes[other].first.second << std::endl;
 				if (all_notes[i].second.m_pitch > all_notes[other].second.m_pitch)
 				{
-					std::cout << "Soprano\n";
+					//std::cout << "Soprano\n";
 					all_notes[i].second.m_voice = Voice::Soprano;
 				}
 				else
 				{
-					std::cout << "Bass\n";
+					//std::cout << "Bass\n";
 				}
 			}
 		}

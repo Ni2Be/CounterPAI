@@ -2,7 +2,7 @@
 *.dll
 lib/*
 dlls/*
-
+trainings_data/*
 
 
 

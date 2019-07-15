@@ -1,0 +1,31 @@
+tempo:
+300
+cf:
+soprano
+soprano: 
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+A4 p: 69 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+D4 p: 62 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+E4 p: 64 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+A4 p: 69 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+bass: 
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+E3 p: 52 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+A3 p: 57 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+Asharp3 p: 58 va: 1 vo: 0 f: 1 s: 0 t: 0 ;
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+A3 p: 57 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+E3 p: 52 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+D3 p: 50 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+E3 p: 52 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+end
