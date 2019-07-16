@@ -117,41 +117,34 @@ void convert_to_cf_learn_data(std::vector<Sheet_Music>& sheets, std::vector<torc
 		int cf_note_count = cf.size();
 		int current_note = 0;
 
-		//first input is empty
-		std::vector<std::vector<float>> feature_c_scale_pitches(cf.size(), std::vector<float>(c_scale_note_count, 0.0f));
-		std::vector<float> feature_end_percentages;
-		feature_end_percentages.push_back(0.0f);
-
 		//targets are the next note
 		std::vector<std::vector<float>> target_c_scale_pitches(cf.size(), std::vector<float>(c_scale_note_count, 0.0f));
 
 
 		for (auto& note : cf)
 		{
-			//features
+			//targets
+			target_c_scale_pitches[current_note][Music_Note::get_ACscale_distance(lowest_pitch, note.m_pitch)] = 1.0f;
+			current_note++;
+		}
 
-			//first input is all zero
-			//last note is only a target and skiped as input
-			if(current_note < cf.size() - 1)
-				feature_c_scale_pitches[current_note][Music_Note::get_ACscale_distance(lowest_pitch, note.m_pitch)] = 1.0f;
+		//features -----------------------------------
+		current_note = 0;
+		//first input is empty
+		std::vector<float> feature_vector = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+		for (auto& notes : target_c_scale_pitches)
+		{
+			//features
+			feature_vector.insert(feature_vector.end(), notes.begin(), notes.end());
 
 			//+2: the note before the last note should always return a 1.0f
 			end_percentage = (float)(current_note + 2) / (float)cf_note_count;
-			feature_end_percentages.push_back(end_percentage);
-			
-			//targets
-			target_c_scale_pitches[current_note][Music_Note::get_ACscale_distance(lowest_pitch, note.m_pitch)] = 1.0f;
-
+			feature_vector.push_back(end_percentage);
 			current_note++;
+			if (current_note == target_c_scale_pitches.size() - 1)
+				break;
 		}
-		//features -----------------------------------
-		std::vector<float> feature_vector;
-		for (int i = 0; i < feature_c_scale_pitches.size(); i++)
-		{
-			for (auto& one_hot : feature_c_scale_pitches[i])
-				feature_vector.push_back(one_hot);
-			feature_vector.push_back(feature_end_percentages[i]);
-		}
+
 		//input (sequence, batch, features) 
 		auto feature_tensor = torch::tensor(feature_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ static_cast<long>(cf.size()), 1, feature_count });
 		features.push_back(feature_tensor);
@@ -278,6 +271,111 @@ void Eval::LSTM_Eval::train_cf()
 		auto predic = model->forward(feature_tensor);
 
 		std::cout << std::endl << std::endl << "input_data :\n" << first_notes;
+		std::cout << std::endl << std::endl << "Prediction normal:\n" << predic << std::endl;
+		std::cout << std::endl << std::endl << "max:\n" << predic.max() << std::endl;
+		std::cout << std::endl << std::endl << "argmax:\n" << predic.argmax() << std::endl;
+
+
+	}
+	catch
+		(std::exception& e)
+	{
+		std::cerr << "\n" << e.what();
+	}
+
+
+
+	//std::cout.clear();
+}
+
+
+void Eval::LSTM_Eval::train_remember_one_cf()
+{
+	try {
+
+
+		//std::cout.setstate(std::ios_base::failbit);
+		std::cout << "\nTRAIN CF!";
+
+		//load and convert trainings data
+		//std::vector<Sheet_Music> sheets = load_sheets("data/trainings_data/train");
+
+		std::ifstream ifs;
+		std::string file = "data/trainings_data/remember_one_cf/cf.sheet";
+		ifs.open(file);
+		if (!ifs)
+		{
+			std::cerr << "\ncould not open " << file;
+			return;
+		}
+		Sheet_Music temp_sheet;
+		ifs >> temp_sheet;
+		std::vector<Sheet_Music> sheets;
+		sheets.push_back(temp_sheet);
+		std::cout << "\sheets count " << sheets.size();
+		std::vector<torch::Tensor> train_features;
+		std::vector<torch::Tensor> train_targets;
+		convert_to_cf_learn_data(sheets, train_features, train_targets);
+
+
+		//train net
+
+		int in_size = 17 + 1, hidden_size = 24, out_size = 17;
+		int batch_size = 1;
+
+		auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size, 2));
+		model->set_learning_rate(0.9);
+
+		std::cout << "\n\ntrain Features:\n" << train_features[0];
+		std::cout << "\n\ntrain Targets:\n" <<  train_targets[0];
+
+
+		auto prediction = model->forward(train_features[0]);
+		std::cout << std::endl << std::endl << "Prediction:\n" << prediction << std::endl;
+
+
+
+		std::cout << std::endl << "loading model..." << std::endl;
+		torch::load(model, "model_remember_one_cf_hl2_hls24.pt");
+
+		torch::Tensor feature_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), batch_size, 18 });
+		torch::Tensor target_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), batch_size, 17 });
+
+		for (int b = 0; b < batch_size; b++)
+			for (int s = 0; s < sheets[0].get_cf().size(); s++)
+				for (int i = 0; i < in_size; i++)
+					feature_tensor[s][b][i] = train_features[0][s][0][i];
+		for (int b = 0; b < batch_size; b++)
+			for (int s = 0; s < sheets[0].get_cf().size(); s++)
+				for (int i = 0; i < out_size; i++)
+					target_tensor[s][b][i] = train_targets[0][s][0][i];
+
+		std::cout << std::endl << "learning..." << std::endl;
+
+		for (size_t epoch = 0; epoch < 1000000; epoch++)
+		{
+			if (epoch % 100 == 0)
+			{
+				float total_loss = 0.0f;
+				for (int i = 0; i < train_features.size(); i++)
+				{
+					auto test_data_loss = model->test_prediction(feature_tensor, target_tensor);
+					total_loss += test_data_loss.item<float>() / (float)train_features.size();
+				}
+
+				std::cout << "epoch: " << epoch << ", Loss: " << std::sqrt(total_loss) << std::endl;
+				torch::save(model, "model_remember_one_cf_hl2_hls24.pt");
+			}
+
+			for(int i = 0; i < train_features.size(); i++)
+			{
+				model->learn_step(feature_tensor, target_tensor).cuda();
+			}
+
+		}
+		auto predic = model->forward(train_features[0]);
+
+		std::cout << std::endl << std::endl << "input_data :\n" << train_features[0];
 		std::cout << std::endl << std::endl << "Prediction normal:\n" << predic << std::endl;
 		std::cout << std::endl << std::endl << "max:\n" << predic.max() << std::endl;
 		std::cout << std::endl << std::endl << "argmax:\n" << predic.argmax() << std::endl;

@@ -1,8 +1,8 @@
 #include "Net.h"
 
-Eval::Net::Net(int64_t input, int64_t hidden, int64_t output)
+Eval::Net::Net(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count)
 	:
-	lstm(torch::nn::LSTMOptions(input, hidden).layers(3))
+	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count))
 {
 	//lstm = register_module("lstm", torch::nn::LSTM(input, hidden));
 	//lstm->options = torch::nn::LSTMOptions(input, hidden).layers(3);

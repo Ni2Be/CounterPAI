@@ -5,7 +5,7 @@ namespace Eval
 {
 	struct Net : torch::nn::Module
 	{
-		Net(int64_t input, int64_t hidden, int64_t output);
+		Net(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count = 2);
 		torch::Tensor forward(torch::Tensor input);
 		torch::nn::LSTM lstm{ nullptr };
 		torch::nn::Linear out{ nullptr };

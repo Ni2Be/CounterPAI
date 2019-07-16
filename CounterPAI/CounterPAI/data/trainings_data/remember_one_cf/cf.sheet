@@ -1,0 +1,20 @@
+tempo:
+300
+cf:
+bass
+soprano: 
+bass: 
+C3 p: 48 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D3 p: 50 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+E3 p: 52 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+C3 p: 48 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D3 p: 50 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+C3 p: 48 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D3 p: 50 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F3 p: 53 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D3 p: 50 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+B2 p: 47 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+C3 p: 48 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+end

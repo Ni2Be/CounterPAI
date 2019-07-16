@@ -15,6 +15,10 @@ namespace Eval
 		void train();
 		void train_cf();
 
+
+		void train_remember_one_cf();
+
+
 		void generate_cf();
 
 		void load_data();

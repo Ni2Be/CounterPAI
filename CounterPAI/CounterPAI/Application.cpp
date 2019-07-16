@@ -39,7 +39,7 @@ Application::Application()
 	//ifs >> m_sheet;
 
 
-	lstm_evaluator.train_cf();
+	lstm_evaluator.train_remember_one_cf();
 }
 
 int Application::run()
