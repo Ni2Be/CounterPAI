@@ -97,6 +97,9 @@
     <ClCompile Include="LSTM_Eval.cpp">
       <Filter>Application\Evaluator\LSTM_Eval</Filter>
     </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Application\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">

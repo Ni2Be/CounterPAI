@@ -11,13 +11,13 @@ namespace Eval
 		torch::nn::Linear out{ nullptr };
 
 
-
 		float m_learning_rate = 0.001;
 
 		void set_learning_rate(double learning_rate);
 		torch::Tensor learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize = true);
 		torch::Tensor test_prediction(torch::Tensor test_data, torch::Tensor target_data);
 
-		std::shared_ptr<torch::optim::SGD> opti;
+
+		std::shared_ptr<torch::optim::Adam> opti;
 	};
 }

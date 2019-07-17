@@ -10,4 +10,6 @@ namespace Utility
 		ss << element;
 		return ss.str();
 	}
+
+	std::string get_time_stamp();
 }

@@ -351,7 +351,7 @@ void Eval::Rule_Eval::r9_prohibited_resolves(Note_Evaluation& evaluated_note, Mu
 	if (note.m_voice == Voice::Bass)
 		cf_voice = Voice::Soprano;
 	else
-		cf_voice == Voice::Bass;
+		cf_voice = Voice::Bass;
 
 	if (last_note.m_is_tied)
 	{

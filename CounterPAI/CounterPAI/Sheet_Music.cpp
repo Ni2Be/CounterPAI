@@ -414,4 +414,5 @@ std::istream& operator>>(std::istream& is, Sheet_Music& sheet)
 		is >> temp_note;
 		voice->push_back(temp_note);
 	}
+	return is;
 }

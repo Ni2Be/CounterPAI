@@ -140,6 +140,7 @@
     <ClCompile Include="Sheet_Music_Editor.cpp" />
     <ClCompile Include="SVG_Parser.cpp" />
     <ClCompile Include="Trainings_Data_Gen.cpp" />
+    <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Windows_Folder_Dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
