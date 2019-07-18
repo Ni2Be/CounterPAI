@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "Windows_Folder_Dialog.h"
 
 #include <filesystem>
 
@@ -18,11 +19,11 @@ Application::Application()
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/train"))
 	//	std::experimental::filesystem::remove(entry.path());
-	//generator.generate_data(10000, "data/trainings_data/train");
+	//generator.generate_data(1000, "data/trainings_data/train");
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/test"))
 	//	std::experimental::filesystem::remove(entry.path());
-	//generator.generate_data(500, "data/trainings_data/test");
+	//generator.generate_data(100, "data/trainings_data/test");
 
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_data/valid"))
 	//	std::experimental::filesystem::remove(entry.path());
@@ -39,7 +40,9 @@ Application::Application()
 	//ifs >> m_sheet;
 
 
-	lstm_evaluator.train_remember_one_cf();
+	//lstm_evaluator.train_remember_one_cf();
+	
+	//test_runner.run_test(Windows_File_Loader::get_exe_path() + "/data/trainings_settings/test_1.json");
 }
 
 int Application::run()

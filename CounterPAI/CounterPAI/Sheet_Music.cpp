@@ -94,6 +94,7 @@ void clean_up(std::list<Music_Note>& voice)
 		//note needs to be split
 		if (sixteenths_counter + sixteenths > 16)
 		{
+			Music_Note split_note = *note;
 			int old_note_value = 16 - sixteenths_counter;//sixteenths left in the bar
 			int new_note_value = (16 / (int)note->m_value) - old_note_value;
 			//std::cout << "\nsplit: " << old_note_value << ", new:" << new_note_value;
@@ -101,8 +102,9 @@ void clean_up(std::list<Music_Note>& voice)
 			{
 				note->m_value = Note_Value::Halfe;
 				note++;
-				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Quarter, note->m_voice, true));
+				voice.insert(note, Music_Note(split_note.m_pitch, Note_Value::Quarter, split_note.m_voice, true));
 				note--;
+
 			}
 			else
 			{
@@ -113,13 +115,13 @@ void clean_up(std::list<Music_Note>& voice)
 			{
 				note->m_value = Note_Value::Quarter;
 				note++;
-				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Halfe, note->m_voice, true));
-				voice.insert(note, Music_Note(note->m_pitch, Note_Value::Quarter, note->m_voice, true));
+				voice.insert(note, Music_Note(split_note.m_pitch, Note_Value::Halfe, split_note.m_voice, true));
+				voice.insert(note, Music_Note(split_note.m_pitch, Note_Value::Quarter, split_note.m_voice, true));
 			}
 			else
 			{
 				note++;
-				voice.insert(note, Music_Note(note->m_pitch, static_cast<Note_Value>(16 / new_note_value), note->m_voice, true));
+				voice.insert(note, Music_Note(split_note.m_pitch, static_cast<Note_Value>(16 / new_note_value), split_note.m_voice, true));
 			}
 			sixteenths_counter = new_note_value;
 		}
@@ -135,6 +137,7 @@ void clean_up(std::list<Music_Note>& voice)
 		}
 	}
 
+
 	//set all tied notes pitches 
 	std::list<Music_Note>::iterator next_note = voice.begin();
 	next_note++;
@@ -146,7 +149,6 @@ void clean_up(std::list<Music_Note>& voice)
 			next_note->m_pitch = note->m_pitch;
 			next_note->m_is_flat = note->m_is_flat;
 			next_note->m_is_sharp = note->m_is_sharp;
-
 		}
 		note++;
 		next_note++;

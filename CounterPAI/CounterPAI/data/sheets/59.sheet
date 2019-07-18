@@ -1,0 +1,64 @@
+tempo:
+100
+cf:
+bass
+soprano: 
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+B3 p: 59 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.7 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+Asharp3 p: 58 va: 4 vo: 1 f: 1 s: 0 t: 0 prob: 1 ;
+A3 p: 57 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.5 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.5 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+A4 p: 69 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.5 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+A4 p: 69 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+G4 p: 67 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.7 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.5 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 0.7 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+Asharp3 p: 58 va: 4 vo: 1 f: 1 s: 0 t: 0 prob: 1 ;
+C4 p: 60 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+D4 p: 62 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+E4 p: 64 va: 4 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+F4 p: 65 va: 1 vo: 1 f: 0 s: 0 t: 0 prob: 1 ;
+bass: 
+F2 p: 41 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G2 p: 43 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+A2 p: 45 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F2 p: 41 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+D2 p: 38 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+E2 p: 40 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F2 p: 41 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+C3 p: 48 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+A2 p: 45 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F2 p: 41 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+G2 p: 43 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+F2 p: 41 va: 1 vo: 0 f: 0 s: 0 t: 0 prob: 1 ;
+end

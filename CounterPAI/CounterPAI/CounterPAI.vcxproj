@@ -108,7 +108,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\nanosvg\src;$(SolutionDir)..\lib\STB\Include;$(SolutionDir)..\lib\SFML\include;$(SolutionDir)\Midifile;$(SolutionDir)..\lib\libtorch\include;$(SolutionDir)..\lib\libtorch\include\torch\csrc\api\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\rapidjson\include;$(SolutionDir)..\lib\nanosvg\src;$(SolutionDir)..\lib\STB\Include;$(SolutionDir)..\lib\SFML\include;$(SolutionDir)\Midifile;$(SolutionDir)..\lib\libtorch\include;$(SolutionDir)..\lib\libtorch\include\torch\csrc\api\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -133,7 +133,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi_Reader.cpp" />
     <ClCompile Include="Music_Note.cpp" />
-    <ClCompile Include="Net.cpp" />
     <ClCompile Include="Piano_Player.cpp" />
     <ClCompile Include="Rule_Eval.cpp" />
     <ClCompile Include="Sheet_Music.cpp" />
@@ -156,7 +155,6 @@
     <ClInclude Include="LSTM_Eval.h" />
     <ClInclude Include="Midi_Reader.h" />
     <ClInclude Include="Music_Note.h" />
-    <ClInclude Include="Net.h" />
     <ClInclude Include="Piano_Player.h" />
     <ClInclude Include="rapid_csv.h" />
     <ClInclude Include="Rule_Eval.h" />

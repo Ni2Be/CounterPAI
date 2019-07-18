@@ -29,11 +29,11 @@
     <Filter Include="Application\Utility\SVG Parser">
       <UniqueIdentifier>{4df8e44f-1adc-4af4-b331-0ef3eeacf8c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Evaluator\LSTM_Eval">
-      <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Evaluator\Rule_Eval">
+    <Filter Include="Application\Evaluator\Rule_Evaluator">
       <UniqueIdentifier>{acc5686e-d448-423f-848d-56c7812016bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Evaluator\ML_Evaluator">
+      <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,9 +64,6 @@
     <ClCompile Include="Evaluator_Base.cpp">
       <Filter>Application\Evaluator</Filter>
     </ClCompile>
-    <ClCompile Include="Net.cpp">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
@@ -86,16 +83,16 @@
       <Filter>Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Rule_Eval.cpp">
-      <Filter>Application\Evaluator\Rule_Eval</Filter>
+      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="Debug_Log.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Trainings_Data_Gen.cpp">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+      <Filter>Application\Evaluator\ML_Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="LSTM_Eval.cpp">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+      <Filter>Application\Evaluator\ML_Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="Utility.cpp">
       <Filter>Application\Utility</Filter>
@@ -129,9 +126,6 @@
     <ClInclude Include="Evaluator_Base.h">
       <Filter>Application\Evaluator</Filter>
     </ClInclude>
-    <ClInclude Include="Net.h">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
-    </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Application</Filter>
     </ClInclude>
@@ -154,7 +148,7 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Rule_Eval.h">
-      <Filter>Application\Evaluator\Rule_Eval</Filter>
+      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClInclude>
     <ClInclude Include="Debug_Log.h">
       <Filter>Application\Utility</Filter>
@@ -163,10 +157,10 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Trainings_Data_Gen.h">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+      <Filter>Application\Evaluator\ML_Evaluator</Filter>
     </ClInclude>
     <ClInclude Include="LSTM_Eval.h">
-      <Filter>Application\Evaluator\LSTM_Eval</Filter>
+      <Filter>Application\Evaluator\ML_Evaluator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

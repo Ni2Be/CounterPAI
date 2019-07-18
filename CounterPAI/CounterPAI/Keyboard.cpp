@@ -48,7 +48,7 @@ void Keyboard::stop(Music_Note note)
 	{
 	case Voice::Bass: voice = &m_bass; break;
 	case Voice::Soprano: voice = &m_soprano; break;
-	default: std::cerr << "invalid Voice\n"; break;
+	default: std::cerr << "Keyboard::stop() invalid Voice\n" << (int)note.m_voice; break;
 	}
 	//std::cout << "\nStoping voice\n";
 	voice->stop();

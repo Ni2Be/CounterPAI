@@ -23,6 +23,8 @@ public:
 	Eval::Trainings_Data_Gen generator;
 	Eval::LSTM_Eval lstm_evaluator;
 
+	Eval::LSTM_Test_Runner test_runner;
+
 	static bool m_is_running;
 
 	const int m_WINDOW_WIDTH = 1900;

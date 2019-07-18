@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <vector>
+#include <iomanip>
 
 #include "Sheet_Music.h"
 
@@ -13,21 +14,94 @@
 #include "Utility.h"
 
 #include "rapid_csv.h"
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 
-Eval::LSTM_Eval::LSTM_Eval()
+
+//----------------------------- LSTM -----------------------------
+
+Eval::LSTM::LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss_f)
+	:
+	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count)),
+	s_optimizer(opti),
+	s_loss_func(loss_f)
 {
+	out = register_module("out", torch::nn::Linear(hidden, output));
+	register_module("lstm", lstm);
 
 
+	if(s_optimizer == Opti::ADAM)
+		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
+	else if(s_optimizer == Opti::SGD)
+		optimizer = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), s_learning_rate));
+}
+
+void Eval::LSTM::set_learning_rate(double learning_rate)
+{
+	s_learning_rate = learning_rate;
+	optimizer.reset();
+	if (s_optimizer == Opti::ADAM)
+		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
+	else if (s_optimizer == Opti::SGD)
+		optimizer = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), s_learning_rate));
+}
+
+torch::Tensor Eval::LSTM::forward(torch::Tensor x)
+{
+	//input (sequence, batch, features) 
+	torch::nn::RNNOutput lstm_out = lstm->forward(x);
+	//output (seq_len, batch, num_directions * hidden_size)
+	x = lstm_out.output;
+	x = out->forward(x).sigmoid();
+	return x;
+}
+
+torch::Tensor Eval::LSTM::learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize)
+{
+	try
+	{
+		this->zero_grad();
+		auto new_prediction = this->forward(learn_data);
+
+		torch::Tensor loss;
+		if(s_loss_func == Loss_F::MSL)
+			loss = torch::mse_loss(new_prediction, target_data);
+		else if(s_loss_func == Loss_F::BCEL)
+			loss = torch::binary_cross_entropy(new_prediction, target_data);
+		if (optimize)
+		{
+			loss.backward();
+			optimizer->step();
+		}
+		return loss;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "\n\nEXEPTION:\n" << e.what();
+		char ch;
+		std::cin >> ch;
+	}
+}
+
+torch::Tensor Eval::LSTM::test_prediction(torch::Tensor test_data, torch::Tensor target_data)
+{
+	return learn_step(test_data, target_data, false);
 }
 
 
+
+//----------------------------- LSTM EVAL -----------------------------
+
+Eval::LSTM_Eval::LSTM_Eval()
+{
+}
 
 void Eval::LSTM_Eval::train()
 {
 	int in_size = 3, hidden_size = 10, out_size = 1;
 	int batch_size = 10, sequence_size = 10;
 
-	auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size));
+	auto model = std::make_shared<LSTM>(LSTM(in_size, hidden_size, out_size, 1, LSTM::Opti::ADAM, LSTM::Loss_F::BCEL));
 
 	model->set_learning_rate(0.04);
 
@@ -146,6 +220,9 @@ void convert_to_cf_learn_data(std::vector<Sheet_Music>& sheets, std::vector<torc
 
 			//+2: the note before the last note should always return a 1.0f
 			end_percentage = (float)(current_note + 2) / (float)cf_note_count;
+			
+			//TODO test result it is possible to train the LSTM without the endpercentage
+			//feature_vector.push_back(0.0f);
 			feature_vector.push_back(end_percentage);
 			current_note++;
 			if (current_note == target_c_scale_pitches.size() - 1)
@@ -176,123 +253,6 @@ void convert_to_cf_learn_data(std::vector<Sheet_Music>& sheets, std::vector<torc
 	{
 		std::cerr << "\n" << e.what();
 	}
-}
-
-void Eval::LSTM_Eval::train_cf()
-{
-	try {
-
-
-	//std::cout.setstate(std::ios_base::failbit);
-	std::cout << "\nTRAIN CF!";
-
-	//load and convert trainings data
-	//std::vector<Sheet_Music> sheets = load_sheets("data/trainings_data/train");
-	std::vector<Sheet_Music> sheets = load_sheets("data/sheets");
-	std::cout << "\nsheets count " << sheets.size();
-	std::vector<torch::Tensor> train_features;
-	std::vector<torch::Tensor> train_targets;
-	convert_to_cf_learn_data(sheets, train_features, train_targets);
-
-	//load and convert test data
-	//std::vector<Sheet_Music> test_sheets = load_sheets("data/trainings_data/test");
-	std::vector<Sheet_Music> test_sheets = load_sheets("data/sheets");
-	std::vector<torch::Tensor> test_features;
-	std::vector<torch::Tensor> test_targets;
-	convert_to_cf_learn_data(test_sheets, test_features, test_targets);
-
-
-
-	//train net
-
-	int in_size = 17 + 1, hidden_size = 64, out_size = 17;
-	int batch_size = 1;
-
-	auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size));
-	model->set_learning_rate(0.9);
-
-
-	//std::cout << std::endl << "Vor lernen: " << std::endl;
-	//for (const auto& p : model->named_parameters())
-	//{
-	//	std::cout << p.key() << std::endl << p.value() << std::endl;
-	//}
-
-	//generate TEST cf
-	//first input note
-	std::vector<float> first_notes(in_size * 2, 0);
-	//C
-	first_notes[8] = 1.0f;
-	first_notes[in_size - 1] = 0.0f;
-	//D
-	first_notes[in_size + 9] = 1.0f;
-	first_notes[in_size * 2 - 1] = 0.1f;
-
-	auto feature_tensor = torch::tensor(first_notes, at::requires_grad(false).dtype(torch::kFloat32)).view({ 2, 1, in_size });
-
-
-	auto prediction = model->forward(feature_tensor);
-	std::cout << std::endl << std::endl << "Prediction:\n" << prediction << std::endl;
-
-
-
-	std::cout << std::endl << "loading model..." << std::endl;
-	torch::load(model, "model_2_epoch_87000.pt");
-
-
-	std::cout << std::endl << "learning..." << std::endl;
-
-	//for (size_t epoch = 0; epoch < 1000000; epoch++)
-	//{
-	//	if (epoch % 1000 == 0)
-	//	{
-	//		float total_loss = 0.0f;
-	//		for (int i = 0; i < test_features.size(); i++)
-	//		{
-	//			auto test_data_loss = model->test_prediction(test_features[i], test_targets[i]);
-	//			total_loss += test_data_loss.item<float>() / (float)test_features.size();
-	//		}
-
-	//		std::cout << "epoch: " << epoch << ", Loss: " << std::sqrt(total_loss) << std::endl;
-	//		torch::save(model, "model_2_epoch_" + std::to_string(epoch) + ".pt");
-	//	}
-
-	//	for(int i = 0; i < train_features.size(); i++)
-	//	{
-	//		model->learn_step(train_features[i], train_targets[i]);
-	//	}
-
-	//}
-
-
-	//std::cout << std::endl << "Nach lernen: " << std::endl;
-	//for (const auto& p : model->named_parameters())
-	//{
-	//	std::cout << p.key() << std::endl << p.value() << std::endl;
-	//}
-
-
-
-
-
-		auto predic = model->forward(feature_tensor);
-
-		std::cout << std::endl << std::endl << "input_data :\n" << first_notes;
-		std::cout << std::endl << std::endl << "Prediction normal:\n" << predic << std::endl;
-		std::cout << std::endl << std::endl << "max:\n" << predic.max() << std::endl;
-		std::cout << std::endl << std::endl << "argmax:\n" << predic.argmax() << std::endl;
-
-
-	}
-	catch
-		(std::exception& e)
-	{
-		std::cerr << "\n" << e.what();
-	}
-
-
-
-	//std::cout.clear();
 }
 
 
@@ -333,85 +293,84 @@ void log_results(const std::string file_name, const std::vector<std::string>& ti
 }
 
 
-void Eval::LSTM_Eval::train_remember_one_cf()
+void Eval::LSTM_Eval::train_remember_one_cf(LSTM_Settings settings)
 {
+	//std::cout.setstate(std::ios_base::failbit);
 	try {
-
-
-		//std::cout.setstate(std::ios_base::failbit);
 		std::cout << "\nTRAIN CF!";
 
 		//load and convert trainings data
-		//std::vector<Sheet_Music> sheets = load_sheets("data/trainings_data/train");
-
-
-		std::ifstream ifs;
-		std::string file = "data/trainings_data/remember_one_cf/cf.sheet";
-		ifs.open(file);
-		if (!ifs)
-		{
-			std::cerr << "\ncould not open " << file;
-			return;
-		}
-		Sheet_Music temp_sheet;
-		ifs >> temp_sheet;
-		std::vector<Sheet_Music> sheets;
-		sheets.push_back(temp_sheet);
+		std::vector<Sheet_Music> sheets = load_sheets(settings.train_data_folder);
 		std::cout << "\nsheets count " << sheets.size();
 		std::vector<torch::Tensor> train_features;
 		std::vector<torch::Tensor> train_targets;
 		convert_to_cf_learn_data(sheets, train_features, train_targets);
 
-
-		//train net
-		int in_size = 17 + 1, hidden_size = 24, out_size = 17;
-		int hidden_layer_count = 1;
-		int batch_size = 1;
-		std::string test_case_name = "model_remember_one_cf_hl " + std::to_string(hidden_layer_count) + "_hls" + std::to_string(hidden_size) + "_adam";
-
-		auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size, hidden_layer_count));
-		model->set_learning_rate(0.4);
-
-		std::cout << "\n\ntrain Features:\n" << train_features[0];
-		std::cout << "\n\ntrain Targets:\n" <<  train_targets[0];
-
-		//std::cout << std::endl << "loading model..." << std::endl;
-		//torch::load(model, test_case_name + ".pt");
+		//load and convert test data
+		std::vector<Sheet_Music> test_sheets = load_sheets(settings.test_data_folder);
+		std::vector<torch::Tensor> test_features;
+		std::vector<torch::Tensor> test_targets;
+		convert_to_cf_learn_data(test_sheets, test_features, test_targets);
 
 
-		torch::Tensor feature_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), batch_size, 18 });
-		torch::Tensor target_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), batch_size, 17 });
 
-		for (int b = 0; b < batch_size; b++)
+
+		//convert sheet tensor vectors to batch tensors
+		torch::Tensor feature_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), settings.batch_size, 18 });
+		torch::Tensor target_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), settings.batch_size, 17 });
+
+		for (int b = 0; b < settings.batch_size; b++)
 			for (int s = 0; s < sheets[0].get_cf().size(); s++)
-				for (int i = 0; i < in_size; i++)
+				for (int i = 0; i < settings.in_size; i++)
 					feature_tensor[s][b][i] = train_features[0][s][0][i];
-		for (int b = 0; b < batch_size; b++)
+		for (int b = 0; b < settings.batch_size; b++)
 			for (int s = 0; s < sheets[0].get_cf().size(); s++)
-				for (int i = 0; i < out_size; i++)
+				for (int i = 0; i < settings.out_size; i++)
 					target_tensor[s][b][i] = train_targets[0][s][0][i];
 
-		std::cout << std::endl << "learning..." << std::endl;
+		torch::Tensor test_feature_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), settings.batch_size, 18 });
+		torch::Tensor test_target_tensor = torch::zeros({ (int)sheets[0].get_cf().size(), settings.batch_size, 17 });
+
+		for (int b = 0; b < settings.batch_size; b++)
+			for (int s = 0; s < sheets[0].get_cf().size(); s++)
+				for (int i = 0; i < settings.in_size; i++)
+					test_feature_tensor[s][b][i] = test_features[0][s][0][i];
+		for (int b = 0; b < settings.batch_size; b++)
+			for (int s = 0; s < sheets[0].get_cf().size(); s++)
+				for (int i = 0; i < settings.out_size; i++)
+					test_target_tensor[s][b][i] = test_targets[0][s][0][i];
+
 
 		//log progress
 		std::vector<std::string> times;
 		std::vector<int> epochs;
 		std::vector<float> losses;
 
+		std::string test_case_name = settings.test_name
+			+ "_hlc" + std::to_string(settings.hidden_layer_count)
+			+ "_hls" + std::to_string(settings.hidden_size)
+			+ "_opti_" + Utility::to_str(settings.optimizer)
+			+ "_lossf_" + Utility::to_str(settings.loss_func)
+			+ "_lr_" + std::to_string(settings.learning_rate);
 
-		for (size_t epoch = 0; epoch < 500; epoch++)
+		//LSTM
+		auto model = std::make_shared<LSTM>(LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func));
+		model->set_learning_rate(settings.learning_rate);
+
+		std::cout << std::endl << "learning..." << std::endl;
+		for (size_t epoch = 0; epoch < settings.epochs; epoch++)
 		{
 			if (epoch % 10 == 0)
 			{
 				float total_loss = 0.0f;
 				for (int i = 0; i < train_features.size(); i++)
 				{
-					auto test_data_loss = model->test_prediction(feature_tensor, target_tensor);
+					auto test_data_loss = model->test_prediction(test_feature_tensor, test_target_tensor);
 					total_loss += test_data_loss.item<float>() / (float)train_features.size();
 				}
 
 				std::cout << "epoch: " << epoch << ", Loss: " << total_loss << std::endl;
-				torch::save(*model->opti, test_case_name + "opti" + ".pt");
+				torch::save(*model->optimizer, test_case_name + "opti" + ".pt");
 				torch::save(model, test_case_name + ".pt");
 				times.push_back(Utility::get_time_stamp());
 				epochs.push_back(epoch);
@@ -423,46 +382,95 @@ void Eval::LSTM_Eval::train_remember_one_cf()
 				model->learn_step(feature_tensor, target_tensor);
 			}
 		}
-
 		//SAVE
 		torch::save(model, test_case_name + ".pt");
-		torch::save(*model->opti, test_case_name + "opti" + ".pt");
-		std::cout << std::endl << "nach lernen: " << std::endl;
-		auto predic = model->forward(train_features[0]);
-		std::cout << std::endl << std::endl << "Prediction:\n" << predic << std::endl;
-
+		torch::save(*model->optimizer, test_case_name + "opti" + ".pt");
 
 		//LOAD
 		torch::load(model, test_case_name + ".pt");
-		torch::load(*model->opti, test_case_name + "opti" + ".pt");
+		torch::load(*model->optimizer, test_case_name + "opti" + ".pt");
 		model->eval();
-		std::cout << std::endl << "nach loading: " << std::endl;
-		auto predic2 = model->forward(train_features[0]);
-		std::cout << std::endl << std::endl << "Prediction:\n" << predic2 << std::endl;
-
+		auto predic = model->forward(test_features[0]);
+		
+		std::cout << std::endl << std::endl << "Prediction:\n"  << predic << std::endl;
 
 		//log progress
 		log_results(test_case_name, times, epochs, losses);
-
-		//auto predic = model->forward(train_features[0]);
-
-		//std::cout << std::endl << std::endl << "input_data :\n" << train_features[0];
-		//std::cout << std::endl << std::endl << "Prediction:\n" << predic << std::endl;
-		//std::cout << std::endl << std::endl << "max:\n" << predic.max() << std::endl;
-		//std::cout << std::endl << std::endl << "argmax:\n" << predic.argmax() << std::endl;
 	}
 	catch
 		(std::exception& e)
 	{
 		std::cerr << "\n" << e.what();
 	}
-
-
-
 	//std::cout.clear();
 }
 
 void generate_cf()
 {
 
+}
+
+//----------------------------- LSTM TEST RUNNER -----------------------------
+
+Eval::LSTM_Settings::LSTM_Settings(const std::string& parameters_file)
+{
+	read_parameters(parameters_file);
+}
+
+void Eval::LSTM_Settings::read_parameters(const std::string& parameters_file_name)
+{
+	rapidjson::Document parameter;
+	std::ifstream ifs(parameters_file_name);
+	if (!ifs)
+	{
+		std::cerr << "\ncould not open: " + parameters_file_name + "\n";
+		return;
+	}
+	rapidjson::IStreamWrapper isw(ifs);
+	parameter.ParseStream(isw);
+
+	test_name = parameter["name"].GetString();
+
+	in_size = parameter["in_size"].GetInt();
+	hidden_size = parameter["hidden_size"].GetInt();
+	out_size = parameter["out_size"].GetInt();
+
+	hidden_layer_count = parameter["hidden_layer_count"].GetInt();
+	batch_size = parameter["batch_size"].GetInt();
+	epochs = parameter["epochs"].GetInt();
+	optimizer = opti_from_string(parameter["optimizer"].GetString());
+	loss_func = loss_f_from_string(parameter["loss_func"].GetString());
+	learning_rate = parameter["learning_rate"].GetFloat();
+	train_data_folder = parameter["train_data_folder"].GetString();
+	test_data_folder = parameter["test_data_folder"].GetString();
+}
+
+
+
+Eval::LSTM_Test_Runner::LSTM_Test_Runner()
+{
+
+}
+
+void Eval::LSTM_Test_Runner::run_test(const std::string& test_file)
+{
+	LSTM_Settings settings(test_file);
+	
+	std::cout << settings;
+
+	evaluator.train_remember_one_cf(settings);
+}
+
+
+
+std::ostream& Eval::operator<<(std::ostream& os, LSTM_Settings& test)
+{
+	os << "\nTest name: " << test.test_name 
+		<< "\nin_size: " << test.in_size << ", hidden_size: " << test.hidden_size << ", out_size: " << test.out_size 
+		<< "\nhidden_layer_count: " << test.hidden_layer_count << ", batch_size: " << test.batch_size << ", epochs: " << test.epochs
+		<< "\noptimizer: " << test.optimizer << ", loss_func: " << test.loss_func 
+		<< "\nlearning_rate: " << test.learning_rate 
+		<< "\ntrain_data_folder: " << test.train_data_folder 
+		<< "\ntest_data_folder: " << test.test_data_folder << "\n";
+	return os;
 }
