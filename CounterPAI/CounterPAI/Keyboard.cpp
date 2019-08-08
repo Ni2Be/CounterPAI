@@ -17,39 +17,45 @@ Keyboard::Keyboard()
 			std::exit(-1);
 		}
 		m_key_sounds[i] = buffer;
+		m_keys[i].setBuffer(m_key_sounds[i]);
+		m_keys_pressed[i] = 0;
 	}
 }
 
 void Keyboard::play(Music_Note note)
 {
-	sf::Sound* voice = &m_bass; //just to avoid nullptr
-	switch (note.m_voice)
-	{
-	case Voice::Bass: voice = &m_bass; break;
-	case Voice::Soprano: voice = &m_soprano; break;
-	default: std::cerr << "invalid Voice\n"; break;
-	}
-
 	int midi_key = note.get_midi_key();
 	if (midi_key < 21 || midi_key > 121)
 	{
-		std::cerr << "invalid key: " << midi_key << "\n"; return;
+		std::cerr << "invalid key: " << midi_key << "\n"; 
+		return;
 	}
-	//std::cout << "\nPlaying: midi: " << midi_key << "\n";
-	voice->stop();
-	voice->setBuffer(m_key_sounds[midi_key]);
-	voice->play();
+	m_keys[midi_key].stop();
+	m_keys[midi_key].play();
+	m_keys_pressed[midi_key]++;
 }
 
 void Keyboard::stop(Music_Note note)
 {
-	sf::Sound* voice = &m_bass; //just to avoid nullptr
-	switch (note.m_voice)
+	int midi_key = note.get_midi_key();
+	if (midi_key < 21 || midi_key > 121)
 	{
-	case Voice::Bass: voice = &m_bass; break;
-	case Voice::Soprano: voice = &m_soprano; break;
-	default: std::cerr << "Keyboard::stop() invalid Voice\n" << (int)note.m_voice; break;
+		std::cerr << "invalid key: " << midi_key << "\n";
+		return;
 	}
-	//std::cout << "\nStoping voice\n";
-	voice->stop();
+
+	m_keys_pressed[midi_key]--;
+	if (m_keys_pressed[midi_key] <= 0)
+	{
+		m_keys[midi_key].stop();
+		m_keys_pressed[midi_key] = 0;
+	}
+}
+
+void Keyboard::stop()
+{
+	for (auto& key : m_keys)
+		key.second.stop();
+	for (auto& key_pre : m_keys_pressed)
+		key_pre.second = 0;
 }

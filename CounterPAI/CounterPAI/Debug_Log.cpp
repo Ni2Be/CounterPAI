@@ -3,7 +3,7 @@
 #include "date.h"
 #include <iostream>
 #include <fstream>
-#include "Windows_Folder_Dialog.h"
+#include "Folder_Dialog.h"
 #include "Utility.h"
 
 Debug_Log::Debug_Log()
@@ -11,7 +11,7 @@ Debug_Log::Debug_Log()
 	std::string s = Utility::get_time_stamp();
 	std::replace(s.begin(), s.end(), ':', '-');
 	
-	m_file_name = Windows_File_Loader::get_exe_path() + "/logs/Log " + s + ".txt";
+	m_file_name = Folder_Dialog::get_exe_path() + "/logs/Log " + s + ".txt";
 	std::replace(m_file_name.begin(), m_file_name.end(), '\\', '/');
 
 	std::cout << "\nLog file: " << m_file_name;

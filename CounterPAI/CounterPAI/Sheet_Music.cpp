@@ -17,6 +17,8 @@ enum class find_note_flag
 	WAS_AFTER_LAST_NOTE
 };
 
+
+//TODO bugfix eight after last note, noteinfo crash
 find_note_flag find_note_position(
 	std::list<Music_Note>& voice, 
 	std::list<Music_Note>::iterator& pos, 
@@ -283,8 +285,12 @@ void Sheet_Music::delete_note(Voice voice, int sixteenth_distance)
 }
 
 
-std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
+
+
+Music_Note get_note_in_voice(std::list<Music_Note>& voice, int sixteenth_distance, bool& was_at, bool first_try = true)
 {
+	if (voice.empty())
+		return Music_Note();
 	//find position in list
 	std::list<Music_Note>::iterator note;
 	int position_to_pre = sixteenth_distance;
@@ -292,18 +298,53 @@ std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
 
 	if (note_pos == find_note_flag::WAS_AT_NOTE)
 	{
-		//std::cout << "\ngettin info";
-		if (voice.empty())
-			return "";
-
-		std::string note_info = note->m_note_info;
-		std::replace(note_info.begin(), note_info.end(), '\t', '\n');
-		std::replace(note_info.begin(), note_info.end(), ':', '\n');
-		std::replace(note_info.begin(), note_info.end(), ',', ' ');
-		
-		return  note_info + "\n\nProbability\n" + std::to_string(note->m_probability);
+		if(first_try)
+			was_at = true;
+		return *note;
 	}
-	return "";
+	else if (note_pos == find_note_flag::WAS_AFTER_LAST_NOTE)
+		return Music_Note();
+	if (sixteenth_distance < 0)
+		return Music_Note();
+	else
+		return get_note_in_voice(voice, sixteenth_distance - 1, was_at, false);
+}
+
+Music_Note Sheet_Music::get_note(Voice voice, int sixteenth_distance, bool& was_at)
+{
+	switch (voice)
+	{
+	case Voice::Bass: return get_note_in_voice(m_bass, sixteenth_distance, was_at); break;
+	case Voice::Soprano: return get_note_in_voice(m_soprano, sixteenth_distance, was_at); break;
+	default: std::cerr << "invalid voice\n"; break;
+	}
+}
+
+Music_Note Sheet_Music::get_note(Voice voice, int sixteenth_distance)
+{
+	bool dummy;
+	switch (voice)
+	{
+	case Voice::Bass: return get_note_in_voice(m_bass, sixteenth_distance, dummy); break;
+	case Voice::Soprano: return get_note_in_voice(m_soprano, sixteenth_distance, dummy); break;
+	default: std::cerr << "invalid voice\n"; break;
+	}
+}
+
+std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
+{
+	if (voice.empty())
+		return "";
+	//find position in list
+	bool dummy;
+	Music_Note note = get_note_in_voice(voice, sixteenth_distance, dummy);
+
+	std::string note_info = note.m_note_info;
+	std::replace(note_info.begin(), note_info.end(), '\t', '\n');
+	std::replace(note_info.begin(), note_info.end(), ':', '\n');
+	std::replace(note_info.begin(), note_info.end(), ',', ' ');
+	
+	return  note_info + "\n\nProbability\n" + std::to_string(note.m_probability);
 }
 
 std::string Sheet_Music::get_note_info(Voice voice, int sixteenth_distance)
@@ -312,34 +353,6 @@ std::string Sheet_Music::get_note_info(Voice voice, int sixteenth_distance)
 	{
 	case Voice::Bass: return get_info(m_bass, sixteenth_distance); break;
 	case Voice::Soprano: return get_info(m_soprano, sixteenth_distance); break;
-	default: std::cerr << "invalid voice\n"; break;
-	}
-}
-
-Music_Note get_note_in_voice(std::list<Music_Note>& voice, int sixteenth_distance)
-{
-	//find position in list
-	std::list<Music_Note>::iterator note;
-	int position_to_pre = sixteenth_distance;
-	find_note_flag note_pos = find_note_position(voice, note, position_to_pre);
-
-	if (note_pos == find_note_flag::WAS_AT_NOTE)
-	{
-		//std::cout << "\ngettin info";
-		if (voice.empty())
-			return Music_Note();
-
-		return *note;
-	}
-	return Music_Note();
-}
-
-Music_Note Sheet_Music::get_note(Voice voice, int sixteenth_distance)
-{
-	switch (voice)
-	{
-	case Voice::Bass: return get_note_in_voice(m_bass, sixteenth_distance); break;
-	case Voice::Soprano: return get_note_in_voice(m_soprano, sixteenth_distance); break;
 	default: std::cerr << "invalid voice\n"; break;
 	}
 }

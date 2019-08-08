@@ -293,8 +293,18 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 			symbol.setString("b");
 		else if (note.m_is_sharp)
 			symbol.setString("#");
-
 		target.draw(symbol, states);
+
+		//draw helper lines TODO
+		/*if (note.m_pitch == Note_Pitch::C4
+			|| note.m_pitch == Note_Pitch::B3)
+		{
+
+			sf::RectangleShape line({30.0f, 2 });
+			line.setFillColor(sf::Color::Black);
+			target.draw(line, states);
+		}*/
+
 
 		offset.x += ui_note.get_offset();
 	}
@@ -315,6 +325,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 {
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
+		m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.stop();
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
@@ -369,6 +380,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 				m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance);
 
 			}
+			m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.stop();
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 		}
 	}

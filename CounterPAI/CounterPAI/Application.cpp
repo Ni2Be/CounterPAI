@@ -3,7 +3,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "Windows_Folder_Dialog.h"
+#include "Folder_Dialog.h"
 
 #include <filesystem>
 
@@ -41,8 +41,14 @@ Application::Application()
 
 
 	//lstm_evaluator.train_remember_one_cf();
-	
+
 	//test_runner.run_test(Windows_File_Loader::get_exe_path() + "/data/trainings_settings/test_1.json");
+	//test_runner.run_test(Windows_File_Loader::get_exe_path() + "/data/trainings_settings/evaluate_fux_rules_1.json");
+
+	for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_settings"))
+		test_runner.run_test(entry.path().string());
+
+	//m_sheet = lstm_evaluator.testing();
 }
 
 int Application::run()

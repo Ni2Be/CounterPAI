@@ -1,0 +1,17 @@
+{
+  "name": "remember one cf",
+  "in_size": 18,
+  "hidden_size": 24,
+  "out_size": 17,
+  "hidden_layer_count": 2,
+  "batch_size": 1,
+  "epochs": 500,
+  "optimizer": "ADAM",
+  "loss_func": "BCEL",
+  "learning_rate": 0.01,
+  "train_data_folder": "data/trainings_data/remember_one_cf",
+  "test_data_folder": "data/trainings_data/remember_one_cf",
+  "data_converter": "convert_to_cf_learn_data",
+  "Possible Optis": [ "ADAM", "SGD" ],
+  "Possible Loss_F": [ "MSL", "BCEL" ]
+}

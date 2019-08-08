@@ -35,10 +35,11 @@ namespace Eval
 	public:
 		LSTM_Eval();
 
-		void train();
+		Sheet_Music testing();
 
-		void train_remember_one_cf(LSTM_Settings settings);
+		//void train();
 
+		void train_net(LSTM_Settings settings);
 
 		//void generate_cf();
 
@@ -63,7 +64,8 @@ namespace Eval
 		std::string train_data_folder;
 		std::string test_data_folder;
 
-		//lern rules
+		//lern data
+		std::string data_converter;
 
 
 		//load

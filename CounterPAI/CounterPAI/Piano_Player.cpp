@@ -11,6 +11,7 @@ void Piano_Player::set_quater_bpm(int bpm)
 	whole_note_duration = std::chrono::milliseconds((60000 / bpm) * 4);
 }
 
+
 void Piano_Player::play_sheet_music(Sheet_Music sheet)
 {
 	set_quater_bpm(sheet.quater_bpm);

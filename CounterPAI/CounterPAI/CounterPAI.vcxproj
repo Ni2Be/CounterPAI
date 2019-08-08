@@ -140,7 +140,7 @@
     <ClCompile Include="SVG_Parser.cpp" />
     <ClCompile Include="Trainings_Data_Gen.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="Windows_Folder_Dialog.cpp" />
+    <ClCompile Include="Folder_Dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -163,7 +163,7 @@
     <ClInclude Include="SVG_Parser.h" />
     <ClInclude Include="Trainings_Data_Gen.h" />
     <ClInclude Include="Utility.h" />
-    <ClInclude Include="Windows_Folder_Dialog.h" />
+    <ClInclude Include="Folder_Dialog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

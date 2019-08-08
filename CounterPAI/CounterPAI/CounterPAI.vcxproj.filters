@@ -32,7 +32,7 @@
     <Filter Include="Application\Evaluator\Rule_Evaluator">
       <UniqueIdentifier>{acc5686e-d448-423f-848d-56c7812016bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Evaluator\ML_Evaluator">
+    <Filter Include="Application\Evaluator\AI_Evaluator">
       <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -64,12 +64,6 @@
     <ClCompile Include="Evaluator_Base.cpp">
       <Filter>Application\Evaluator</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Application</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
       <Filter>Application\GUI</Filter>
     </ClCompile>
@@ -79,9 +73,6 @@
     <ClCompile Include="Eventsystem.cpp">
       <Filter>Application\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Windows_Folder_Dialog.cpp">
-      <Filter>Application\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="Rule_Eval.cpp">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClCompile>
@@ -89,12 +80,21 @@
       <Filter>Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Trainings_Data_Gen.cpp">
-      <Filter>Application\Evaluator\ML_Evaluator</Filter>
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="LSTM_Eval.cpp">
-      <Filter>Application\Evaluator\ML_Evaluator</Filter>
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="Utility.cpp">
+      <Filter>Application\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Folder_Dialog.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,9 +126,6 @@
     <ClInclude Include="Evaluator_Base.h">
       <Filter>Application\Evaluator</Filter>
     </ClInclude>
-    <ClInclude Include="Application.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="GUI.h">
       <Filter>Application\GUI</Filter>
     </ClInclude>
@@ -144,9 +141,6 @@
     <ClInclude Include="date.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Windows_Folder_Dialog.h">
-      <Filter>Application\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="Rule_Eval.h">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClInclude>
@@ -157,10 +151,16 @@
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Trainings_Data_Gen.h">
-      <Filter>Application\Evaluator\ML_Evaluator</Filter>
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
     <ClInclude Include="LSTM_Eval.h">
-      <Filter>Application\Evaluator\ML_Evaluator</Filter>
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Folder_Dialog.h">
+      <Filter>Application\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
