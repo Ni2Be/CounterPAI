@@ -97,6 +97,12 @@
     <ClCompile Include="Folder_Dialog.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="LSTM.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="LSTM_Data_Loader.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Event_System.h">
@@ -161,6 +167,12 @@
     </ClInclude>
     <ClInclude Include="Folder_Dialog.h">
       <Filter>Application\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="LSTM.h">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="LSTM_Data_Loader.h">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

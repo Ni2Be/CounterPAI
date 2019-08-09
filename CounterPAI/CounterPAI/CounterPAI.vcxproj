@@ -117,7 +117,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\libtorch\lib;$(SolutionDir)\x64\Release;$(SolutionDir)..\lib\SFML\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>torch.lib;c10.lib;caffe2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;Midifile.lib;sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c10.lib;c10_cuda.lib;caffe2.lib;caffe2_detectron_ops_gpu.lib;caffe2_gpu.lib;caffe2_module_test_dynamic.lib;foxi_dummy.lib;foxi_loader.lib;libprotobuf.lib;libprotobuf-lite.lib;libprotoc.lib;onnx.lib;onnx_proto.lib;onnxifi_dummy.lib;onnxifi_loader.lib;torch.lib;clog.lib;cpuinfo.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;Midifile.lib;sfml-graphics.lib;sfml-window.lib;sfml-audio.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -129,6 +129,8 @@
     <ClCompile Include="Event_System.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="LSTM.cpp" />
+    <ClCompile Include="LSTM_Data_Loader.cpp" />
     <ClCompile Include="LSTM_Eval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi_Reader.cpp" />
@@ -152,6 +154,8 @@
     <ClInclude Include="Event_System.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="LSTM.h" />
+    <ClInclude Include="LSTM_Data_Loader.h" />
     <ClInclude Include="LSTM_Eval.h" />
     <ClInclude Include="Midi_Reader.h" />
     <ClInclude Include="Music_Note.h" />

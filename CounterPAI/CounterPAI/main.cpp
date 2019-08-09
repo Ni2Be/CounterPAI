@@ -1,17 +1,95 @@
 #include "Application.h"
 #include <SFML/Graphics.hpp>
 
-
-
 int main()
 {
 	Application app;
-
+	
 	app.run();
-
+	
 	char ch;
 	std::cin >> ch;
 }
+
+////CUDATEST
+//#include <torch/torch.h>
+//
+//struct Net : torch::nn::Module
+//{
+//	Net(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, torch::Device device);
+//	torch::Device device;
+//	torch::nn::LSTM lstm{ nullptr };
+//	torch::nn::Linear out{ nullptr };
+//	float s_learning_rate = 0.001;
+//	torch::Tensor forward(torch::Tensor input);
+//	torch::Tensor learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize = true);
+//	std::shared_ptr<torch::optim::Optimizer> optimizer;
+//};
+//Net::Net(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, torch::Device device)
+//	:
+//	device(device),
+//	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count))
+//{
+//	out = register_module("out", torch::nn::Linear(hidden, output));
+//	register_module("lstm", lstm);
+//	optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
+//	this->to(device);
+//}
+//
+//torch::Tensor Net::forward(torch::Tensor x)
+//{
+//	torch::nn::RNNOutput lstm_out = lstm->forward(x);
+//	x = lstm_out.output;
+//	x = out->forward(x).sigmoid();
+//	return x;
+//}
+//
+//torch::Tensor Net::learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize)
+//{
+//	this->zero_grad();
+//	auto new_prediction = this->forward(learn_data);
+//	torch::Tensor loss;
+//	loss = torch::mse_loss(new_prediction, target_data).to(device);
+//	if (optimize)
+//	{
+//		loss.backward();
+//		optimizer->step();
+//	}
+//	return loss;
+//}
+//
+//int main()
+//{
+//	try
+//	{
+//		int in_size = 3, hidden_size = 10, hidden_layer_count = 2, out_size = 1;
+//		int sequence_len = 10, batch_size = 400;
+//		torch::Device device = torch::kCUDA;
+//		//torch::Device device = torch::kCPU;
+//		auto model = std::make_shared<Net>(Net(in_size, hidden_size, out_size, hidden_layer_count, device));
+//
+//		auto feature_data = torch::randn({ sequence_len, batch_size, in_size }).to(device);
+//		auto target_data = torch::randn({ sequence_len, batch_size, out_size }).to(device);
+//
+//		std::cout << std::endl << "Prediction..." << std::endl;
+//		auto prediction = model->forward(feature_data);
+//
+//		std::cout << std::endl << "learning..." << std::endl;
+//		for (size_t epoch = 0; epoch < 500; epoch++)
+//		{
+//			auto loss = model->learn_step(feature_data, target_data);
+//			if (epoch % 100 == 0)
+//				std::cout << "epoch: " << epoch << ", Loss: " << loss << std::endl;
+//		}
+//		std::cout << std::endl << "End!" << std::endl;
+//	}
+//	catch (std::exception& e)
+//	{
+//		std::cerr << e.what();
+//	}
+//	char ch;
+//	std::cin >> ch;
+//}
 
 //#include "Piano_Player.h"
 //#include "Midi_Reader.h"
