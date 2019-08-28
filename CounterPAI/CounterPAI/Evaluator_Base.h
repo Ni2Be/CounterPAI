@@ -64,9 +64,7 @@ namespace Eval
 		std::list<Music_Note> counter_point;
 		std::vector<Note_Evaluation> m_evaluation;
 
-		virtual void evaluate_notes(
-			std::list<Music_Note>& cantus_firmus,
-			std::list<Music_Note>& counter_point);
+		virtual void evaluate_notes(Sheet_Music& sheet);
 
 		Interval get_interval(Music_Note n0, Music_Note n1);
 		Direction get_direction(Music_Note n0, Music_Note n1);

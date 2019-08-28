@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AI_Evaluator.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Clickable.cpp" />
     <ClCompile Include="Debug_Log.cpp" />
@@ -129,8 +130,10 @@
     <ClCompile Include="Event_System.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Learn_Settings.cpp" />
+    <ClCompile Include="LNN.cpp" />
     <ClCompile Include="LSTM.cpp" />
-    <ClCompile Include="LSTM_Data_Loader.cpp" />
+    <ClCompile Include="Data_Loader.cpp" />
     <ClCompile Include="LSTM_Eval.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi_Reader.cpp" />
@@ -140,11 +143,13 @@
     <ClCompile Include="Sheet_Music.cpp" />
     <ClCompile Include="Sheet_Music_Editor.cpp" />
     <ClCompile Include="SVG_Parser.cpp" />
+    <ClCompile Include="Test_Runner.cpp" />
     <ClCompile Include="Trainings_Data_Gen.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Folder_Dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AI_Evaluator.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Clickable.h" />
     <ClInclude Include="date.h" />
@@ -154,17 +159,21 @@
     <ClInclude Include="Event_System.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Learn_Settings.h" />
+    <ClInclude Include="LNN.h" />
     <ClInclude Include="LSTM.h" />
-    <ClInclude Include="LSTM_Data_Loader.h" />
+    <ClInclude Include="Data_Loader.h" />
     <ClInclude Include="LSTM_Eval.h" />
     <ClInclude Include="Midi_Reader.h" />
     <ClInclude Include="Music_Note.h" />
+    <ClInclude Include="Net.h" />
     <ClInclude Include="Piano_Player.h" />
     <ClInclude Include="rapid_csv.h" />
     <ClInclude Include="Rule_Eval.h" />
     <ClInclude Include="Sheet_Music.h" />
     <ClInclude Include="Sheet_Music_Editor.h" />
     <ClInclude Include="SVG_Parser.h" />
+    <ClInclude Include="Test_Runner.h" />
     <ClInclude Include="Trainings_Data_Gen.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Folder_Dialog.h" />

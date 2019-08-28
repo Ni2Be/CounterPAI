@@ -7,7 +7,9 @@
 #include "Debug_Log.h"
 #include "Rule_Eval.h"
 #include "Trainings_Data_Gen.h"
-#include "LSTM_Eval.h"
+#include "Test_Runner.h"
+
+#include "AI_Evaluator.h"
 
 class Application
 {
@@ -20,10 +22,10 @@ public:
 	Piano_Player player;
 	Keyboard m_feedback_piano;
 
-	Eval::Trainings_Data_Gen generator;
-	Eval::LSTM_Eval lstm_evaluator;
 
-	Eval::LSTM_Test_Runner test_runner;
+	Eval::Trainings_Data_Gen generator;
+
+	Eval::Test_Runner test_runner;
 
 	static bool m_is_running;
 
@@ -32,7 +34,9 @@ public:
 	const std::string m_WINDOW_TITLE = "CounterPai";
 	UI::GUI gui;
 
-	Eval::Rule_Eval m_evaluator;
+	std::shared_ptr<Eval::Evaluator_Base> m_evaluator;
+	//Eval::Rule_Eval m_evaluator;
+	Eval::AI_Evaluator m_ai_evaluator;
 
 	Debug_Log m_debug_log;
 };

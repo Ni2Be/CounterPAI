@@ -75,9 +75,9 @@ sf::Sprite UI::Note::get_sprite(sf::Vector2f pos, sf::Color color) const
 	default: std::cerr << "invalid notevalue\n"; break;
 	}
 	note_sprite.setColor(color);
-	if(m_note.m_is_tied)
+	/*if(m_note.m_is_tied)
 		note_sprite.setColor({ (sf::Uint8)note_sprite.getColor().r,(sf::Uint8)note_sprite.getColor().g,(sf::Uint8)note_sprite.getColor().b, 0x44});
-
+*/
 	note_sprite.setOrigin(note_sprite.getScale() / 2.0f);
 	note_sprite.setPosition(pos);
 	return note_sprite;
@@ -265,6 +265,7 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 	//draw notes
 	sf::Vector2f offset = { (float)m_offset.x - 20, 0.0f };
+	sf::Vector2f last_note_pos = offset;
 	for (auto& note : m_line)
 	{
 		Note ui_note(note);
@@ -288,6 +289,7 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		else
 			symbol.setFillColor(sf::Color::Black);
 		symbol.setPosition({ offset.x + 20, offset.y + 22 });
+		
 
 		if (note.m_is_flat)
 			symbol.setString("b");
@@ -295,17 +297,90 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 			symbol.setString("#");
 		target.draw(symbol, states);
 
-		//draw helper lines TODO
-		/*if (note.m_pitch == Note_Pitch::C4
-			|| note.m_pitch == Note_Pitch::B3)
+		if (note.m_is_tied)
+		{
+			auto curve = sf::VertexArray(sf::PrimitiveType::LineStrip);
+			auto curve2 = sf::VertexArray(sf::PrimitiveType::LineStrip);
+			
+			for (float x = -(offset.x - last_note_pos.x) / 2 + 5; x < (offset.x - last_note_pos.x) / 2 - 5; x += 0.1f)
+			{
+				sf::Vertex vertex(sf::Vector2f{ last_note_pos.x + 40 + 5 + (offset.x - last_note_pos.x) / 2 + x - 5, last_note_pos.y + std::pow(x * (10.0f / (offset.x - last_note_pos.x)), 2) + 4 + 25 });
+				vertex.color = sf::Color::Black;
+				curve.append(vertex);
+				vertex.position = sf::Vector2f{ last_note_pos.x + 40 + 5 + (offset.x - last_note_pos.x) / 2 + x - 5, last_note_pos.y + std::pow(x * (10.0f / (offset.x - last_note_pos.x)) * 1.01f, 2) - 1 + 4 + 25};
+				curve2.append(vertex);
+			}
+			target.draw(curve);
+			target.draw(curve2);
+		}
+
+		//draw helper lines Soprano
+		if ((note.m_pitch == Note_Pitch::C4 && note.m_voice == Voice::Soprano)
+			|| (note.m_pitch == Note_Pitch::B3 && note.m_voice == Voice::Soprano)
+			|| (note.m_pitch == Note_Pitch::A3 && note.m_voice == Voice::Soprano))
 		{
 
-			sf::RectangleShape line({30.0f, 2 });
+			sf::RectangleShape line({ 44.0f, 2 });
 			line.setFillColor(sf::Color::Black);
+			line.setPosition({ offset.x + 10, m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 4 * Sheet::grid_button_height - 2 });
 			target.draw(line, states);
-		}*/
+			if (note.m_pitch == Note_Pitch::A3)
+			{
+				line.setPosition({ offset.x + 10, m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 6 * Sheet::grid_button_height - 2 });
+				target.draw(line, states);
+			}
+		}
+		if (note.m_pitch == Note_Pitch::C6
+			|| note.m_pitch == Note_Pitch::B5
+			|| note.m_pitch == Note_Pitch::A5)
+		{
+
+			sf::RectangleShape line({ 44.0f, 2 });
+			line.setFillColor(sf::Color::Black);
+			line.setPosition({ offset.x + 10, m_offset.y + -60 + 0 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 8 * Sheet::grid_button_height - 2 });
+			target.draw(line, states);
+			if (note.m_pitch == Note_Pitch::C6)
+			{
+				line.setPosition({ offset.x + 10, m_offset.y + -60 + 0 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 6 * Sheet::grid_button_height - 2 });
+				target.draw(line, states);
+			}
+		}
+
+		//draw helper lines Bass
+		if (note.m_pitch == Note_Pitch::C2
+			|| note.m_pitch == Note_Pitch::D2
+			|| note.m_pitch == Note_Pitch::E2)
+		{
+
+			sf::RectangleShape line({ 44.0f, 2 });
+			line.setFillColor(sf::Color::Black);
+			line.setPosition({ offset.x + 10, m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 4 * Sheet::grid_button_height - 2 });
+			target.draw(line, states);
+			if (note.m_pitch == Note_Pitch::C2)
+			{
+				line.setPosition({ offset.x + 10, m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 6 * Sheet::grid_button_height - 2 });
+				target.draw(line, states);
+			}
+		}
+		if ((note.m_pitch == Note_Pitch::C4 && note.m_voice == Voice::Bass)
+			|| (note.m_pitch == Note_Pitch::D4 && note.m_voice == Voice::Bass)
+			|| (note.m_pitch == Note_Pitch::E4 && note.m_voice == Voice::Bass))
+		{
+
+			sf::RectangleShape line({ 44.0f, 2 });
+			line.setFillColor(sf::Color::Black);
+			line.setPosition({ offset.x + 10, m_offset.y + -60 + 0 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 8 * Sheet::grid_button_height - 2 });
+			target.draw(line, states);
+			if (note.m_pitch == Note_Pitch::E4)
+			{
+				line.setPosition({ offset.x + 10, m_offset.y + -60 + 0 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) + 6 * Sheet::grid_button_height - 2 });
+				target.draw(line, states);
+			}
+		}
 
 
+
+		last_note_pos = offset;
 		offset.x += ui_note.get_offset();
 	}
 }

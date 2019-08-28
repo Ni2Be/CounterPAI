@@ -28,11 +28,12 @@ bool is_dissonant(Eval::Interval interval)
 		|| (interval == Eval::Interval::m7)
 		|| (interval == Eval::Interval::M7);
 }
-void Eval::Rule_Eval::evaluate_notes(
-	std::list<Music_Note>& cantus_firmus,
-	std::list<Music_Note>& counter_point)
+void Eval::Rule_Eval::evaluate_notes(Sheet_Music& sheet)
 {
-	Evaluator_Base::evaluate_notes(cantus_firmus, counter_point);
+	Evaluator_Base::evaluate_notes(sheet);
+
+	std::list<Music_Note>& cantus_firmus = sheet.get_cf();
+	std::list<Music_Note>& counter_point = sheet.get_cp();
 
 	std::vector<Note_Evaluation>::iterator eval_itr = m_evaluation.begin();
 	std::vector<Note_Evaluation>::iterator prev_eval_itr = m_evaluation.begin();

@@ -69,6 +69,9 @@ namespace UI {
 		Button m_200_bpm_button;
 		Button m_300_bpm_button;
 
+		sf::Text m_grid_marker;
+		Button m_grid_button;
+
 		Button m_overlay_button;
 		Button m_info_button;
 

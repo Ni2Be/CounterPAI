@@ -35,6 +35,12 @@
     <Filter Include="Application\Evaluator\AI_Evaluator">
       <UniqueIdentifier>{f4d3ced4-5c10-4eb4-b3ef-761de5877892}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Evaluator\AI_Evaluator\Nets">
+      <UniqueIdentifier>{8bc134ad-66b3-4d5f-ab52-1d64afe8ee4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Evaluator\AI_Evaluator\Test_Runner">
+      <UniqueIdentifier>{83cb85d6-afc9-4c5b-af88-78c360ddbec4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Event_System.cpp">
@@ -82,9 +88,6 @@
     <ClCompile Include="Trainings_Data_Gen.cpp">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
-    <ClCompile Include="LSTM_Eval.cpp">
-      <Filter>Application\Evaluator\AI_Evaluator</Filter>
-    </ClCompile>
     <ClCompile Include="Utility.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
@@ -97,11 +100,26 @@
     <ClCompile Include="Folder_Dialog.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="LSTM.cpp">
+    <ClCompile Include="AI_Evaluator.cpp">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
-    <ClCompile Include="LSTM_Data_Loader.cpp">
+    <ClCompile Include="LSTM.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClCompile>
+    <ClCompile Include="LSTM_Eval.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClCompile>
+    <ClCompile Include="Data_Loader.cpp">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="LNN.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClCompile>
+    <ClCompile Include="Learn_Settings.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Test_Runner</Filter>
+    </ClCompile>
+    <ClCompile Include="Test_Runner.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Test_Runner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,20 +177,35 @@
     <ClInclude Include="Trainings_Data_Gen.h">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
-    <ClInclude Include="LSTM_Eval.h">
-      <Filter>Application\Evaluator\AI_Evaluator</Filter>
-    </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="Folder_Dialog.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="LSTM.h">
+    <ClInclude Include="AI_Evaluator.h">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
-    <ClInclude Include="LSTM_Data_Loader.h">
+    <ClInclude Include="LSTM.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClInclude>
+    <ClInclude Include="LSTM_Eval.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClInclude>
+    <ClInclude Include="Data_Loader.h">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="LNN.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClInclude>
+    <ClInclude Include="Net.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
+    </ClInclude>
+    <ClInclude Include="Test_Runner.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Test_Runner</Filter>
+    </ClInclude>
+    <ClInclude Include="Learn_Settings.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Test_Runner</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

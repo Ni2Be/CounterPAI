@@ -29,6 +29,8 @@ void UI::Info_Box::set_info_text(std::string text)
 		if (i > row_chars)
 		{
 			i = 0;
+			while (*itr != ' ')
+				itr--;
 			itr = text.insert(itr, '\n');
 		}
 	}
@@ -58,6 +60,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_100_bpm_button(parent, { { 330, 500 }, { 60, 33 } }, "s"),
 	m_200_bpm_button(parent, { { 330, 533 }, { 60, 33 } }, "m"),
 	m_300_bpm_button(parent, { { 330, 566 }, { 60, 33 } }, "f"),
+	m_grid_button(parent, { { 1570, 570 }, { 20, 20 } }, ""),
 	m_sheet_editor(parent->m_sheet, this),
 	m_whole_button(parent,  { {400,500},{100,100} }, "1/1"),
 	m_half_button(parent, { {510,500},{100,100} }, "1/2"),
@@ -228,7 +231,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.draw_overlay)
 		{
-			app->m_evaluator.evaluate_notes(app->m_sheet.get_cf(), app->m_sheet.get_cp());
+			app->m_evaluator->evaluate_notes(app->m_sheet);
 			app->gui.m_overlay_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 		else
@@ -256,7 +259,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.wants_info)
 		{
-			app->m_evaluator.evaluate_notes(app->m_sheet.get_cf(), app->m_sheet.get_cp());
+			app->m_evaluator->evaluate_notes(app->m_sheet);
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 		else
@@ -320,6 +323,26 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	};
 	attach_drawable(m_300_bpm_button);
 	
+	m_grid_button.func = [](Application* app) {
+		app->m_debug_log.log("grid Button");
+
+		app->gui.m_sheet_editor.m_draw_grid = !app->gui.m_sheet_editor.m_draw_grid;
+		if (app->gui.m_sheet_editor.m_draw_grid)
+			app->gui.m_grid_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		else
+			app->gui.m_grid_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	};
+	m_grid_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+	attach_drawable(m_grid_button);
+	
+	m_grid_marker.setFont(m_times_new_roman);
+	m_grid_marker.setString("grid");
+	m_grid_marker.setFillColor(sf::Color::Black);
+	m_grid_marker.setPosition({ 1510, 560 });
+	attach_drawable(m_grid_marker);
+
+
+
 	m_cf_marker.setFont(m_times_new_roman);
 	m_cf_marker.setString("cf");
 	m_cf_marker.setFillColor(sf::Color::Black);

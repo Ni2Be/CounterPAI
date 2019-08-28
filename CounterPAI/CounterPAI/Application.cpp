@@ -7,12 +7,18 @@
 
 #include <filesystem>
 
+
+
 bool Application::m_is_running = true;
 
 Application::Application()
 	:
 	gui(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, m_WINDOW_TITLE, this)
 {
+	m_evaluator.reset(new Eval::Rule_Eval());
+	//m_evaluator.reset(new Eval::AI_Evaluator());
+
+
 	//TESTING
 	//std::cout << "\nGENERATE DATA!";
 	//std::cout.setstate(std::ios_base::failbit);
@@ -45,9 +51,13 @@ Application::Application()
 	//test_runner.run_test(Windows_File_Loader::get_exe_path() + "/data/trainings_settings/test_1.json");
 	//test_runner.run_test(Windows_File_Loader::get_exe_path() + "/data/trainings_settings/evaluate_fux_rules_1.json");
 
-	for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_settings"))
-		if (!is_directory(entry.path()))
-			test_runner.run_test(entry.path().string());
+	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/trainings_settings"))
+	//	if (!is_directory(entry.path()))
+	//		test_runner.run_test(entry.path().string());
+
+
+	//Eval::Learn_Settings settings("data/trainings_settings/evaluate_fux_rules_from_two_sides_6.json");
+	//m_ai_evaluator.test_net(settings);
 
 	//m_sheet = lstm_evaluator.testing();
 }

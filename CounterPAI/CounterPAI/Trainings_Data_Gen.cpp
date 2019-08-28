@@ -46,14 +46,14 @@ Sheet_Music Eval::Trainings_Data_Gen::generate_sheet()
 		generate_cf(sheet.m_bass, Note_Pitch::C2, Voice::Bass);
 		generate_cp(sheet, Note_Pitch::A3, Voice::Soprano);
 
-		m_evaluator.evaluate_notes(sheet.m_bass, sheet.m_soprano);
+		m_evaluator.evaluate_notes(sheet);
 	}
 	else
 	{
 		generate_cf(sheet.m_soprano, Note_Pitch::A3, Voice::Soprano);
 		generate_cp(sheet, Note_Pitch::C2, Voice::Bass);
 
-		m_evaluator.evaluate_notes(sheet.m_soprano, sheet.m_bass);
+		m_evaluator.evaluate_notes(sheet);
 	}
 	return sheet;
 }

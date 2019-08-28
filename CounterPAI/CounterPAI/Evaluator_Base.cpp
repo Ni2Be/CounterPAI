@@ -24,10 +24,11 @@ Eval::Evaluator_Base::Evaluator_Base()
 {
 }
 
-void Eval::Evaluator_Base::evaluate_notes(
-	std::list<Music_Note>& cantus_firmus,
-	std::list<Music_Note>& counter_point)
+void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 {
+	std::list<Music_Note>& cantus_firmus = sheet.get_cf();
+	std::list<Music_Note>& counter_point = sheet.get_cp();
+
 	m_evaluation.clear();
 
 	int length_cf = get_sixteenth_length(cantus_firmus);

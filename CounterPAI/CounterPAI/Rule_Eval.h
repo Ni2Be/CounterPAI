@@ -10,9 +10,7 @@ namespace Eval
 		Rule_Eval();
 
 
-		void evaluate_notes(
-			std::list<Music_Note>& cantus_firmus,
-			std::list<Music_Note>& counter_point);
+		void evaluate_notes(Sheet_Music& sheet);
 
 		void r1_perfect_FB_LB(Note_Evaluation& evaluated_note, Music_Note& note, Music_Note& last_cf_note);
 		void r2_use_CoMo_and_ObMo(Note_Evaluation& evaluated_note, Music_Note& note);
