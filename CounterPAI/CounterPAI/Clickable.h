@@ -11,6 +11,7 @@ namespace UI {
 		Clickable();
 		~Clickable();
 		sf::Rect<int> m_click_area;
+		bool is_clickable = true;
 	protected:
 		virtual void on_clicked() = 0;
 	private:

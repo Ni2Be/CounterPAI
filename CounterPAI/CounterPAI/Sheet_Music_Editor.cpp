@@ -6,6 +6,10 @@
 
 #include "Utility.h"
 
+#include "Rule_Evaluation.h"
+
+#include "Note_Evaluation.h"
+
 float UI::Sheet::m_button_size      = 5;
 float UI::Sheet::m_note_size        = 3.0f;
 float UI::Sheet::m_treble_clef_size = 7.7f;
@@ -271,11 +275,17 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		Note ui_note(note);
 
 		offset.y = m_offset.y + -60 + 16 * Sheet::grid_button_height + (Sheet::grid_button_height / 2.0f) - (float)Music_Note::get_ACscale_distance(m_lowest_a_or_c, note.get_basic_note()) * Sheet::grid_button_height;
+		
+		std::string note_info = ui_note.m_note.get_note_info(Eval::Rule_Evaluation::C_INDEX_NAME);
+
+		Eval::Rule_Evaluation note_evaluation;
+		if (note_info != "null")
+			note_evaluation = Eval::Rule_Evaluation(note_info);
 
 		if (m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
-				{ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_probability)),
-					(sf::Uint8)(255 * ui_note.m_note.m_probability),
+				{ (sf::Uint8)(255 * (1.0f - note_evaluation.m_probability)),
+					(sf::Uint8)(255 * note_evaluation.m_probability),
 						(sf::Uint8)0 }), states);
 		else
 			target.draw(ui_note.get_sprite(offset), states);
@@ -283,8 +293,8 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		sf::Text symbol;
 		symbol.setFont(m_parent->m_parent->m_parent->times_new_roman());
 		if (m_parent->m_parent->draw_overlay)
-			symbol.setFillColor({ (sf::Uint8)(255 * (1.0f - ui_note.m_note.m_probability)),
-					(sf::Uint8)(255 * ui_note.m_note.m_probability),
+			symbol.setFillColor({ (sf::Uint8)(255 * (1.0f - note_evaluation.m_probability)),
+					(sf::Uint8)(255 * note_evaluation.m_probability),
 						(sf::Uint8)0 });
 		else
 			symbol.setFillColor(sf::Color::Black);
@@ -396,22 +406,57 @@ UI::Sheet_Grid_Button::Sheet_Grid_Button(Cleff_Grid* parent, sf::IntRect click_a
 	Clickable::m_click_area = click_area;
 }
 
+std::string generate_info_text(Music_Note note)
+{
+	std::string info_text = "";
+
+	info_text += Utility::to_str(note.get_basic_note());
+
+	if (note.m_is_flat)
+		info_text += "b";
+	if (note.m_is_sharp)
+		info_text += "#";
+
+	//Note Evaluation
+	std::stringstream ss;
+	ss << note.get_note_info(Eval::Note_Evaluation::C_INDEX_NAME);
+	Eval::Note_Evaluation evaluation;
+	ss >> evaluation;
+	info_text += "\nDirection: " + Utility::to_str(evaluation.m_direction);
+	info_text += "\nInterval: " + Utility::to_str(evaluation.m_interval);
+	info_text += "\nJump: " + Utility::to_str(evaluation.m_jump_interval);
+	info_text += "\nMotion: " + Utility::to_str(evaluation.m_motion);
+
+
+	//Fux Rule Evaluation
+	info_text += "\n\n";
+	std::stringstream ss2;
+	ss2 << note.get_note_info(Eval::Rule_Evaluation::C_INDEX_NAME);
+	Eval::Rule_Evaluation rule_evaluation;
+	ss2 >> rule_evaluation;
+	for (const auto& r : rule_evaluation.broken_rules)
+		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
+	info_text += "\nProbability: " + std::to_string(rule_evaluation.m_probability);
+
+
+	return info_text;
+}
+
 void UI::Sheet_Grid_Button::on_clicked()
 {
+	//std::cout << "info: " << m_parent->m_parent->m_parent->wants_info << ", del: " << m_parent->m_parent->m_parent->is_deleting << ", ty: " << m_parent->m_parent->m_parent->is_tying << "\n";
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
+		Music_Note note = m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance);
+		if (note.m_is_corrupted)
+			return;
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.stop();
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 
 		m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Info N:" + this->m_debug_message);
-		
-		std::string info_text;
-		if (m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).m_is_flat)
-			info_text += "b";
-		if (m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).m_is_sharp)
-			info_text += "#";
-		info_text += Utility::to_str(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance).get_basic_note());
-		m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(info_text + "\n" + m_parent->m_parent->m_sheet.get_note_info(m_parent->m_voice, m_sixteenth_distance));
+		std::string info_text = generate_info_text(note);
+
+		m_parent->m_parent->m_parent->m_parent->m_info_text.set_info_text(info_text);
 	}
 	else
 	{

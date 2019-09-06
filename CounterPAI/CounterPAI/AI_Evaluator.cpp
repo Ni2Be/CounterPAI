@@ -21,6 +21,8 @@
 
 #include "Data_Loader.h"
 
+#include "Rule_Evaluation.h"
+
 #include "Net.h"
 #include "LSTM.h"
 #include "LNN.h"
@@ -34,8 +36,8 @@ Eval::AI_Evaluator::AI_Evaluator()
 		device = torch::kCUDA;
 	}
 	//NO CUDA SUPPORT
-	std::cout << "TESTING! NO CUDA SUPPORT." << std::endl;
-	device = torch::kCPU;
+	//std::cout << "TESTING! NO CUDA SUPPORT." << std::endl;
+	//device = torch::kCPU;
 }
 
 
@@ -81,7 +83,10 @@ void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 		for (auto& f : features)
 		{
 			auto t = model->forward(f);
-			itr->m_probability = t[8].item<float>();
+			Rule_Evaluation temp;
+			temp.m_probability = t[8].item<float>();
+			itr->clear_note_info();
+			itr->add_note_info(Rule_Evaluation::C_INDEX_NAME, Utility::to_str(temp));
 			itr++;
 			std::cout << t[8].item<float>() << ", ";
 		}
@@ -188,7 +193,17 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 		std::cout << "\nTRAIN CF!";
 		std::string model_save_folder = "data/trainings_results/models/";
 
-		Eval::Data_Loader data_loader(settings);
+		//Eval::Data_Loader data_loader(settings);
+
+
+		// Generate your data set. At this point you can add transforms to you data set, e.g. stack your
+		// batches into a single tensor.
+		auto data_set = CustomDataset(settings).map(torch::data::transforms::Stack<>());
+
+		// Generate a data loader.
+		auto data_loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
+			std::move(data_set),
+			settings.batch_size);
 
 		//log progress
 		std::vector<std::string> times;
@@ -217,36 +232,46 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 			std::cout << ".";
 			if (epoch % 10 == 0)
 			{
-				auto train_batch = data_loader.get_train_batch();
-				torch::Tensor train_feature_tensor = std::get<0>(train_batch);
-				torch::Tensor train_target_tensor = std::get<1>(train_batch);
-				auto test_batch = data_loader.get_test_batch();
-				torch::Tensor test_feature_tensor = std::get<0>(test_batch);
-				torch::Tensor test_target_tensor = std::get<1>(test_batch);
+				//auto train_batch = data_loader.get_train_batch();
+				//torch::Tensor train_feature_tensor = std::get<0>(train_batch);
+				//torch::Tensor train_target_tensor = std::get<1>(train_batch);
+				//auto test_batch = data_loader.get_test_batch();
+				//torch::Tensor test_feature_tensor = std::get<0>(test_batch);
+				//torch::Tensor test_target_tensor = std::get<1>(test_batch);
 
 
-				auto train_data_loss = model->test_prediction(train_feature_tensor, train_target_tensor).item<float>();
-				auto test_data_loss = model->test_prediction(test_feature_tensor, test_target_tensor).item<float>();
+				//auto train_data_loss = model->test_prediction(train_feature_tensor, train_target_tensor).item<float>();
+				//auto test_data_loss = model->test_prediction(test_feature_tensor, test_target_tensor).item<float>();
+				float train_data_loss = 0;
+				int i = 0;
+				for (auto& batch : *data_loader)
+				{
+					train_data_loss += model->test_prediction(batch.data, batch.target).item<float>();
+				}
 
 				if (epoch == 1000)
 				{
 					std::cout << "new learning rate: " << 0.1 * settings.learning_rate;
 					model->set_learning_rate(0.1 * settings.learning_rate);
 				}
-				std::cout << "\nepoch: " << epoch << ", Loss: train: " << train_data_loss << ", test: " << test_data_loss << std::endl;
+				std::cout << "\nepoch: " << epoch << ", Loss: train: " << train_data_loss /*<< ", test: " << test_data_loss*/ << std::endl;
 				torch::save(*model->get_optimizer(), model_save_folder + test_case_name + "_epoch_" + std::to_string(epoch) + "_opti" + ".pt");
 				torch::save(model, model_save_folder + test_case_name + ".pt");
 				times.push_back(Utility::get_time_stamp());
 				epochs.push_back(epoch);
 				train_losses.push_back(train_data_loss);
-				test_losses.push_back(test_data_loss);
+				//test_losses.push_back(test_data_loss);
+				test_losses.push_back(train_data_loss);
 			}
+			for (auto& batch : *data_loader)
+			{
+				model->learn_step(batch.data, batch.target);
+			}
+			//auto train_batch = data_loader.get_train_batch();
+			//torch::Tensor train_feature_tensor = std::get<0>(train_batch);
+			//torch::Tensor train_target_tensor = std::get<1>(train_batch);
 
-			auto train_batch = data_loader.get_train_batch();
-			torch::Tensor train_feature_tensor = std::get<0>(train_batch);
-			torch::Tensor train_target_tensor = std::get<1>(train_batch);
-
-			model->learn_step(train_feature_tensor, train_target_tensor);
+			//model->learn_step(train_feature_tensor, train_target_tensor);
 		}
 		//SAVE
 		torch::save(model, model_save_folder + test_case_name + ".pt");

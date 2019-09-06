@@ -26,7 +26,7 @@ namespace Eval
 		int m_hidden_layer_count = 1;
 
 		void set_learning_rate(double learning_rate);
-		torch::Tensor learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize = true);
+		torch::Tensor learn_step(const torch::Tensor&  learn_data, torch::Tensor target_data, bool optimize = true);
 		torch::Tensor test_prediction(torch::Tensor test_data, torch::Tensor target_data);
 
 		std::shared_ptr<torch::optim::Optimizer> get_optimizer();

@@ -17,6 +17,13 @@ enum class find_note_flag
 	WAS_AFTER_LAST_NOTE
 };
 
+void Sheet_Music::clear_note_infos()
+{
+	for (auto& n : m_bass)
+		n.clear_note_info();
+	for (auto& n : m_soprano)
+		n.clear_note_info();
+}
 
 //TODO bugfix eight after last note, noteinfo crash
 find_note_flag find_note_position(
@@ -197,7 +204,6 @@ void insert_note(std::list<Music_Note>& voice, const Music_Note new_note, int si
 	//inserting after the last note has ended, filling empty space
 	else if (note_pos == find_note_flag::WAS_AFTER_LAST_NOTE)
 	{
-
 		auto fill_in = [&voice, &note, new_note, &position_to_pre](int dist, Note_Value val)
 		{
 			if (position_to_pre >= dist && voice.empty())
@@ -290,7 +296,11 @@ void Sheet_Music::delete_note(Voice voice, int sixteenth_distance)
 Music_Note get_note_in_voice(std::list<Music_Note>& voice, int sixteenth_distance, bool& was_at, bool first_try = true)
 {
 	if (voice.empty())
-		return Music_Note();
+	{
+		Music_Note note;
+		note.m_is_corrupted = true;
+		return note;
+	}
 	//find position in list
 	std::list<Music_Note>::iterator note;
 	int position_to_pre = sixteenth_distance;
@@ -327,32 +337,6 @@ Music_Note Sheet_Music::get_note(Voice voice, int sixteenth_distance)
 	{
 	case Voice::Bass: return get_note_in_voice(m_bass, sixteenth_distance, dummy); break;
 	case Voice::Soprano: return get_note_in_voice(m_soprano, sixteenth_distance, dummy); break;
-	default: std::cerr << "invalid voice\n"; break;
-	}
-}
-
-std::string get_info(std::list<Music_Note>& voice, int sixteenth_distance)
-{
-	if (voice.empty())
-		return "";
-	//find position in list
-	bool dummy;
-	Music_Note note = get_note_in_voice(voice, sixteenth_distance, dummy);
-
-	std::string note_info = note.m_note_info;
-	std::replace(note_info.begin(), note_info.end(), '\t', '\n');
-	std::replace(note_info.begin(), note_info.end(), ':', '\n');
-	std::replace(note_info.begin(), note_info.end(), ',', ' ');
-	
-	return  note_info + "\n\nProbability\n" + std::to_string(note.m_probability);
-}
-
-std::string Sheet_Music::get_note_info(Voice voice, int sixteenth_distance)
-{
-	switch (voice)
-	{
-	case Voice::Bass: return get_info(m_bass, sixteenth_distance); break;
-	case Voice::Soprano: return get_info(m_soprano, sixteenth_distance); break;
 	default: std::cerr << "invalid voice\n"; break;
 	}
 }

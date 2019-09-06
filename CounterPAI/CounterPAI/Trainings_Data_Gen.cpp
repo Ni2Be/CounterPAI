@@ -2,6 +2,8 @@
 #include <list>
 #include <fstream>
 
+#include "Note_Evaluation.h"
+
 Eval::Trainings_Data_Gen::Trainings_Data_Gen()
 	:
 	m_gen(m_rd())
@@ -25,13 +27,8 @@ void Eval::Trainings_Data_Gen::generate_data(int count, const std::string folder
 	for (int i = 0; i < count; i++)
 	{
 		Sheet_Music sheet = generate_sheet();
-		float score = 0;
-		for (auto& note : sheet.get_cp())
-		{
-			score += note.m_probability;
-		}
-		score /= (float)sheet.get_cp().size();
-		save_sheet(sheet, folder + "/sheet" + "_score_" + std::to_string(score) + "_" + std::to_string(i) + ".sheet");
+		
+		save_sheet(sheet, folder + "/sheet_" + std::to_string(i) + ".sheet");
 	}
 }
 

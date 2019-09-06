@@ -2,6 +2,13 @@
 #include <iostream>
 #include <string>
 #include <array>
+#include <memory>
+
+#ifndef RAPIDJSON_HAS_STDSTRING
+#define RAPIDJSON_HAS_STDSTRING 1
+#endif
+#include <rapidjson/document.h>
+
 
 enum class Note_Pitch;
 enum class Note_Value;
@@ -18,9 +25,9 @@ public:
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied);
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied, bool is_sharp, bool is_flat);
 
-	float m_probability = 1.0f;
-	std::string m_note_info = "no message!";
-
+	void add_note_info(std::string index, std::string message);
+	std::string get_note_info(std::string index);
+	void clear_note_info();
 
 	static Note_Pitch get_ACscale_pitch(Note_Pitch lowest_note, int distance);
 	static int get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note);
@@ -34,9 +41,15 @@ public:
 	bool m_is_tied = false; //true if a note is tied to the previous note
 	bool m_is_sharp = false;
 	bool m_is_flat = false;
-
+	
 	friend std::ostream& operator<<(std::ostream& os, const Music_Note& note);
 	friend std::istream& operator>>(std::istream& is, Music_Note& note);
+	
+	static const int C_MAX_NOTE_INFO_STING_SIZE = 512;
+	bool m_is_corrupted = false;
+
+private:
+	std::shared_ptr<rapidjson::Document> m_note_info_ = std::make_shared<rapidjson::Document>(rapidjson::Document());
 };
 
 

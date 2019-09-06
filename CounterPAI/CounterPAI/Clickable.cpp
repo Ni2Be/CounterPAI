@@ -17,7 +17,8 @@ void UI::Clickable::check_if_clicked(sf::Vector2i click_pos)
 {
 	if (m_click_area.contains(click_pos))
 	{
-		on_clicked();
+		if(is_clickable)
+			on_clicked();
 	}
 }
 

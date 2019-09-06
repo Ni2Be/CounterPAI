@@ -4,12 +4,12 @@
 Eval::LSTM::LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss_f, double dropout, torch::Device device)
 	:
 	device(device),
-	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count).dropout(dropout)), //.torch::nn::LSTMOptions::bidirectional(true)
+	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count).dropout(dropout).torch::nn::LSTMOptions::batch_first(false)), //.torch::nn::LSTMOptions::bidirectional(true)
 	s_optimizer(opti),
 	s_loss_func(loss_f)
 {
-	out = register_module("out", torch::nn::Linear(hidden, output));
 	register_module("lstm", lstm);
+	out = register_module("out", torch::nn::Linear(hidden, output));
 	if (s_optimizer == Opti::ADAM)
 		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
 	else if (s_optimizer == Opti::SGD)
@@ -30,29 +30,42 @@ void Eval::LSTM::set_learning_rate(double learning_rate)
 
 torch::Tensor Eval::LSTM::forward(torch::Tensor x)
 {
+	x = x.permute({ 2, 1, 0, 3 });
+	x = x[0];
 	//input (sequence, batch, features) 
-	torch::nn::RNNOutput lstm_out = lstm->forward(x.to(device));
+	torch::nn::RNNOutput new_prediction = lstm->forward(x.to(device));
+
 	//output (seq_len, batch, num_directions * hidden_size)
-	x = lstm_out.output;
+	x = new_prediction.output[-1];
 	x = out->forward(x).sigmoid();
+
 	return x;
 }
 
-torch::Tensor Eval::LSTM::learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize)
+torch::Tensor Eval::LSTM::learn_step(const torch::Tensor& learn_data, torch::Tensor target_data, bool optimize)
 {
 	try
 	{
 		this->zero_grad();
-		auto new_prediction = this->forward(learn_data.to(device));
+		auto x = learn_data.permute({ 2, 1, 0, 3 });
+		x = x[0];
+		//std::cout << x;
+		torch::nn::RNNOutput new_prediction = lstm->forward(x.to(device));
+
+		x = new_prediction.output[-1];
+		x = out->forward(x).sigmoid();
 
 		torch::Tensor loss;
 		if (s_loss_func == Loss_F::MSL)
-			loss = torch::mse_loss(new_prediction, target_data.to(device));
+			loss = torch::mse_loss(x, target_data.view({ -1, 1 }).to(device));
 		else if (s_loss_func == Loss_F::BCEL)
-			loss = torch::binary_cross_entropy(new_prediction, target_data.to(device));
+			loss = torch::binary_cross_entropy(x, target_data.view({-1, 1 }).to(device));
 		if (optimize)
 		{
+			//std::cout << x << "\n";
+			//std::cout << target_data.view({ -1, 1 }) << "\n";
 			loss.backward();
+
 			optimizer->step();
 		}
 		return loss;

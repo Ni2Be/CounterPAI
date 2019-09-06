@@ -47,7 +47,9 @@ namespace UI {
 		Button m_play_button;
 		Button m_stop_button;
 		Button m_clear_button;
-
+		Button m_clear_yes_button;
+		Button m_clear_no_button;
+		
 		Button m_whole_button;
 		Button m_half_button;
 		Button m_quater_button;

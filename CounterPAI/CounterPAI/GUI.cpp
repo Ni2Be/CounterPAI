@@ -1,8 +1,6 @@
 #include "GUI.h"
 #include <iostream>
 #include "Application.h"
-
-
 #include "Folder_Dialog.h"
 
 UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std::string& info_text)
@@ -20,7 +18,7 @@ UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std:
 
 void UI::Info_Box::set_info_text(std::string text)
 {
-	int row_chars = m_draw_area.width / 10;
+	int row_chars = m_draw_area.width / 12;
 	std::string::iterator itr = text.begin();
 	for (int i = 0; itr != text.end(); i++, itr++)
 	{
@@ -29,9 +27,27 @@ void UI::Info_Box::set_info_text(std::string text)
 		if (i > row_chars)
 		{
 			i = 0;
+			auto last_pos = itr;
 			while (*itr != ' ')
+			{
+				i++;
+				if (i > row_chars)
+				{
+					itr = last_pos;
+					itr--;
+					itr--;
+					itr--;
+					itr--;
+					itr--;
+					itr--;
+					itr = text.insert(itr, '-');
+					itr++;
+					break;
+				}
 				itr--;
+			}
 			itr = text.insert(itr, '\n');
+			i = 0;
 		}
 	}
 	
@@ -56,7 +72,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_parent(parent),
 	m_play_button(parent,   { {0  ,500},{100,100} }, "play"),
 	m_stop_button(parent,   { {110,500},{100,100} }, "stop"),
-	m_clear_button(parent,  { {220,500},{100,100} }, "clear"),
+	m_clear_button(parent, { {220,500},{100,100} }, "clear"),
+	m_clear_yes_button(parent, { {220,450},{50,50} }, "y"),
+	m_clear_no_button(parent, { {270,450},{50,50} }, "n"),
 	m_100_bpm_button(parent, { { 330, 500 }, { 60, 33 } }, "s"),
 	m_200_bpm_button(parent, { { 330, 533 }, { 60, 33 } }, "m"),
 	m_300_bpm_button(parent, { { 330, 566 }, { 60, 33 } }, "f"),
@@ -98,11 +116,42 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 	m_clear_button.func = [](Application* app) {
 		app->m_debug_log.log("Clear Button");
-		app->m_sheet.m_bass.clear();
-		app->m_sheet.m_soprano.clear();
+
+		app->gui.m_clear_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+
+		app->gui.m_clear_yes_button.is_clickable = true;
+		app->gui.m_clear_no_button.is_clickable = true;
+
+		app->gui.attach_drawable(app->gui.m_clear_yes_button);
+		app->gui.attach_drawable(app->gui.m_clear_no_button);
 	};
 	attach_drawable(m_clear_button);
 	m_clear_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+
+	m_clear_yes_button.func = [](Application* app) {
+		app->m_debug_log.log("Clear yes Button");
+		app->m_sheet.m_bass.clear();
+		app->m_sheet.m_soprano.clear();
+
+		app->gui.detach_drawable(app->gui.m_clear_yes_button);
+		app->gui.detach_drawable(app->gui.m_clear_no_button);
+		app->gui.m_clear_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	};
+	m_clear_yes_button.is_clickable = false;
+	m_clear_yes_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	m_clear_no_button.func = [](Application* app) {
+		app->m_debug_log.log("Clear no Button");
+
+		app->gui.detach_drawable(app->gui.m_clear_yes_button);
+		app->gui.detach_drawable(app->gui.m_clear_no_button);
+		app->gui.m_clear_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	};
+	m_clear_no_button.is_clickable = false;
+	m_clear_no_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
 
 	m_whole_button.func = [](Application* app) {
 		app->m_debug_log.log("Whole Button");
@@ -231,22 +280,12 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.draw_overlay)
 		{
+			app->m_sheet.clear_note_infos();
 			app->m_evaluator->evaluate_notes(app->m_sheet);
 			app->gui.m_overlay_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 		else
 		{
-			//TODO should not be set in gui
-			for (auto& note : app->m_sheet.m_bass)
-			{
-				note.m_note_info = "no message!";
-				note.m_probability = 1.0f;
-			}
-			for (auto& note : app->m_sheet.m_soprano)
-			{
-				note.m_note_info = "no message!";
-				note.m_probability = 1.0f;
-			}
 			app->gui.m_overlay_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
 	};
@@ -259,22 +298,12 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.wants_info)
 		{
+			app->m_sheet.clear_note_infos();
 			app->m_evaluator->evaluate_notes(app->m_sheet);
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 		else
 		{
-			//TODO should not be set in gui
-			for (auto& note : app->m_sheet.m_bass)
-			{
-				note.m_note_info = "no message!";
-				note.m_probability = 1.0f;
-			}
-			for (auto& note : app->m_sheet.m_soprano)
-			{
-				note.m_note_info = "no message!";
-				note.m_probability = 1.0f;
-			}
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
 	};
@@ -397,12 +426,16 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_200_bpm_button.func(app);
 		else
 			app->gui.m_300_bpm_button.func(app);
+
 	};
 	attach_drawable(m_load_button);
 	m_load_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 
 	m_save_button.func = [](Application* app) {
 		app->m_debug_log.log("save Button");
+
+		app->m_sheet.clear_note_infos();
+		app->m_evaluator->evaluate_notes(app->m_sheet);
 
 		std::ofstream fs;
 		std::string file_name = Folder_Dialog::get_save_file_name();

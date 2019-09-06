@@ -1,6 +1,10 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <cctype>
+#include <vector>
+#include <iostream>
 
 namespace Utility
 {
@@ -12,4 +16,5 @@ namespace Utility
 	}
 
 	std::string get_time_stamp();
+
 }

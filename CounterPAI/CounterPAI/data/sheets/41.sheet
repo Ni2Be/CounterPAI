@@ -3,46 +3,46 @@ tempo:
 cf:
 soprano
 soprano: 
-G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-B4 p: 71 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-E5 p: 76 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-D5 p: 74 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-G5 p: 79 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-E5 p: 76 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-D5 p: 74 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-B4 p: 71 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-A4 p: 69 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
-G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 ;
+G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+B4 p: 71 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+E5 p: 76 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+D5 p: 74 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+G5 p: 79 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+E5 p: 76 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+C5 p: 72 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+D5 p: 74 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+B4 p: 71 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+A4 p: 69 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
+G4 p: 67 va: 1 vo: 1 f: 0 s: 0 t: 0 | {}
 bass: 
-E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 1 ;
-G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-F3 p: 53 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-F3 p: 53 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-C3 p: 48 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-C3 p: 48 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-C4 p: 60 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-A3 p: 57 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-C4 p: 60 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-A3 p: 57 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-Fsharp3 p: 54 va: 2 vo: 0 f: 0 s: 1 t: 0 ;
-D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-B2 p: 47 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 ;
-Fsharp3 p: 54 va: 2 vo: 0 f: 0 s: 1 t: 0 ;
-G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 ;
+E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 1 | {"NOTE_EVALUATION":"p: First_Bar_First_Note b: Down_Beat j: No_Itvl d: No_Dir m: NoMo i: m3","RULE_EVALUATION":"prb: 1"}
+G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: First_Bar_First_Note b: Up_Beat j: m3 d: Up m: DiMo i: P8","RULE_EVALUATION":"prb: 1"}
+E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: m3 d: Down m: CoMo i: m6","RULE_EVALUATION":"prb: 1"}
+F3 p: 53 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: m2 d: Up m: CoMo i: P5","RULE_EVALUATION":"prb: 1"}
+G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: M2 d: Up m: CoMo i: M3","RULE_EVALUATION":"prb: 1"}
+F3 p: 53 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M2 d: Down m: DiMo i: Tri","RULE_EVALUATION":"prb: 1"}
+E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: m2 d: Down m: DiMo i: m3","RULE_EVALUATION":"prb: 0.5 R2"}
+D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M2 d: Down m: CoMo i: P4","RULE_EVALUATION":"prb: 1"}
+C3 p: 48 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: M2 d: Down m: CoMo i: P8","RULE_EVALUATION":"prb: 0.7 R3"}
+E3 p: 52 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M3 d: Up m: DiMo i: m6","RULE_EVALUATION":"prb: 1"}
+C3 p: 48 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: M3 d: Down m: CoMo i: M3","RULE_EVALUATION":"prb: 1"}
+C4 p: 60 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: P8 d: Up m: CoMo i: M3","RULE_EVALUATION":"prb: 1"}
+B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: m2 d: Down m: DiMo i: m3","RULE_EVALUATION":"prb: 0.5 R2"}
+A3 p: 57 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M2 d: Down m: CoMo i: P4","RULE_EVALUATION":"prb: 1"}
+G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: M2 d: Down m: CoMo i: P8","RULE_EVALUATION":"prb: 0.7 R3"}
+B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M3 d: Up m: CoMo i: m6","RULE_EVALUATION":"prb: 1"}
+C4 p: 60 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: m2 d: Up m: CoMo i: M3","RULE_EVALUATION":"prb: 1"}
+B3 p: 59 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: m2 d: Down m: DiMo i: P4","RULE_EVALUATION":"prb: 1"}
+A3 p: 57 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: M2 d: Down m: DiMo i: m3","RULE_EVALUATION":"prb: 0.5 R2"}
+G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M2 d: Down m: CoMo i: P4","RULE_EVALUATION":"prb: 1"}
+Fsharp3 p: 54 va: 2 vo: 0 f: 0 s: 1 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: m2 d: Down m: CoMo i: m6","RULE_EVALUATION":"prb: 1"}
+D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: M3 d: Down m: DiMo i: P8","RULE_EVALUATION":"prb: 1"}
+G3 p: 55 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Down_Beat j: P4 d: Up m: CoMo i: M3","RULE_EVALUATION":"prb: 1"}
+B2 p: 47 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Mid_Bar b: Up_Beat j: m6 d: Down m: DiMo i: P8","RULE_EVALUATION":"prb: 1"}
+D3 p: 50 va: 2 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Before_Last b: Down_Beat j: m3 d: Up m: CoMo i: P5","RULE_EVALUATION":"prb: 0.7 R3"}
+Fsharp3 p: 54 va: 2 vo: 0 f: 0 s: 1 t: 0 | {"NOTE_EVALUATION":"p: Before_Last_Last_Note b: Up_Beat j: M3 d: Up m: CoMo i: m3","RULE_EVALUATION":"prb: 1"}
+G3 p: 55 va: 1 vo: 0 f: 0 s: 0 t: 0 | {"NOTE_EVALUATION":"p: Last_Bar_First_Note b: Down_Beat j: m2 d: Up m: CoMo i: P8","RULE_EVALUATION":"prb: 1"}
 end

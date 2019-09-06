@@ -1,12 +1,17 @@
+#define RAPIDJSON_HAS_STDSTRING 1
+
 #include "Application.h"
 #include <SFML/Graphics.hpp>
+
+#include "Utility.h"
 
 int main()
 {
 	Application app;
 	
 	app.run();
-	
+
+
 	char ch;
 	std::cin >> ch;
 }

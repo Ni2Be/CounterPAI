@@ -34,4 +34,30 @@ namespace Eval {
 		void evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
 		void evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
 	};
+
+
+
+	class CustomDataset : public torch::data::Dataset<CustomDataset>
+	{
+	public:
+		Data_Loader loader;
+
+		explicit CustomDataset(Learn_Settings settings, bool is_training = true)
+			:
+			loader(settings, is_training)
+		{
+		};
+
+		// Override the get method to load custom data.
+		torch::data::Example<> get(size_t index) override 
+		{
+			return { loader.train_features_vec[index].clone(), loader.train_targets_vec[index].clone() };
+		};
+
+		// Override the size method to infer the size of the data set.
+		torch::optional<size_t> size() const override 
+		{
+			return loader.train_features_vec.size();
+		};
+	};
 }

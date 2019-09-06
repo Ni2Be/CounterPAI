@@ -25,7 +25,7 @@ public:
 	std::list<Music_Note>& get_cf();
 	std::list<Music_Note>& get_cp();
 
-	std::string get_note_info(Voice voice, int sixteenth_distance);
+	void clear_note_infos();
 	Music_Note get_note(Voice voice, int sixteenth_distance);
 	Music_Note get_note(Voice voice, int sixteenth_distance, bool& was_at);
 

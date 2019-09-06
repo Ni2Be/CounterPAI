@@ -5,18 +5,6 @@
 #include "Utility.h"
 
 
-Eval::Note_Evaluation::Note_Evaluation()
-	:
-	m_motion(Motion::NoMo), 
-	m_direction(Direction::No_Dir), 
-	m_jump_interval(Interval::No_Interval), 
-	m_interval(Interval::No_Interval), 
-	m_interval_tied(Interval::No_Interval), 
-	m_position(Bar_Position::No_Bar), 
-	m_beat_pos(Beat_Position::No_Beat),
-	m_probability(1.0f), 
-	m_sixteenth_position(-1)
-{}
 
 int get_sixteenth_length(std::list<Music_Note> voice);
 
@@ -36,6 +24,10 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 	if (length_cf != length_CP)
 	{
 		std::cerr << "\nCounter Point and Cantus Firmus must be the same length";
+		return;
+	} else if (cantus_firmus.size() == 0)
+	{
+		std::cerr << "\nThe voices are empty";
 		return;
 	}
 	/*
@@ -124,13 +116,12 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 	temp_eval.m_jump_interval = Interval::No_Interval;
 
 	temp_eval.m_interval = get_interval(*CP0_itr, *cf0_itr);
-	temp_eval.m_interval_tied = Interval::No_Interval;
 	temp_eval.m_motion = Motion::NoMo;
 	temp_eval.m_position = get_bar_pos(counter_point, CP0_itr);
 	temp_eval.m_beat_pos = get_beat_pos(counter_point, CP0_itr);
 	temp_eval.m_sixteenth_position = CP0_sixteenth_distance;
 	m_evaluation.push_back(temp_eval);
-	CP0_itr->m_note_info = Utility::to_str(temp_eval);//set note info
+	CP0_itr->add_note_info(Note_Evaluation::C_INDEX_NAME, Utility::to_str(temp_eval));//set note info
 
 	//add other notes
 	while (CP1_itr != counter_point.end()
@@ -145,9 +136,6 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 		else
 			temp_eval.m_interval = get_interval(*CP1_itr, *cf0_itr);
 
-		//TODO temp_eval.m_interval_tied = 
-
-
 		temp_eval.m_motion = get_motion(*cf0_itr, *cf1_itr, *CP0_itr, *CP1_itr);
 		temp_eval.m_position = get_bar_pos(counter_point, CP1_itr);
 		temp_eval.m_beat_pos = get_beat_pos(counter_point, CP1_itr);
@@ -155,8 +143,7 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 		temp_eval.m_sixteenth_position = CP1_sixteenth_distance;
 	
 		m_evaluation.push_back(temp_eval);
-		CP1_itr->m_note_info = Utility::to_str(temp_eval);//set note info
-
+		CP1_itr->add_note_info(Note_Evaluation::C_INDEX_NAME, Utility::to_str(temp_eval)); //set note info
 		//new c.p. note
 		CP0_sixteenth_distance += 16 / static_cast<int>(CP0_itr->m_value);
 		CP1_sixteenth_distance += 16 / static_cast<int>(CP1_itr->m_value);
@@ -307,11 +294,6 @@ int get_sixteenth_length(std::list<Music_Note> voice)
 	return sixteenth_total;
 }
 
-std::ostream& Eval::operator<<(std::ostream& os, const Note_Evaluation& note)
-{
-	os << std::setw(4) << "\t-Position:" << note.m_position << ",\t-Beat:" << note.m_beat_pos << std::setw(12) << ",\t-Jump:" << note.m_jump_interval << std::setw(14) << ",\t-Direction:" << note.m_direction << ",\t-Motion:" << note.m_motion << ",\t-Interval:" << note.m_interval;
-	return os;
-}
 std::ostream& Eval::operator<<(std::ostream& os, const Evaluator_Base& eval)
 {
 	os << "\n---------------\n";

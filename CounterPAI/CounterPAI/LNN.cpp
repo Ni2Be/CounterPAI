@@ -56,7 +56,7 @@ torch::Tensor Eval::LNN::forward(torch::Tensor x)
 	return x;
 }
 
-torch::Tensor Eval::LNN::learn_step(torch::Tensor learn_data, torch::Tensor target_data, bool optimize)
+torch::Tensor Eval::LNN::learn_step(const torch::Tensor&  learn_data, torch::Tensor target_data, bool optimize)
 {
 
 	try
