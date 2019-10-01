@@ -8,7 +8,7 @@ namespace Eval
 {
 	struct LSTM : Net
 	{
-		LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss, double dropout, torch::Device device);
+		LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss, double dropout, bool is_bidirectional, torch::Device device);
 		torch::Tensor forward(torch::Tensor input);
 		torch::Device device;
 		torch::nn::LSTM lstm{ nullptr };

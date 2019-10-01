@@ -1,3 +1,4 @@
+#pragma once
 #include "Clickable.h"
 #include <iostream>
 #include "Eventsystem.h"

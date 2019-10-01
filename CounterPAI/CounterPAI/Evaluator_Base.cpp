@@ -1,3 +1,4 @@
+#pragma once
 #include "Evaluator_Base.h"
 #include <string>
 #include <iomanip>
@@ -6,7 +7,6 @@
 
 
 
-int get_sixteenth_length(std::list<Music_Note> voice);
 
 Eval::Evaluator_Base::Evaluator_Base()
 {
@@ -232,11 +232,15 @@ Eval::Bar_Position Eval::Evaluator_Base::get_bar_pos(std::list<Music_Note>& voic
 		std::cerr << "\nindex not in voice!";
 		return Bar_Position::No_Bar;
 	}
+	if (note == voice.begin() && note->m_is_tied)
+		return Bar_Position::First_Bar_Pause;
+
 	//get total length
 	int sixteenth_total = get_sixteenth_length(voice);
 
 	//get position of note
 	std::list<Music_Note>::iterator itr = voice.begin();
+
 	int sixteenth = 1;
 	int note_counter = 0;
 	for (; itr != note; itr++)
@@ -285,7 +289,7 @@ Eval::Beat_Position Eval::Evaluator_Base::get_beat_pos(std::list<Music_Note>& vo
 	}
 }
 
-int get_sixteenth_length(std::list<Music_Note> voice)
+int Eval::Evaluator_Base::get_sixteenth_length(std::list<Music_Note> voice)
 {	
 	//get total length
 	int sixteenth_total = 1;//first note starts at 1, so +16 the next bar would be reached

@@ -1,3 +1,4 @@
+#pragma once
 #include "Debug_Log.h"
 
 #include "date.h"

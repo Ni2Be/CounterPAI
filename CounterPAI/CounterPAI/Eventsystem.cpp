@@ -1,3 +1,4 @@
+#pragma once
 #include "Eventsystem.h"
 #include <iostream>
 #include "Application.h"

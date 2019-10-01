@@ -1,3 +1,4 @@
+#pragma once
 #include "AI_Evaluator.h"
 
 #include <filesystem>
@@ -21,6 +22,7 @@
 
 #include "Data_Loader.h"
 
+#include "Rule_Evaluator.h"
 #include "Rule_Evaluation.h"
 
 #include "Net.h"
@@ -32,7 +34,7 @@ Eval::AI_Evaluator::AI_Evaluator()
 	device(torch::kCPU)
 {
 	if (torch::cuda::is_available()) {
-		std::cout << "CUDA is available! Training on GPU." << std::endl;
+		std::cout << "\nCUDA is available! Training on GPU.\n" << std::endl;
 		device = torch::kCUDA;
 	}
 	//NO CUDA SUPPORT
@@ -41,13 +43,27 @@ Eval::AI_Evaluator::AI_Evaluator()
 }
 
 
+int get_sixteenth_length(std::list<Music_Note> voice);
+
 void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 {		
 	try
 	{
+		if (get_sixteenth_length(sheet.get_cf()) != get_sixteenth_length(sheet.get_cp()))
+		{
+			std::cerr << "\nCounter Point and Cantus Firmus must be the same length";
+			return;
+		}
+		else if (sheet.get_cf().size() == 0)
+		{
+			std::cerr << "\nThe voices are empty";
+			return;
+		}
+
 		////LOAD
 		std::string model_save_folder = Folder_Dialog::get_exe_path() + "/data/trained/";
-		std::string model_name = "evaluate_fux_rules_from_two_sides_6";
+		//std::string model_name = "R2_from_two_sides_rule_targets";
+		std::string model_name = "R2_back_n_forth_rule_targets";
 		std::cout << "Evaluating with: " + model_save_folder + model_name + ".pt";
 		Learn_Settings settings(model_save_folder + model_name + ".json");
 		settings.batch_size = 1;
@@ -55,7 +71,7 @@ void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 		std::shared_ptr<Eval::Net> model;
 		if (settings.nn_type == NN_Type::LSTM)
 		{
-			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, device));
+			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, settings.is_bidirectional, device));
 			model->set_learning_rate(settings.learning_rate);
 		}
 		else if (settings.nn_type == NN_Type::LNN)
@@ -71,24 +87,27 @@ void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 		std::vector<torch::Tensor> features;
 		std::vector<torch::Tensor> targets_dummy;
 
+
+		Rule_Evaluator evaluator;
+		evaluator.evaluate_notes(sheet);
+
 		std::vector<Sheet_Music> sheet_vec = { sheet };
-		if (settings.nn_type == NN_Type::LSTM)
-		{
-			Data_Loader loader(settings, false);
-			loader.evaluate_fux_rules_from_two_sides_1(sheet_vec, features, targets_dummy);
-		}
+		Data_Loader loader(settings, false);
+		if (model_name == "R2_from_two_sides_rule_targets")
+			loader.evaluate_fux_rules_from_two_sides_rule_targets(sheet_vec, features, targets_dummy, Eval::Fux_Rule::R2);
+		else if (model_name == "R2_back_n_forth_rule_targets")
+			loader.evaluate_fux_rules_back_n_forth_rule_targets(sheet_vec, features, targets_dummy, Eval::Fux_Rule::R2);
 
 		std::cout << "result: ";
 		auto itr = sheet.get_cp().begin();
 		for (auto& f : features)
 		{
-			auto t = model->forward(f);
+			auto t = model->forward(f.clone());
 			Rule_Evaluation temp;
-			temp.m_probability = t[8].item<float>();
-			itr->clear_note_info();
-			itr->add_note_info(Rule_Evaluation::C_INDEX_NAME, Utility::to_str(temp));
+			if (t[-1].item<float>() > 0.5f)
+				temp.broken_rules.push_back(Fux_Rule::R2);
+			itr->add_note_info("AI_EVAL", Utility::to_str(temp));
 			itr++;
-			std::cout << t[8].item<float>() << ", ";
 		}
 		std::cout << std::endl;
 
@@ -121,12 +140,12 @@ void log_results(const std::string file_name, const std::vector<std::string>& ti
 		std::cerr << "\ncould not open debug log: " << file_location;
 
 	csv_file << seperator.first << seperator.second << "\n";
-	csv_file << time_clmn << seperator.second << epoch_clmn << seperator.second << test_loss_clmn << seperator.second << train_loss_clmn << "\n";
+	csv_file << time_clmn << seperator.second << epoch_clmn << seperator.second << train_loss_clmn << seperator.second << test_loss_clmn << "\n";
 
 
 	if (times.size() != epochs.size() || epochs.size() != test_losses.size() || epochs.size() != train_losses.size())
 	{
-		std::cerr << "\nlog_results sizes do not match: times: " << times.size() << ", epochs: " << epochs.size() << ", losses: test " << test_losses.size() << ", train " << train_losses.size();
+		std::cerr << "\nlog_results sizes do not match: times: " << times.size() << ", epochs: " << epochs.size() << ", losses: train " << train_losses.size() << ", test " << test_losses.size() ;
 	}
 
 	std::vector<std::string>::const_iterator time = times.begin();
@@ -135,7 +154,7 @@ void log_results(const std::string file_name, const std::vector<std::string>& ti
 	std::vector<float>::const_iterator train_loss = train_losses.begin();
 	for (; time != times.end(); time++, epoch++, test_loss++, train_loss++)
 	{
-		csv_file << *time << seperator.second << *epoch << seperator.second << *test_loss << seperator.second << *train_loss << "\n";
+		csv_file << *time << seperator.second << *epoch << seperator.second << *train_loss << seperator.second << *test_loss << "\n";
 	}
 }
 
@@ -143,7 +162,7 @@ void save_prediction_difference(const std::string file_name, const std::vector<d
 {
 	std::string file_location = Folder_Dialog::get_exe_path() + "/data/trainings_results/" + file_name + ".csv";
 
-	std::pair< std::string, std::string> seperator = { "sep=", "," };
+	std::pair< std::string, std::string> seperator = { "sep=", ";" };
 
 	std::string prediction_clmn = "prediction";
 	std::string actual_value_clmn = "actual_value";
@@ -182,7 +201,7 @@ std::string get_test_name(Eval::Learn_Settings settings)
 		+ "_opti_" + Utility::to_str(settings.optimizer)
 		+ "_lossf_" + Utility::to_str(settings.loss_func)
 		+ "_lr_" + std::to_string(settings.learning_rate);
-	std::replace(test_case_name.begin(), test_case_name.end(), '.', ',');
+	std::replace(test_case_name.begin(), test_case_name.end(), '.', '_');
 	return test_case_name;
 }
 
@@ -191,18 +210,26 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 	//std::cout.setstate(std::ios_base::failbit);
 	try {
 		std::cout << "\nTRAIN CF!";
-		std::string model_save_folder = "data/trainings_results/models/";
 
+		std::string model_save_folder = "data/trainings_results/models/" + settings.test_name;
+		std::experimental::filesystem::create_directory(model_save_folder);
+		
 		//Eval::Data_Loader data_loader(settings);
 
 
-		// Generate your data set. At this point you can add transforms to you data set, e.g. stack your
-		// batches into a single tensor.
-		auto data_set = CustomDataset(settings).map(torch::data::transforms::Stack<>());
+		// generate data set
+		Dataset train_data_set(settings, Data_Type::TRAIN);
+		Dataset test_data_set(settings, Data_Type::TEST);
 
-		// Generate a data loader.
-		auto data_loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
-			std::move(data_set),
+		auto map_train_data_set = train_data_set.map(torch::data::transforms::Stack<>());
+		auto map_test_data_set = test_data_set.map(torch::data::transforms::Stack<>());
+
+		// generate data loader.
+		auto train_data_loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
+			std::move(map_train_data_set),
+			settings.batch_size);
+		auto test_data_loader = torch::data::make_data_loader<torch::data::samplers::SequentialSampler>(
+			std::move(map_test_data_set),
 			settings.batch_size);
 
 		//log progress
@@ -217,7 +244,7 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 		std::shared_ptr<Eval::Net> model;
 		if (settings.nn_type == NN_Type::LSTM)
 		{
-			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, device));
+			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, settings.is_bidirectional, device));
 			model->set_learning_rate(settings.learning_rate);
 		}
 		else if (settings.nn_type == NN_Type::LNN)
@@ -230,57 +257,50 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 		for (size_t epoch = 0; epoch < settings.epochs; epoch++)
 		{
 			std::cout << ".";
-			if (epoch % 10 == 0)
+			if (epoch % 1 == 0)
 			{
-				//auto train_batch = data_loader.get_train_batch();
-				//torch::Tensor train_feature_tensor = std::get<0>(train_batch);
-				//torch::Tensor train_target_tensor = std::get<1>(train_batch);
-				//auto test_batch = data_loader.get_test_batch();
-				//torch::Tensor test_feature_tensor = std::get<0>(test_batch);
-				//torch::Tensor test_target_tensor = std::get<1>(test_batch);
 
-
-				//auto train_data_loss = model->test_prediction(train_feature_tensor, train_target_tensor).item<float>();
-				//auto test_data_loss = model->test_prediction(test_feature_tensor, test_target_tensor).item<float>();
 				float train_data_loss = 0;
-				int i = 0;
-				for (auto& batch : *data_loader)
-				{
-					train_data_loss += model->test_prediction(batch.data, batch.target).item<float>();
-				}
+				for (auto& batch : *train_data_loader)
+					train_data_loss += model->test_prediction(batch.data.permute({ 2, 1, 0, 3 })[0], batch.target).item<float>() / train_data_set.loader.features_vec.size();
 
-				if (epoch == 1000)
-				{
-					std::cout << "new learning rate: " << 0.1 * settings.learning_rate;
-					model->set_learning_rate(0.1 * settings.learning_rate);
-				}
-				std::cout << "\nepoch: " << epoch << ", Loss: train: " << train_data_loss /*<< ", test: " << test_data_loss*/ << std::endl;
-				torch::save(*model->get_optimizer(), model_save_folder + test_case_name + "_epoch_" + std::to_string(epoch) + "_opti" + ".pt");
-				torch::save(model, model_save_folder + test_case_name + ".pt");
+				float test_data_loss = 0;
+				for (auto& batch : *test_data_loader)
+					test_data_loss += model->test_prediction(batch.data.permute({ 2, 1, 0, 3 })[0], batch.target).item<float>() / test_data_set.loader.features_vec.size();
+
+				//TODO should be set in Net
+				//if ((epoch > 0)
+				//	&& (epoch % 10 == 0))
+				//{
+				//	settings.learning_rate *= 0.1;
+				//	std::cout << "new learning rate: " << settings.learning_rate;
+				//	model->set_learning_rate(settings.learning_rate);
+				//}
+				//
+				std::stringstream ss;
+				ss << std::setw(3) << std::setfill('0') << epoch;
+				std::string epoch_str = ss.str();
+
+				std::cout << "\nepoch: " << epoch_str << ", Loss: train: " << 1000 * train_data_loss << ", test: " << 1000 * test_data_loss  << std::endl;
+
+				torch::save(model, model_save_folder + "/" + epoch_str + "_epoch_" + test_case_name + ".pt");
 				times.push_back(Utility::get_time_stamp());
 				epochs.push_back(epoch);
 				train_losses.push_back(train_data_loss);
-				//test_losses.push_back(test_data_loss);
-				test_losses.push_back(train_data_loss);
-			}
-			for (auto& batch : *data_loader)
-			{
-				model->learn_step(batch.data, batch.target);
-			}
-			//auto train_batch = data_loader.get_train_batch();
-			//torch::Tensor train_feature_tensor = std::get<0>(train_batch);
-			//torch::Tensor train_target_tensor = std::get<1>(train_batch);
+				test_losses.push_back(test_data_loss);
 
-			//model->learn_step(train_feature_tensor, train_target_tensor);
+				log_results(test_case_name, times, epochs, test_losses, train_losses);
+				if (train_data_loss == 0.0f
+					&& settings.loss_func == Loss_F::BCEL)
+					break;
+
+			}
+			for (auto& batch : *train_data_loader)
+				model->learn_step(batch.data.permute({ 2, 1, 0, 3 })[0], batch.target);
 		}
 		//SAVE
-		torch::save(model, model_save_folder + test_case_name + ".pt");
-		torch::save(*model->get_optimizer(), model_save_folder + test_case_name + "opti" + ".pt");
-
-		////LOAD
-		//torch::load(model, model_save_folder + test_case_name + ".pt");
-		//torch::load(*model->optimizer, model_save_folder + test_case_name + "opti" + ".pt");
-		//model->eval();
+		torch::save(model, model_save_folder + "/" + test_case_name + ".pt");
+		torch::save(*model->get_optimizer(), model_save_folder + "/" + test_case_name + "opti" + ".pt");
 
 		//log progress
 		log_results(test_case_name, times, epochs, test_losses, train_losses);
@@ -293,25 +313,49 @@ void Eval::AI_Evaluator::train_net(Learn_Settings settings)
 	//std::cout.clear();
 }
 
+void log_validation_results(const std::string file_name, const std::string model_name, int real_0_guess_0, int real_1_guess_0,int real_0_guess_1,int real_1_guess_1)
+{
 
-void Eval::AI_Evaluator::test_net(Learn_Settings settings)
+	std::string file_location = file_name + ".csv";
+
+	std::pair<std::string, std::string> seperator = { "sep=", ";" };
+	if (!std::experimental::filesystem::exists(file_location))
+	{
+		std::ofstream csv_file(file_location, std::fstream::app);
+		if (!csv_file)
+			std::cerr << "\ncould not open debug log: " << file_location;
+		csv_file << "TP" << seperator.second << "TN" << seperator.second << "FN" << seperator.second << "FP" << seperator.second << "\n";
+	}
+	std::ofstream csv_file(file_location, std::fstream::app);
+	if (!csv_file)
+		std::cerr << "\ncould not open debug log: " << file_location;
+
+	csv_file << real_1_guess_1 << seperator.second << real_1_guess_0 << seperator.second << real_0_guess_1 << seperator.second << real_0_guess_0 << seperator.second << model_name << "\n";
+}
+
+
+void Eval::AI_Evaluator::validate_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path)
 {
 	try
 	{
-		const int test_count = 5000;
 		////LOAD
+		std::cout << "\n\nValidating\n";
 
-		std::string model_save_folder = Folder_Dialog::get_exe_path() + "/data/trainings_results/models/";
-		std::string test_case_name = get_test_name(settings);
-		std::string model_name = model_save_folder + test_case_name + ".pt";
+		std::cout << "Evaluating with: " + model_path;
+		Learn_Settings settings(settings_path);
 
-		std::cout << "Test Net: " + model_name;
+		if (settings.valid_data_folder == "null")
+		{
+			std::cerr << "\nSettings have no validation folder\n";
+			return;
+		}
+
 		settings.batch_size = 1;
-		std::cout << "\n" << settings;
+		std::cout << settings;
 		std::shared_ptr<Eval::Net> model;
 		if (settings.nn_type == NN_Type::LSTM)
 		{
-			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, device));
+			model.reset(new LSTM(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, settings.is_bidirectional, device));
 			model->set_learning_rate(settings.learning_rate);
 		}
 		else if (settings.nn_type == NN_Type::LNN)
@@ -319,25 +363,62 @@ void Eval::AI_Evaluator::test_net(Learn_Settings settings)
 			model.reset(new LNN(settings.in_size, settings.hidden_size, settings.out_size, settings.hidden_layer_count, settings.optimizer, settings.loss_func, settings.dropout, device));
 			model->set_learning_rate(settings.learning_rate);
 		}
-		torch::load(model, model_name);
+		torch::load(model, model_path);
 		model->to(device);
 		model->eval();
 
-		Eval::Data_Loader data_loader(settings);
 
-		std::vector<double> predictions;
-		std::vector<double> values;
-		for (int i = 0; i < test_count; i++)
+		Data_Loader loader(settings, true, Data_Type::VALID);
+
+		std::cout << "\nAi is working 0%";
+		//real value / guess
+		int real_0_guess_0 = 0;
+		int real_1_guess_0 = 0;
+		int real_0_guess_1 = 0;
+		int real_1_guess_1 = 0;
+		int counter = 0;
+		for (int i = 0; i < loader.features_vec.size(); i++)
 		{
-			auto test_batch = data_loader.get_test_batch();
-			torch::Tensor test_feature_tensor = std::get<0>(test_batch);
-			torch::Tensor test_target_tensor = std::get<1>(test_batch);
+			if (i % (loader.features_vec.size() / 10) == 0)
+				std::cout << "\rAi is working " << counter++ * 10 << "%";
+			auto t = model->forward(loader.features_vec[i].clone());
+			if ((t[-1].item<float>() > 0.5f)
+				&& (loader.targets_vec[i].item<float>() == 1.0))
+			{
+				real_1_guess_1++;
+			}
+			else if ((t[-1].item<float>() > 0.5f)
+				&& (loader.targets_vec[i].item<float>() == 0.0))
+			{
+				real_0_guess_1++;
+			}
 
-			auto t = model->forward(test_feature_tensor);
-			predictions.push_back(t[8].item<float>());
-			values.push_back(test_target_tensor[8].item<float>());
+			else if ((t[-1].item<float>() <= 0.5f)
+				&& (loader.targets_vec[i].item<float>() == 1.0))
+			{
+				real_1_guess_0++;
+			}
+
+			else if ((t[-1].item<float>() <= 0.5f)
+				&& (loader.targets_vec[i].item<float>() == 0.0))
+			{
+				real_0_guess_0++;
+			}
 		}
-		save_prediction_difference(test_case_name + "_predictions", predictions, values);
+		std::cout << "\rAi is finished      ";
+
+		if(save_path != "do_not_save")
+			log_validation_results(save_path, model_path, real_0_guess_0, real_1_guess_0, real_0_guess_1, real_1_guess_1);
+
+		std::cout << "\nvaldiation features: " << loader.features_vec.size()
+			<< "\n\nResult:\n"
+			<< "                                prediction"
+			<< "\n                      rule broken  |   rule complied"
+			<< "\n            broken   " << std::setw(11) << real_1_guess_1 << "   |   " << real_1_guess_0
+			<< "\nactual value     --------------------------------------------"
+			<< "\n          complied   " << std::setw(11) << real_0_guess_1 << "   |   " << real_0_guess_0
+			<< "\n"
+			<< "\nright " << real_0_guess_0 + real_1_guess_1 << ", wrong: " << real_0_guess_1 + real_1_guess_0 << "\n";
 
 	}
 	catch (std::exception& e)

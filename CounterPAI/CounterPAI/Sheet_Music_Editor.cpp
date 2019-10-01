@@ -1,3 +1,4 @@
+#pragma once
 #include "Sheet_Music_Editor.h"
 #include "SVG_Parser.h"
 #include "GUI.h"
@@ -426,6 +427,8 @@ std::string generate_info_text(Music_Note note)
 	info_text += "\nInterval: " + Utility::to_str(evaluation.m_interval);
 	info_text += "\nJump: " + Utility::to_str(evaluation.m_jump_interval);
 	info_text += "\nMotion: " + Utility::to_str(evaluation.m_motion);
+	//info_text += "\nBeat pos: " + Utility::to_str(evaluation.m_beat_pos);
+	//info_text += "\nBar pos: " + Utility::to_str(evaluation.m_position);
 
 
 	//Fux Rule Evaluation
@@ -437,6 +440,15 @@ std::string generate_info_text(Music_Note note)
 	for (const auto& r : rule_evaluation.broken_rules)
 		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
 	info_text += "\nProbability: " + std::to_string(rule_evaluation.m_probability);
+
+	//Fux Rule Evaluation
+	info_text += "\n\nAI:\n";
+	std::stringstream ss3;
+	ss3 << note.get_note_info("AI_EVAL");
+	Eval::Rule_Evaluation rule_evaluation_ai;
+	ss3 >> rule_evaluation_ai;
+	for (const auto& r : rule_evaluation_ai.broken_rules)
+		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
 
 
 	return info_text;

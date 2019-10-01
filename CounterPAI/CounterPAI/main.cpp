@@ -5,10 +5,10 @@
 
 #include "Utility.h"
 
-int main()
+
+int main(int )
 {
 	Application app;
-	
 	app.run();
 
 

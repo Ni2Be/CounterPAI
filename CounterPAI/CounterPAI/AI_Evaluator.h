@@ -1,9 +1,3 @@
-/*
-
-NOT USED AT THE MOMENT
-
-*/
-
 #pragma once
 #include "Evaluator_Base.h"
 
@@ -24,7 +18,7 @@ namespace Eval
 		//void train();
 
 		void train_net(Learn_Settings settings);
-		void test_net(Learn_Settings settings);
+		void validate_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path = "do_not_save");
 		//void generate_cf();
 
 		//void load_data();

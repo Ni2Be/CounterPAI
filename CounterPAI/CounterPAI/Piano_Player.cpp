@@ -1,3 +1,4 @@
+#pragma once
 #include "Piano_Player.h"
 
 
@@ -51,6 +52,7 @@ void Piano_Player::stop()
 			keyboard.stop(m_playing_event_q.top().note);
 		m_playing_event_q.pop();
 	}
+	keyboard.stop();
 }
 
 void Piano_Player::update()

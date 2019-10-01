@@ -203,6 +203,7 @@ namespace Eval
 
 	enum class Bar_Position
 	{
+		First_Bar_Pause,
 		First_Bar_First_Note,
 		First_Bar,
 		Mid_Bar,
@@ -214,8 +215,9 @@ namespace Eval
 
 	inline std::ostream& operator<<(std::ostream& os, const Bar_Position& position)
 	{
-		static const std::array<std::string, 7> position_str
+		static const std::array<std::string, 8> position_str
 		{
+		"First_Bar_Pause",
 		"First_Bar_First_Note",
 		"First_Bar",
 		"Mid_Bar",
@@ -232,7 +234,10 @@ namespace Eval
 	{
 		std::string s;
 		is >> s;
-		if (s == "First_Bar_First_Note")
+		
+		if (s == "First_Bar_Pause")
+			bar_pos = Bar_Position::First_Bar_Pause;
+		else if (s == "First_Bar_First_Note")
 			bar_pos = Bar_Position::First_Bar_First_Note;
 		else if (s == "First_Bar")
 			bar_pos = Bar_Position::First_Bar;

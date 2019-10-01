@@ -1,3 +1,4 @@
+#pragma once
 #include "Folder_Dialog.h"
 
 #ifndef NOMINMAX

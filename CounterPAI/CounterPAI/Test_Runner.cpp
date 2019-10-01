@@ -1,3 +1,4 @@
+#pragma once
 #include "Test_Runner.h"
 #include "AI_Evaluator.h"
 #include "LNN.h"

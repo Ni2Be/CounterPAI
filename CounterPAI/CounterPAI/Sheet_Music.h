@@ -24,6 +24,8 @@ public:
 	bool bass_is_cf = true;
 	std::list<Music_Note>& get_cf();
 	std::list<Music_Note>& get_cp();
+	const std::list<Music_Note>& get_cf() const;
+	const std::list<Music_Note>& get_cp() const;
 
 	void clear_note_infos();
 	Music_Note get_note(Voice voice, int sixteenth_distance);

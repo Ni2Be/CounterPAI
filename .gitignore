@@ -2,12 +2,13 @@
 *.dll
 lib/*
 dlls/*
-trainings_data/*
+
+CounterPAI/x64/Release/data/trainings_data/*
+CounterPAI/CounterPAI/data/trainings_data/*
 
 
-
-
-
+CounterPAI/x64/Release/data/trainings_results/models/*
+CounterPAI/CounterPAI/data/trainings_results/models/*
 
 
 ## Ignore Visual Studio temporary files, build results, and

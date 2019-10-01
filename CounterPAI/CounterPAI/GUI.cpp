@@ -1,7 +1,10 @@
+#pragma once
 #include "GUI.h"
 #include <iostream>
 #include "Application.h"
 #include "Folder_Dialog.h"
+
+#include "Data_Loader.h"
 
 UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std::string& info_text)
 	:
@@ -34,12 +37,9 @@ void UI::Info_Box::set_info_text(std::string text)
 				if (i > row_chars)
 				{
 					itr = last_pos;
-					itr--;
-					itr--;
-					itr--;
-					itr--;
-					itr--;
-					itr--;
+					int move_back = 6;
+					for(int b = 0; b < move_back; b++)
+						itr--;
 					itr = text.insert(itr, '-');
 					itr++;
 					break;
@@ -72,12 +72,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_parent(parent),
 	m_play_button(parent,   { {0  ,500},{100,100} }, "play"),
 	m_stop_button(parent,   { {110,500},{100,100} }, "stop"),
-	m_clear_button(parent, { {220,500},{100,100} }, "clear"),
-	m_clear_yes_button(parent, { {220,450},{50,50} }, "y"),
-	m_clear_no_button(parent, { {270,450},{50,50} }, "n"),
-	m_100_bpm_button(parent, { { 330, 500 }, { 60, 33 } }, "s"),
-	m_200_bpm_button(parent, { { 330, 533 }, { 60, 33 } }, "m"),
-	m_300_bpm_button(parent, { { 330, 566 }, { 60, 33 } }, "f"),
+	m_100_bpm_button(parent, { { 220, 500 }, { 60, 33 } }, "s"),
+	m_200_bpm_button(parent, { { 220, 533 }, { 60, 33 } }, "m"),
+	m_300_bpm_button(parent, { { 220, 566 }, { 60, 33 } }, "f"),
 	m_grid_button(parent, { { 1570, 570 }, { 20, 20 } }, ""),
 	m_sheet_editor(parent->m_sheet, this),
 	m_whole_button(parent,  { {400,500},{100,100} }, "1/1"),
@@ -88,8 +85,11 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_flat_button (parent, { {800,550},{60, 50} }, "b"), 
 	m_tie_button(parent, { {900,500},{100,100} }, "tie"),
 	m_delete_button(parent, { {1010,500},{100,100} }, "delete"),
-	m_overlay_button(parent, { {1210,500},{100,100} }, "overlay"),
-	m_info_button(parent, { {1320,500},{100,100} }, "note info"),
+	m_clear_button(parent, { {1120,500},{100,100} }, "clear"),
+	m_clear_yes_button(parent, { {1120,450},{50,50} }, "y"),
+	m_clear_no_button(parent, { {1170,450},{50,50} }, "n"),
+	m_overlay_button(parent, { {1260,500},{100,100} }, "overlay"),
+	m_info_button(parent, { {1370,500},{100,100} }, "note info"),
 	m_info_text(parent, { { 1600, 0 }, { 300, 550 } }, "no Note"),
 	m_soprano_cf_button(parent, { { 1570, 100 }, { 20, 20 } }, ""),
 	m_bass_cf_button(parent, { { 1570, 300 }, { 20, 20 } }, ""),
@@ -360,6 +360,19 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_grid_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		else
 			app->gui.m_grid_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+		auto sheet_vec = Eval::Data_Loader::convert_to_2d_vector(app->m_sheet);
+
+		if (sheet_vec.size() > 0)
+		{
+			std::cout << "\n\nSheet:\n";
+			Eval::Data_Loader::print_2d_vector(sheet_vec);
+
+			app->m_sheet.clear_note_infos();
+			app->m_evaluator->evaluate_notes(app->m_sheet);
+			Eval::Sheet_Statistic stat(app->m_sheet);
+			std::cout << stat;
+		}
 	};
 	m_grid_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 	attach_drawable(m_grid_button);
@@ -413,7 +426,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		std::ifstream fs;
 		std::string file_name = Folder_Dialog::get_load_file_name();
 		fs.open(file_name.c_str());
-		std::cout << file_name;
+		std::cout << "\nloaded: " << file_name << "\n";
 		if(fs)
 			fs >> app->m_sheet;
 		if (app->m_sheet.bass_is_cf)
@@ -450,6 +463,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_save_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	attach_drawable(m_info_text);
 	m_window.setActive(false);
+	
 }
 
 

@@ -1,3 +1,4 @@
+#pragma once
 #include "Note_Evaluation.h"
 
 #include <sstream>

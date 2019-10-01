@@ -26,11 +26,14 @@ public:
 	Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied, bool is_sharp, bool is_flat);
 
 	void add_note_info(std::string index, std::string message);
-	std::string get_note_info(std::string index);
+	std::string get_note_info(const std::string& index) const;
 	void clear_note_info();
 
 	static Note_Pitch get_ACscale_pitch(Note_Pitch lowest_note, int distance);
 	static int get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note);
+
+	Note_Pitch get_ACscale_pitch(int distance);
+	int get_ACscale_distance(Note_Pitch note);
 
 	Note_Pitch get_basic_note();
 	int get_midi_key();
@@ -49,7 +52,8 @@ public:
 	bool m_is_corrupted = false;
 
 private:
-	std::shared_ptr<rapidjson::Document> m_note_info_ = std::make_shared<rapidjson::Document>(rapidjson::Document());
+	std::string m_note_info;
+	//std::shared_ptr<rapidjson::Document> m_note_info_ = std::make_shared<rapidjson::Document>(rapidjson::Document());
 };
 
 
@@ -79,6 +83,20 @@ enum class Note_Pitch : int
 	C7, Csharp7, D7, Dsharp7, E7, F7, Fsharp7, G7, Gsharp7, A7, Asharp7, B7,
 	C8, Csharp8, D8, Dsharp8, E8, F8, Fsharp8, G8, Gsharp8, A8, Asharp8, B8,
 	C9, Csharp9
+};
+
+inline std::ostream& operator<<(std::ostream& os, const Note_Value& value)
+{
+	switch (value)
+	{
+	case Note_Value::Whole: os << "Whole"; break;
+	case Note_Value::Halfe: os << "Halfe"; break;
+	case Note_Value::Quarter: os << "Quarter"; break;
+	case Note_Value::Eighth: os << "Eighth"; break;
+	case Note_Value::Sixteenth: os << "Sixteenth"; break;
+	default: os << "no value"; break;
+	}
+	return os;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Note_Pitch& pitch)

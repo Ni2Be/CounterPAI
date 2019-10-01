@@ -1,17 +1,22 @@
+#pragma once
 #include "LSTM.h"
 
 
-Eval::LSTM::LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss_f, double dropout, torch::Device device)
+Eval::LSTM::LSTM(int64_t input, int64_t hidden, int64_t output, int64_t hidden_layer_count, Opti opti, Loss_F loss_f, double dropout, bool is_bidirectional, torch::Device device)
 	:
 	device(device),
-	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count).dropout(dropout).torch::nn::LSTMOptions::batch_first(false)), //.torch::nn::LSTMOptions::bidirectional(true)
+	lstm(torch::nn::LSTMOptions(input, hidden).layers(hidden_layer_count).dropout(dropout).batch_first(false)),
 	s_optimizer(opti),
 	s_loss_func(loss_f)
 {
+	//not working in libtorch 1.2
+	//if (is_bidirectional)
+	//	lstm->options.bidirectional(true);
+
 	register_module("lstm", lstm);
 	out = register_module("out", torch::nn::Linear(hidden, output));
 	if (s_optimizer == Opti::ADAM)
-		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
+		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), torch::optim::AdamOptions(s_learning_rate).weight_decay(0.00005)));
 	else if (s_optimizer == Opti::SGD)
 		optimizer = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), s_learning_rate));
 
@@ -23,15 +28,13 @@ void Eval::LSTM::set_learning_rate(double learning_rate)
 	s_learning_rate = learning_rate;
 	optimizer.reset();
 	if (s_optimizer == Opti::ADAM)
-		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), s_learning_rate));
+		optimizer = std::make_shared<torch::optim::Adam>(torch::optim::Adam(this->parameters(), torch::optim::AdamOptions(s_learning_rate).weight_decay(0.00005)));
 	else if (s_optimizer == Opti::SGD)
 		optimizer = std::make_shared<torch::optim::SGD>(torch::optim::SGD(this->parameters(), s_learning_rate));
 }
 
 torch::Tensor Eval::LSTM::forward(torch::Tensor x)
 {
-	x = x.permute({ 2, 1, 0, 3 });
-	x = x[0];
 	//input (sequence, batch, features) 
 	torch::nn::RNNOutput new_prediction = lstm->forward(x.to(device));
 
@@ -47,9 +50,8 @@ torch::Tensor Eval::LSTM::learn_step(const torch::Tensor& learn_data, torch::Ten
 	try
 	{
 		this->zero_grad();
-		auto x = learn_data.permute({ 2, 1, 0, 3 });
-		x = x[0];
-		//std::cout << x;
+		auto x = learn_data;
+
 		torch::nn::RNNOutput new_prediction = lstm->forward(x.to(device));
 
 		x = new_prediction.output[-1];

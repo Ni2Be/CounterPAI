@@ -1,3 +1,4 @@
+#pragma once
 #include "Music_Note.h"
 
 #include <rapidjson/istreamwrapper.h>
@@ -14,7 +15,7 @@ Music_Note::Music_Note()
 	m_is_sharp(true),
 	m_is_flat(true)
 {
-	m_note_info_->SetObject();
+	//m_note_info_->SetObject();
 };
 
 Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice)
@@ -23,7 +24,7 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice)
 	m_value(value),
 	m_voice(voice)
 {
-	m_note_info_->SetObject();
+	//m_note_info_->SetObject();
 }
 
 Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied)
@@ -33,7 +34,7 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_
 	m_voice(voice),
 	m_is_tied(is_tied)
 {
-	m_note_info_->SetObject();
+	//m_note_info_->SetObject();
 }
 
 Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_tied, bool is_sharp, bool is_flat)
@@ -45,31 +46,66 @@ Music_Note::Music_Note(Note_Pitch pitch, Note_Value value, Voice voice, bool is_
 	m_is_sharp(is_sharp),
 	m_is_flat(is_flat)
 {
-	m_note_info_->SetObject();
+	//m_note_info_->SetObject();
 }
 
 void Music_Note::add_note_info(std::string sender, std::string message)
 {
 	using namespace rapidjson;
-	Value::MemberIterator itr = m_note_info_->FindMember(sender);
-	if (itr == m_note_info_->MemberEnd())
+	Document note_info_doc;
+	note_info_doc.SetObject();
+	note_info_doc.Parse(m_note_info);
+
+
+	Value::MemberIterator itr = note_info_doc.FindMember(sender);
+	if (itr == note_info_doc.MemberEnd())
 	{
-		Value new_value(sender, m_note_info_->GetAllocator());
-		Value m(message, m_note_info_->GetAllocator());
-		m_note_info_->AddMember(new_value, m, m_note_info_->GetAllocator());
+		Value new_value(sender, note_info_doc.GetAllocator());
+		Value m(message, note_info_doc.GetAllocator());
+		note_info_doc.AddMember(new_value, m, note_info_doc.GetAllocator());
 	}
 	else
 	{
 		Value::StringRefType m(message.c_str());
-		(*m_note_info_)[sender.c_str()].SetString(m);
+		note_info_doc[sender.c_str()].SetString(m);
 	}
+
+	using namespace rapidjson;
+	StringBuffer strbuf;
+	strbuf.Clear();
+	Writer<StringBuffer> writer(strbuf);
+	note_info_doc.Accept(writer);
+	std::string note_info_string(strbuf.GetString());
+
+	m_note_info = note_info_string;
 }
 
-std::string Music_Note::get_note_info(std::string index)
+//std::string Music_Note::get_note_info(const std::string& index)
+//{
+//	using namespace rapidjson;
+//	if (m_note_info_.use_count() == 0)
+//		m_note_info_.reset(new Document());
+//
+//	Value::MemberIterator itr = m_note_info_->FindMember(index.c_str());
+//	if (itr == m_note_info_->MemberEnd())
+//	{
+//		return "null";
+//	}
+//	return std::string(itr->value.GetString());
+//}
+std::string Music_Note::get_note_info(const std::string& index) const
 {
 	using namespace rapidjson;
-	Value::MemberIterator itr = m_note_info_->FindMember(index.c_str());
-	if (itr == m_note_info_->MemberEnd())
+	if (m_note_info.size() == 0)
+		return "null";
+
+	using namespace rapidjson;
+	Document note_info_doc;
+	note_info_doc.SetObject();
+	note_info_doc.Parse(m_note_info);
+	Value::MemberIterator itr = note_info_doc.FindMember(index.c_str());
+
+	if (itr == note_info_doc.MemberEnd())
 	{
 		return "null";
 	}
@@ -78,7 +114,7 @@ std::string Music_Note::get_note_info(std::string index)
 
 void Music_Note::clear_note_info()
 {
-	m_note_info_->RemoveAllMembers();
+	m_note_info = "";
 }
 
 
@@ -106,7 +142,7 @@ Note_Pitch Music_Note::get_ACscale_pitch(Note_Pitch lowest_note, int distance)
 		case 14: return Note_Pitch::C4;
 		case 15: return Note_Pitch::D4;
 		case 16: return Note_Pitch::E4;
-		default: std::cerr << "invalid bass Note\n"; break;
+		default: std::cerr << "invalid bass Note, distance: " + std::to_string(distance) + "\n"; break;
 		}
 	}
 	else if (lowest_note == Note_Pitch::A3)
@@ -130,7 +166,7 @@ Note_Pitch Music_Note::get_ACscale_pitch(Note_Pitch lowest_note, int distance)
 		case 14: return Note_Pitch::A5;
 		case 15: return Note_Pitch::B5;
 		case 16: return Note_Pitch::C6;
-		default: std::cerr << "invalid soprano Note\n"; break;
+		default: std::cerr << "invalid soprano Note, distance: " + std::to_string(distance) + "\n"; break;
 		}
 	}
 	else
@@ -164,7 +200,7 @@ int Music_Note::get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note)
 		case Note_Pitch::C4: return 14;
 		case Note_Pitch::D4: return 15;
 		case Note_Pitch::E4: return 16;
-		default: std::cerr << "invalid bass Note\n"; break;
+		default: std::cerr << "invalid bass Note: " + std::to_string( (int) note )+ ", " + Utility::to_str(note) + "\n"; break;
 		}
 	}
 	else if (lowest_note == Note_Pitch::A3)
@@ -188,7 +224,7 @@ int Music_Note::get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note)
 		case Note_Pitch::A5: return 14;
 		case Note_Pitch::B5: return 15;
 		case Note_Pitch::C6: return 16;
-		default: std::cerr << "invalid soprano Note: " << (int)note << " \n"; break;
+		default: std::cerr << "invalid soprano Note: " + Utility::to_str(note) + "\n"; break;
 		}
 	}
 	else
@@ -197,6 +233,25 @@ int Music_Note::get_ACscale_distance(Note_Pitch lowest_note, Note_Pitch note)
 	}
 	return -1;
 }
+
+Note_Pitch Music_Note::get_ACscale_pitch(int distance)
+{
+	if(this->m_voice == Voice::Bass)
+		return get_ACscale_pitch(Note_Pitch::C2, distance);
+	else
+		return get_ACscale_pitch(Note_Pitch::A3, distance);
+}
+
+int Music_Note::get_ACscale_distance(Note_Pitch note)
+{
+	if (this->m_voice == Voice::Bass)
+		return get_ACscale_distance(Note_Pitch::C2, note);
+	else
+		return get_ACscale_distance(Note_Pitch::A3, note);
+}
+
+
+
 
 
 Note_Pitch Music_Note::get_basic_note()
@@ -224,18 +279,8 @@ std::ostream& operator<<(std::ostream& os, const Music_Note& note)
 		<< " t: " << note.m_is_tied;
 		//<< " ;\n";
 	
-	using namespace rapidjson;
-	StringBuffer strbuf;
-	strbuf.Clear();
-	Writer<StringBuffer> writer(strbuf);
-	note.m_note_info_->Accept(writer);
-	std::string note_info_string(strbuf.GetString());
 
-	if (note_info_string.size() > Music_Note::C_MAX_NOTE_INFO_STING_SIZE)
-		std::cerr << "\nnote info string to long, save file will be corrupted!";
-	//std::replace(note_info_string.begin(), note_info_string.end(), '\n', ' ');
-
-	os << " | " << note_info_string << "\n";
+	os << " | " << note.m_note_info << "\n";
 
 	return os;
 }
@@ -270,7 +315,7 @@ std::istream& operator>>(std::istream& is, Music_Note& note)
 
 	char buffer[Music_Note::C_MAX_NOTE_INFO_STING_SIZE];
 	is.getline(buffer, Music_Note::C_MAX_NOTE_INFO_STING_SIZE);
-	note.m_note_info_->Parse(buffer);
+	note.m_note_info = buffer;
 
 	return is;
 }

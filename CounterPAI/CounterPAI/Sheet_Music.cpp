@@ -1,3 +1,4 @@
+#pragma once
 #include "Sheet_Music.h"
 
 #include <string>
@@ -348,8 +349,22 @@ std::list<Music_Note>& Sheet_Music::get_cf()
 	else
 		return m_soprano;
 }
+const std::list<Music_Note>& Sheet_Music::get_cf() const
+{
+	if (bass_is_cf)
+		return m_bass;
+	else
+		return m_soprano;
+}
 
 std::list<Music_Note>& Sheet_Music::get_cp()
+{
+	if (bass_is_cf)
+		return m_soprano;
+	else
+		return m_bass;
+}
+const std::list<Music_Note>& Sheet_Music::get_cp() const
 {
 	if (bass_is_cf)
 		return m_soprano;

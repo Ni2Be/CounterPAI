@@ -1,3 +1,4 @@
+#pragma once
 #include "Utility.h"
 
 #include "date.h"

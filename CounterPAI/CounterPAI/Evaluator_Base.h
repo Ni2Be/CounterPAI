@@ -30,6 +30,8 @@ namespace Eval
 		Bar_Position get_bar_pos(std::list<Music_Note>& voice, const std::list<Music_Note>::iterator& note);
 		Beat_Position get_beat_pos(std::list<Music_Note>& voice, const std::list<Music_Note>::iterator& note);
 
+		int get_sixteenth_length(std::list<Music_Note> voice);
+
 		friend std::ostream& operator<<(std::ostream& os, const Evaluator_Base& eval);
 	};
 }

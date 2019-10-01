@@ -79,9 +79,6 @@
     <ClCompile Include="Eventsystem.cpp">
       <Filter>Application\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Rule_Eval.cpp">
-      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
-    </ClCompile>
     <ClCompile Include="Debug_Log.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
@@ -106,9 +103,6 @@
     <ClCompile Include="LSTM.cpp">
       <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
     </ClCompile>
-    <ClCompile Include="LSTM_Eval.cpp">
-      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
-    </ClCompile>
     <ClCompile Include="Data_Loader.cpp">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
@@ -125,6 +119,12 @@
       <Filter>Application\Evaluator</Filter>
     </ClCompile>
     <ClCompile Include="Rule_Evaluation.cpp">
+      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="AI_Config_CLI.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="Rule_Evaluator.cpp">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,9 +171,6 @@
     <ClInclude Include="date.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="Rule_Eval.h">
-      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
-    </ClInclude>
     <ClInclude Include="Debug_Log.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
@@ -195,9 +192,6 @@
     <ClInclude Include="LSTM.h">
       <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
     </ClInclude>
-    <ClInclude Include="LSTM_Eval.h">
-      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
-    </ClInclude>
     <ClInclude Include="Data_Loader.h">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
@@ -217,6 +211,12 @@
       <Filter>Application\Evaluator</Filter>
     </ClInclude>
     <ClInclude Include="Rule_Evaluation.h">
+      <Filter>Application\Evaluator\Rule_Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="AI_Config_CLI.h">
+      <Filter>Application\Evaluator\AI_Evaluator</Filter>
+    </ClInclude>
+    <ClInclude Include="Rule_Evaluator.h">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClInclude>
   </ItemGroup>

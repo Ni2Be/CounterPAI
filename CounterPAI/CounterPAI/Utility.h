@@ -15,6 +15,15 @@ namespace Utility
 		return ss.str();
 	}
 
+	template<class T> T from_str(const std::string& str)
+	{
+		std::stringstream ss;
+		ss << str;
+		T ret;
+		ss >> ret;
+		return ret; 
+	}
+
 	std::string get_time_stamp();
 
 }

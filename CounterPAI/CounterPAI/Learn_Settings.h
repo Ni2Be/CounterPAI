@@ -29,15 +29,20 @@ namespace Eval
 		Opti optimizer;
 		Loss_F loss_func;
 		float learning_rate;
+		bool is_bidirectional;
+
+		std::string data_converter_info;
 
 		std::string train_data_folder;
 		std::string test_data_folder;
+		std::string valid_data_folder;
 
 		//lern data
 		std::string data_converter;
 
 		//load
 		void read_parameters(const std::string& parameters_file_name);
+
 
 		friend std::ostream& operator<<(std::ostream& os, Learn_Settings& test);
 	};

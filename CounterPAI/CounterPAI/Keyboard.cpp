@@ -1,3 +1,4 @@
+#pragma once
 #include "Keyboard.h"
 #include <string>
 #include <iostream>
@@ -30,6 +31,7 @@ void Keyboard::play(Music_Note note)
 		std::cerr << "invalid key: " << midi_key << "\n"; 
 		return;
 	}
+	//std::cout << "\nplay: " << note.m_pitch;
 	m_keys[midi_key].stop();
 	m_keys[midi_key].play();
 	m_keys_pressed[midi_key]++;
@@ -44,6 +46,7 @@ void Keyboard::stop(Music_Note note)
 		return;
 	}
 
+	//std::cout << "\nstop: " << note.m_pitch;
 	m_keys_pressed[midi_key]--;
 	if (m_keys_pressed[midi_key] <= 0)
 	{

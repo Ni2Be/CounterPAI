@@ -1,3 +1,4 @@
+#pragma once
 #include "Midi_Reader.h"
 
 #include <queue>
