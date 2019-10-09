@@ -265,13 +265,6 @@ void Eval::Rule_Evaluator::r5_motion_to_perfect(
 				evaluation.broken_rules.push_back(Fux_Rule::R5a);
 				evaluation.m_probability *= 0.0f;
 			}
-			//else if (is_perfect(last_note_eval.m_interval)
-			//	&& evaluated_note.m_motion != Motion::ObMo)
-			//{
-			//	rule_was_broken = true;
-			//	//note.m_note_info_ += "\n-From a perfect to a perfect interval one should only move in contrary or oblique motion";
-			//	evaluation.m_probability *= 0.0f;
-			//}
 		}
 	}
 
@@ -321,29 +314,6 @@ void Eval::Rule_Evaluator::r6_prohibited_skips(Note_Evaluation& evaluated_note, 
 		evaluation.m_probability *= 0.1f;
 	}
 }
-
-
-//void Eval::Rule_Evaluator::r7_allowed_dissonants(Note_Evaluation& evaluated_note, Music_Note& note, Note_Evaluation& next_note_eval, Rule_Evaluation& evaluation)
-//{
-//	if (evaluated_note.m_beat_pos == Beat_Position::Up_Beat)
-//	{
-//		if (is_dissonant(evaluated_note.m_interval))
-//		{
-//			//Dissonance on the upbeat is not prepared by a step
-//			if (evaluated_note.m_jump_interval > Interval::M2)
-//			{
-//				evaluation.broken_rules.push_back(Fux_Rule::R7);
-//				//note.m_note_info_ += "\n-";
-//				evaluation.m_probability *= 0.0f;
-//			}
-//			//Dissonance on the upbeat is not released by a step
-//			if (next_note_eval.m_jump_interval > Interval::M7)
-//			{
-//				evaluation.m_probability *= 0.0f;
-//			}
-//		}
-//	}
-//}
 
 void Eval::Rule_Evaluator::r7_tied_only_on_db(Note_Evaluation& evaluated_note, Music_Note& note, Rule_Evaluation& evaluation)
 {

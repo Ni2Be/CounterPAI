@@ -1,6 +1,9 @@
 #pragma once
 #include "GUI.h"
+
 #include <iostream>
+#include <thread>
+
 #include "Application.h"
 #include "Folder_Dialog.h"
 
@@ -440,6 +443,8 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		else
 			app->gui.m_300_bpm_button.func(app);
 
+		//ensure no buttens are pressed when the "okay" button is pressed
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	};
 	attach_drawable(m_load_button);
 	m_load_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -458,6 +463,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			std::cerr << "could not open file\n";
 
 		fs << app->m_sheet;
+
+		//ensure no buttens are pressed when the "okay" button is pressed
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	};
 	attach_drawable(m_save_button);
 	m_save_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });

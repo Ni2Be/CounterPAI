@@ -33,13 +33,16 @@ Eval::AI_Evaluator::AI_Evaluator()
 	:
 	device(torch::kCPU)
 {
-	if (torch::cuda::is_available()) {
+	if (torch::cuda::is_available()) 
+	{
 		std::cout << "\nCUDA is available! Training on GPU.\n" << std::endl;
 		device = torch::kCUDA;
 	}
-	//NO CUDA SUPPORT
-	//std::cout << "TESTING! NO CUDA SUPPORT." << std::endl;
-	//device = torch::kCPU;
+	else
+	{
+		std::cout << "\nno CUDA support! Training on CPU.\n" << std::endl;
+		device = torch::kCPU;
+	}
 }
 
 
