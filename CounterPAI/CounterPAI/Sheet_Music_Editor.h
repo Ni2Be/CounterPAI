@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <memory>
+#include <chrono>
 
 #include "Clickable.h"
 
@@ -105,6 +106,18 @@ namespace UI {
 		static int grid_y_offset;
 		static int grid_button_width;
 		static int grid_button_height;
+
+		void start_is_playing_line() {
+			is_playing_x = 0.0f; is_playing = true; last_frame_time = std::chrono::system_clock::now(); is_playing_bpm
+				= m_sheet.quater_bpm;
+		};
+		void stop_is_playing_line() { is_playing_x = 0.0f; is_playing = false; };
+		bool is_playing = false;
+		static float is_playing_y_offset;
+		static float is_playing_x_offset;
+		float is_playing_x = 0.0f;
+		int is_playing_bpm = 0;
+		std::chrono::system_clock::time_point last_frame_time;
 	};
 
 	class GUI;
@@ -125,11 +138,10 @@ namespace UI {
 		bool wants_info = false;
 		bool set_sharp = false;
 		bool set_flat = false;
+
+		void start_playing_visualisation() { m_ui_sheet.start_is_playing_line(); };
+		void stop_playing_visualisation() { m_ui_sheet.stop_is_playing_line(); };
 	private:
-
-
-
-
 		Sheet_Music& m_sheet;
 		Sheet m_ui_sheet;
 

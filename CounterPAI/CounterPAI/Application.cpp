@@ -13,11 +13,11 @@ Application::Application()
 	:
 	gui(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, m_WINDOW_TITLE, this)
 {
-	//m_evaluator.reset(new Eval::Rule_Eval());
+	m_evaluator.reset(new Eval::Rule_Evaluator());
 
+#ifdef AI_EVALUATOR
 	m_evaluator.reset(new Eval::AI_Evaluator());
-
-
+#endif
 
 
 	//!!!!!!!!!update .sheet-data!!!!!!!!!
@@ -66,10 +66,12 @@ Application::Application()
 
 int Application::run()
 {
+
+#ifdef AI_EVALUATOR
 	ai_config_cli.run_dialog();
-
+#endif
 	std::cout << "\nCounterPai\n";
-
+	gui.m_window.setFramerateLimit(30);
 	while (m_is_running)
 	{
 		player.update();

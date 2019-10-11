@@ -29,6 +29,10 @@ int UI::Sheet::grid_button_width = 27;
 int UI::Sheet::grid_button_height = 10;
 
 
+float UI::Sheet::is_playing_y_offset = 0.0f;
+float UI::Sheet::is_playing_x_offset = 150.0f;
+
+
 float UI::Sheet::m_whole_note_x = grid_button_width * 4;
 
 UI::Sheet_Music_Editor::Sheet_Music_Editor(Sheet_Music& sheet, GUI* parent)
@@ -394,6 +398,19 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		last_note_pos = offset;
 		offset.x += ui_note.get_offset();
 	}
+	//Draw is_playing line
+	if (m_parent->is_playing && m_parent->is_playing_x <= 1404.0f)
+	{
+		auto elapsed_time = std::chrono::system_clock::now() - m_parent->last_frame_time;
+		float seconds = elapsed_time.count() / 10000000.0f;
+		
+		m_parent->is_playing_x =(Sheet::grid_button_width / (60.0f / m_parent->is_playing_bpm)) * seconds;
+
+		sf::RectangleShape line({ 2.0f, 17.0f * Sheet::grid_button_height});
+		line.setFillColor(sf::Color::Black);
+		line.setPosition({ Sheet::is_playing_x_offset + m_parent->is_playing_x, m_offset.y + Sheet::is_playing_y_offset });
+		target.draw(line, states);
+	}
 }
 
 
@@ -441,6 +458,7 @@ std::string generate_info_text(Music_Note note)
 		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
 	info_text += "\nProbability: " + std::to_string(rule_evaluation.m_probability);
 
+#ifdef AI_EVALUATOR
 	//Fux Rule Evaluation
 	info_text += "\n\nAI:\n";
 	std::stringstream ss3;
@@ -449,7 +467,7 @@ std::string generate_info_text(Music_Note note)
 	ss3 >> rule_evaluation_ai;
 	for (const auto& r : rule_evaluation_ai.broken_rules)
 		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
-
+#endif
 
 	return info_text;
 }
@@ -487,6 +505,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 			if (m_parent->m_parent->m_parent->set_flat)
 			{
 				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& !m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_is_corrupted
 					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
 					m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch - 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, false, true), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add b N:" + this->m_debug_message);
@@ -496,6 +515,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 			else if (m_parent->m_parent->m_parent->set_sharp)
 			{
 				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& !m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_is_corrupted
 					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
 					m_parent->m_parent->m_sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)m_pitch + 1), m_parent->m_parent->m_parent->selected_value, m_parent->m_voice, false, true, false), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add # N:" + this->m_debug_message);
@@ -505,6 +525,7 @@ void UI::Sheet_Grid_Button::on_clicked()
 			else
 			{
 				if (m_parent->m_parent->m_parent->selected_value == Note_Value::Eighth
+					&& !m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_is_corrupted
 					&& m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance + 2).m_value != Note_Value::Eighth)
 					m_parent->m_parent->m_sheet.add_note(Music_Note(m_pitch, m_parent->m_parent->m_parent->selected_value, m_parent->m_voice), m_sixteenth_distance + 2);
 				m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Add N:" + this->m_debug_message);

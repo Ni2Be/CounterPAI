@@ -47,6 +47,8 @@ find_note_flag find_note_position(
 		{
 			pos++;
 			//std::cout << "\nwas at!";
+			if (pos == voice.end())
+				return find_note_flag::WAS_AFTER_LAST_NOTE;
 			return find_note_flag::WAS_AT_NOTE;
 		}
 		if (sixteenth_distance < 0)

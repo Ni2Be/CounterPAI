@@ -1,5 +1,7 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 
+//#define AI_EVALUATOR
+
 #include "Application.h"
 #include <SFML/Graphics.hpp>
 

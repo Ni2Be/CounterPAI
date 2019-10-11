@@ -106,6 +106,8 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		app->player.stop();
 		app->m_feedback_piano.stop();
 		app->player.play_sheet_music(app->m_sheet);
+		
+		app->gui.m_sheet_editor.start_playing_visualisation();
 	};
 	attach_drawable(m_play_button);
 	m_play_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
@@ -113,6 +115,8 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_stop_button.func = [](Application* app) {
 		app->m_debug_log.log("Stop Button");
 		app->player.stop();
+
+		app->gui.m_sheet_editor.stop_playing_visualisation();
 	};
 	attach_drawable(m_stop_button);
 	m_stop_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });

@@ -1134,7 +1134,8 @@ namespace rapidcsv
 			char* cstr = new char[len];
 			std::wcstombs(cstr, pWStr.c_str(), len);
 			std::string str(cstr);
-			delete[] cstr;
+			
+			[] cstr;
 			return str;
 		}
 
