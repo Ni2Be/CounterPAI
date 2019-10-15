@@ -1,4 +1,4 @@
-# CounterPAI
+![Application](https://github.com/Ni2Be/CounterPAI/blob/master/Counterpai-Logo.PNG)
 
 A learn application aimed to teach Fux Gradus ad Parnassum Species Counterpoint.
 
