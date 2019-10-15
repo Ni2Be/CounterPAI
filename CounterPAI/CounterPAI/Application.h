@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <list>
+
 #include "GUI.h"
 #include "Piano_Player.h"
 #include "Midi_Reader.h"
@@ -15,12 +17,12 @@
 class Application
 {
 public:
-	Application();
+	Application(bool start_ai_cli = false);
 
 	int run();
 	void shut_down();
 
-
+	bool m_start_ai_cli;
 
 	//Application
 	static bool m_is_running;
@@ -35,6 +37,12 @@ public:
 	Sheet_Music m_sheet;
 	Piano_Player player;
 	Keyboard m_feedback_piano;
+
+	std::list<Sheet_Music> m_undo_sheets;
+	std::list<Sheet_Music> m_redo_sheets;
+	void log_undo_sheet();
+	void undo();
+	void redo();
 
 	std::shared_ptr<Eval::Evaluator_Base> m_evaluator;
 	//UI

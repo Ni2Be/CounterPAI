@@ -31,6 +31,7 @@
 // been invented (that would involve another several millennia of evolution).
 // We did not mean to shout.
 
+
 #ifndef HAS_STRING_VIEW
 #  if __cplusplus >= 201703
 #    define HAS_STRING_VIEW 1

@@ -21,7 +21,7 @@ void UI::Event_System::remove_clickable(const Clickable& clickable)
 	m_clickables.erase(new_end, m_clickables.end());
 }
 
-void UI::Event_System::check_events(sf::RenderWindow& window)
+void UI::Event_System::check_events(sf::RenderWindow& window, Application* app)
 {
 	sf::Event event;
 	while (window.pollEvent(event))
@@ -35,6 +35,13 @@ void UI::Event_System::check_events(sf::RenderWindow& window)
 		{
 			for (auto& clickable : m_clickables)
 				clickable->check_if_clicked(sf::Mouse::getPosition(window));
+		}
+		if (event.type == sf::Event::KeyPressed)
+		{
+			if (event.key.control && event.key.code == sf::Keyboard::Z)
+				app->undo();
+			if (event.key.control && event.key.code == sf::Keyboard::Y)
+				app->redo();
 		}
 	}
 }

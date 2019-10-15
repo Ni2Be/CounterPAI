@@ -38,6 +38,20 @@ void Eval::Rule_Evaluator::evaluate_notes(Sheet_Music& sheet)
 	std::list<Music_Note>& cantus_firmus = sheet.get_cf();
 	std::list<Music_Note>& counter_point = sheet.get_cp();
 
+	//add filler notes if cf and cp are of different lenght	
+	int length_cf = get_sixteenth_length(cantus_firmus);
+	int length_CP = get_sixteenth_length(counter_point);
+
+	if (length_cf < length_CP)
+		for (int i = 0; i < length_CP - length_cf; i++)
+			cantus_firmus.push_back(Music_Note(Note_Pitch::C4, Note_Value::Sixteenth, cantus_firmus.front().m_voice, true));
+	else if (length_cf > length_CP)
+		for (int i = 0; i < length_cf - length_CP; i++)
+			counter_point.push_back(Music_Note(Note_Pitch::C4, Note_Value::Sixteenth, counter_point.front().m_voice, true));
+
+
+
+
 	std::vector<Note_Evaluation>::iterator eval_itr = m_evaluation.begin();
 	std::vector<Note_Evaluation>::iterator prev_eval_itr = m_evaluation.begin();
 	std::vector<Note_Evaluation>::iterator next_eval_itr = m_evaluation.begin();
@@ -80,8 +94,6 @@ void Eval::Rule_Evaluator::evaluate_notes(Sheet_Music& sheet)
 		{
 			r3_use_imperfects(*eval_itr, *CP_itr, *next_eval_itr, evaluation);
 
-			//r7_allowed_dissonants(*eval_itr, *CP_itr, *next_eval_itr, evaluation);
-
 			r9_eights_notes(*eval_itr, *CP_itr, *next_eval_itr, evaluation);
 
 			next_eval_itr++;
@@ -99,6 +111,14 @@ void Eval::Rule_Evaluator::evaluate_notes(Sheet_Music& sheet)
 
 		CP_itr->add_note_info(Rule_Evaluation::C_INDEX_NAME, Utility::to_str(evaluation));
 	}
+
+	//delete filler Notes
+	if (length_cf < length_CP)
+		for (int i = 0; i < length_CP - length_cf; i++)
+			cantus_firmus.pop_back();
+	else if (length_cf > length_CP)
+		for (int i = 0; i < length_cf - length_CP; i++)
+			counter_point.pop_back();
 }
 
 void Eval::Rule_Evaluator::r1_perfect_FB_LB(Note_Evaluation& evaluated_note, Music_Note& note, Music_Note& last_cf_note, Rule_Evaluation& evaluation)

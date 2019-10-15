@@ -12,7 +12,7 @@ namespace UI {
 			static Event_System m_instance;
 			return m_instance;
 		}
-		void check_events(sf::RenderWindow& window);
+		void check_events(sf::RenderWindow& window, Application* app);
 		void add_clickable(const Clickable& clickable);
 		void remove_clickable(const Clickable& clickable);
 	private:

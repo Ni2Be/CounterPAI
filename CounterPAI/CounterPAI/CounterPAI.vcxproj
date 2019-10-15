@@ -157,6 +157,7 @@
     <ClInclude Include="Clickable.h" />
     <ClInclude Include="date.h" />
     <ClInclude Include="Debug_Log.h" />
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="Evaluator_Base.h" />
     <ClInclude Include="Eventsystem.h" />
     <ClInclude Include="Event_System.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Note_Evaluation.h" />
     <ClInclude Include="Piano_Player.h" />
     <ClInclude Include="rapid_csv.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Rule_Evaluator.h" />
     <ClInclude Include="Rule_Evaluation.h" />
     <ClInclude Include="Sheet_Music.h" />
@@ -181,6 +183,13 @@
     <ClInclude Include="Trainings_Data_Gen.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Folder_Dialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CounterPAI.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\ni2be.ico" />
+    <Image Include="..\x64\Release\Counterpai.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

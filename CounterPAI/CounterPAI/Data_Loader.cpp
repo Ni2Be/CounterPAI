@@ -74,9 +74,10 @@ Eval::Data_Loader::Data_Loader(Learn_Settings settings, bool is_training, Data_T
 	{
 		evaluate_fux_rules_from_two_sides_1(sheets, features_vec, targets_vec);
 	}
-	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_lnn_1")
+	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_dense_NN_1")
 	{
-		evaluate_fux_rules_from_two_sides_lnn_1(sheets, features_vec, targets_vec);
+		Fux_Rule rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
+		evaluate_fux_rules_from_two_sides_dense_NN_1(sheets, features_vec, targets_vec, rule);
 	}
 	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_rule_targets")
 	{
@@ -768,7 +769,7 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Mu
 	}
 }
 
-void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets)
+void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_dense_NN_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule)
 {
 	try {
 		/*
@@ -825,6 +826,10 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Shee
 		int target_count = t_note_probability;
 
 		int ram_counter = 0;
+
+		int feature_true_counter = 0;
+		int feature_false_counter = 0;
+
 		for (auto& sheet : sheets)
 		{
 
@@ -837,6 +842,7 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Shee
 			for (int i = 0; i < 8; i++)
 				sheet_vec.insert(sheet_vec.end(), zeros);
 
+			auto note_itr = sheet.get_cp().begin();
 			//for each new note create a sequence
 			for (int i = 0; i < sheet_vec.size(); i++)
 			{
@@ -862,13 +868,26 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Shee
 					{
 						std::vector<float> slice;
 						//from the left
-						sheet_vec[i - distance];
 						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1 - 1);//-1 without cf_is_bass, -1 without the probability
 						//from the right
 						slice.insert(slice.begin(), sheet_vec[i + distance].begin(), sheet_vec[i + distance].end() - 1);//with cf_is_bass, -1 == without the probability
 						sequence.push_back(slice);
 					}
-					sequence_targets.push_back(sheet_vec[i].back()); // the probability
+
+					Rule_Evaluation evaluation(note_itr->get_note_info(Rule_Evaluation::C_INDEX_NAME));
+					note_itr++;
+
+					if (evaluation.was_rule_broken(target_rule))
+					{
+						sequence_targets.push_back(1.0f);
+						feature_true_counter++;
+					}
+					else
+					{
+						sequence_targets.push_back(0.0f);
+						feature_false_counter++;
+					}
+
 
 					//convert to tensors
 					std::vector<float> sequence_faltened;
@@ -893,6 +912,8 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_lnn_1(std::vector<Shee
 				}
 			}
 		}
+		memory_check(ram_counter);
+		std::cout << "\n" << feature_true_counter << " features 1.0\n" << feature_false_counter << " features 0.0\n";
 	}
 	catch (std::exception& e)
 	{

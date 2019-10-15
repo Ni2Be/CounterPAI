@@ -49,7 +49,11 @@ namespace UI {
 		Button m_clear_button;
 		Button m_clear_yes_button;
 		Button m_clear_no_button;
-		
+
+
+		Button m_undo_button;
+		Button m_redo_button;
+
 		Button m_whole_button;
 		Button m_half_button;
 		Button m_quater_button;
@@ -87,7 +91,7 @@ namespace UI {
 		Draw_Container m_drawables;
 		sf::RenderWindow m_window;
 
-
+		sf::Image m_icon;
 
 		//Resources
 		void load_resources();

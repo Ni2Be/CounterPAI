@@ -4,10 +4,6 @@
     <Filter Include="alt">
       <UniqueIdentifier>{6f4350db-a9b9-4edc-8541-100153ec5e9d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="alt\Ressourcendateien">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="alt\Event System">
       <UniqueIdentifier>{4fe71957-520e-4a4d-8bad-8b97d958fc26}</UniqueIdentifier>
     </Filter>
@@ -40,6 +36,10 @@
     </Filter>
     <Filter Include="Application\Evaluator\AI_Evaluator\Test_Runner">
       <UniqueIdentifier>{83cb85d6-afc9-4c5b-af88-78c360ddbec4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -219,5 +219,22 @@
     <ClInclude Include="Rule_Evaluator.h">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Defines.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CounterPAI.rc">
+      <Filter>Ressourcendateien</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\ni2be.ico">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
+    <Image Include="..\x64\Release\Counterpai.ico">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
   </ItemGroup>
 </Project>

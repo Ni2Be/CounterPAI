@@ -17,19 +17,26 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 	std::list<Music_Note>& cantus_firmus = sheet.get_cf();
 	std::list<Music_Note>& counter_point = sheet.get_cp();
 
+	sheet.clear_note_infos();
 	m_evaluation.clear();
 
 	int length_cf = get_sixteenth_length(cantus_firmus);
 	int length_CP = get_sixteenth_length(counter_point);
-	if (length_cf != length_CP)
+
+	if (cantus_firmus.size() == 0)
 	{
-		std::cerr << "\nCounter Point and Cantus Firmus must be the same length";
-		return;
-	} else if (cantus_firmus.size() == 0)
-	{
-		std::cerr << "\nThe voices are empty";
 		return;
 	}
+
+	//add filler notes if cf and cp are of different lenght
+	if (length_cf < length_CP)
+		for (int i = 0; i < length_CP - length_cf; i++)
+			cantus_firmus.push_back(Music_Note(Note_Pitch::C4, Note_Value::Sixteenth, cantus_firmus.front().m_voice, true));
+	else if (length_cf > length_CP)
+		for (int i = 0; i < length_cf - length_CP; i++)
+			counter_point.push_back(Music_Note(Note_Pitch::C4, Note_Value::Sixteenth, counter_point.front().m_voice, true));
+	
+
 	/*
 	t=1
 	 pos
@@ -159,7 +166,15 @@ void Eval::Evaluator_Base::evaluate_notes(Sheet_Music& sheet)
 		//CP1 in new bar?
 		if (CP1_sixteenth_distance > CP1_bar * 16)
 			CP1_bar++;
-	}	
+	}
+
+	//delete filler Notes
+	if (length_cf < length_CP)
+		for (int i = 0; i < length_CP - length_cf; i++)
+			cantus_firmus.pop_back();
+	else if (length_cf > length_CP)
+		for (int i = 0; i < length_cf - length_CP; i++)
+			counter_point.pop_back();
 }
 
 
@@ -291,6 +306,8 @@ Eval::Beat_Position Eval::Evaluator_Base::get_beat_pos(std::list<Music_Note>& vo
 
 int Eval::Evaluator_Base::get_sixteenth_length(std::list<Music_Note> voice)
 {	
+	if (voice.size() == 0)
+		return 0;
 	//get total length
 	int sixteenth_total = 1;//first note starts at 1, so +16 the next bar would be reached
 	for (auto note : voice)

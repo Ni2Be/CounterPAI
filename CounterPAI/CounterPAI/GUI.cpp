@@ -7,6 +7,8 @@
 #include "Application.h"
 #include "Folder_Dialog.h"
 
+
+
 #include "Data_Loader.h"
 
 UI::Info_Box::Info_Box(Application* app, const sf::IntRect draw_area, const std::string& info_text)
@@ -80,13 +82,15 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_300_bpm_button(parent, { { 220, 566 }, { 60, 33 } }, "f"),
 	m_grid_button(parent, { { 1570, 570 }, { 20, 20 } }, ""),
 	m_sheet_editor(parent->m_sheet, this),
+	m_undo_button(parent, { {330,500},{60,50} }, "undo"),
+	m_redo_button(parent, { {330,550},{60,50} }, "redo"),
 	m_whole_button(parent,  { {400,500},{100,100} }, "1/1"),
 	m_half_button(parent, { {510,500},{100,100} }, "1/2"),
 	m_quater_button(parent, { {620,500},{100,100} }, "1/4"),
 	m_eight_up_button  (parent, { {730,500},{60, 100} }, "1/8"),
 	m_sharp_button(parent, { {800,500},{60, 50} }, "#"),
 	m_flat_button (parent, { {800,550},{60, 50} }, "b"), 
-	m_tie_button(parent, { {900,500},{100,100} }, "tie"),
+	m_tie_button(parent, { {870,500},{100,100} }, "tie"),
 	m_delete_button(parent, { {1010,500},{100,100} }, "delete"),
 	m_clear_button(parent, { {1120,500},{100,100} }, "clear"),
 	m_clear_yes_button(parent, { {1120,450},{50,50} }, "y"),
@@ -137,6 +141,9 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 
 	m_clear_yes_button.func = [](Application* app) {
+
+		app->log_undo_sheet();
+
 		app->m_debug_log.log("Clear yes Button");
 		app->m_sheet.m_bass.clear();
 		app->m_sheet.m_soprano.clear();
@@ -158,6 +165,20 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	};
 	m_clear_no_button.is_clickable = false;
 	m_clear_no_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	m_undo_button.func = [](Application* app) {
+		app->m_debug_log.log("undo Button");
+		app->undo();
+	};
+	attach_drawable(m_undo_button);
+	m_undo_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	m_redo_button.func = [](Application* app) {
+		app->m_debug_log.log("redo Button");
+		app->redo();
+	};
+	attach_drawable(m_redo_button);
+	m_redo_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 
 
 	m_whole_button.func = [](Application* app) {
@@ -408,6 +429,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
+		app->m_evaluator->evaluate_notes(app->m_sheet);
 	};
 	m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	attach_drawable(m_soprano_cf_button);
@@ -422,6 +444,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 }); 
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
+		app->m_evaluator->evaluate_notes(app->m_sheet);
 	};
 	m_cf_marker.setPosition({ 1570, 260 });
 	m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -447,6 +470,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		else
 			app->gui.m_300_bpm_button.func(app);
 
+		app->m_evaluator->evaluate_notes(app->m_sheet);
 		//ensure no buttens are pressed when the "okay" button is pressed
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	};
@@ -494,12 +518,14 @@ void UI::GUI::render()
 
 void UI::GUI::check_events()
 {
-	Event_System::instance().check_events(m_window);
+	Event_System::instance().check_events(m_window, m_parent);
 }
 
 
 void UI::GUI::load_resources()
 {
-	m_times_new_roman.loadFromFile("data/times-new-roman.ttf");
+	m_times_new_roman.loadFromFile(Folder_Dialog::get_exe_path() + "/data/times-new-roman.ttf");
+	m_icon.loadFromFile(Folder_Dialog::get_exe_path() + "/data/Counterpai.png");
+	m_window.setIcon(m_icon.getSize().x, m_icon.getSize().y, m_icon.getPixelsPtr());
 }
 

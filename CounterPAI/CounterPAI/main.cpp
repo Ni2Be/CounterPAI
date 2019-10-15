@@ -1,6 +1,5 @@
 #define RAPIDJSON_HAS_STDSTRING 1
 
-//#define AI_EVALUATOR
 
 #include "Application.h"
 #include <SFML/Graphics.hpp>
@@ -8,14 +7,14 @@
 #include "Utility.h"
 
 
-int main(int )
+int main(int argc, char** argv)
 {
-	Application app;
-	app.run();
+	bool start_ai_cli = false;
+	if (argc > 1)
+		start_ai_cli = argv[1];
 
-
-	char ch;
-	std::cin >> ch;
+	Application app(start_ai_cli);
+	return app.run();
 }
 
 ////CUDATEST

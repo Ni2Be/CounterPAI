@@ -5,21 +5,21 @@
 #include <fstream>
 
 #include "Folder_Dialog.h"
-
+#include "Defines.h"
 
 bool Application::m_is_running = true;
 
-Application::Application()
+Application::Application(bool start_ai_cli)
 	:
+	m_start_ai_cli(start_ai_cli),
 	gui(m_WINDOW_WIDTH, m_WINDOW_HEIGHT, m_WINDOW_TITLE, this)
 {
 	m_evaluator.reset(new Eval::Rule_Evaluator());
 
+
 #ifdef AI_EVALUATOR
-	m_evaluator.reset(new Eval::AI_Evaluator());
+		m_evaluator.reset(new Eval::AI_Evaluator());
 #endif
-
-
 	//!!!!!!!!!update .sheet-data!!!!!!!!!
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/sheets"))
 	//{
@@ -64,12 +64,39 @@ Application::Application()
 
 }
 
+void Application::log_undo_sheet()
+{
+	m_undo_sheets.push_back(m_sheet);
+
+	if (m_undo_sheets.size() > 500)
+		m_undo_sheets.pop_front();
+}
+
+void Application::undo()
+{
+	if (m_undo_sheets.size() > 0)
+	{
+		m_redo_sheets.push_back(m_sheet);
+		m_sheet = m_undo_sheets.back();
+		m_undo_sheets.pop_back();
+	}
+}
+
+void Application::redo()
+{
+	if (m_redo_sheets.size() > 0)
+	{
+		m_undo_sheets.push_back(m_sheet);
+		m_sheet = m_redo_sheets.back();
+		m_redo_sheets.pop_back();
+	}
+}
+
 int Application::run()
 {
+	if(m_start_ai_cli)
+		ai_config_cli.run_dialog();
 
-#ifdef AI_EVALUATOR
-	ai_config_cli.run_dialog();
-#endif
 	std::cout << "\nCounterPai\n";
 	gui.m_window.setFramerateLimit(30);
 	while (m_is_running)

@@ -5,10 +5,9 @@
 #include "Application.h"
 #include <SFML/Graphics.hpp>
 
+#include "Defines.h"
 #include "Utility.h"
-
 #include "Rule_Evaluation.h"
-
 #include "Note_Evaluation.h"
 
 float UI::Sheet::m_button_size      = 5;
@@ -444,8 +443,8 @@ std::string generate_info_text(Music_Note note)
 	info_text += "\nInterval: " + Utility::to_str(evaluation.m_interval);
 	info_text += "\nJump: " + Utility::to_str(evaluation.m_jump_interval);
 	info_text += "\nMotion: " + Utility::to_str(evaluation.m_motion);
-	//info_text += "\nBeat pos: " + Utility::to_str(evaluation.m_beat_pos);
-	//info_text += "\nBar pos: " + Utility::to_str(evaluation.m_position);
+	info_text += "\nBeat pos: " + Utility::to_str(evaluation.m_beat_pos);
+	info_text += "\nBar pos: " + Utility::to_str(evaluation.m_position);
 
 
 	//Fux Rule Evaluation
@@ -474,7 +473,7 @@ std::string generate_info_text(Music_Note note)
 
 void UI::Sheet_Grid_Button::on_clicked()
 {
-	//std::cout << "info: " << m_parent->m_parent->m_parent->wants_info << ", del: " << m_parent->m_parent->m_parent->is_deleting << ", ty: " << m_parent->m_parent->m_parent->is_tying << "\n";
+
 	if (m_parent->m_parent->m_parent->wants_info)
 	{
 		Music_Note note = m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance);
@@ -490,6 +489,8 @@ void UI::Sheet_Grid_Button::on_clicked()
 	}
 	else
 	{
+		m_parent->m_parent->m_parent->m_parent->m_parent->log_undo_sheet();
+
 		if (m_parent->m_parent->m_parent->is_deleting)
 		{
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_debug_log.log("Delete N:" + this->m_debug_message);
@@ -537,4 +538,5 @@ void UI::Sheet_Grid_Button::on_clicked()
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 		}
 	}
+	m_parent->m_parent->m_parent->m_parent->m_parent->m_evaluator->evaluate_notes(m_parent->m_parent->m_parent->m_parent->m_parent->m_sheet);
 }

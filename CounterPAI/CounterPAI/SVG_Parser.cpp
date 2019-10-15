@@ -1,10 +1,11 @@
 #include "SVG_Parser.h"
-//#define DEBUG
 
 #include <iostream>
 #include <fstream>
 #include <regex>
 #include <cstdio>
+
+#include "Defines.h"
 
 //nanosvg
 #include <stdio.h> //nanosvg dependency
