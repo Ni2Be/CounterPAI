@@ -1,0 +1,12 @@
+TN;FP;FN;TP;model_name;
+3071;43543;124;964;data\trainings_results\models\ZL3_R5\000_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+46335;279;1056;32;data\trainings_results\models\ZL3_R5\010_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45913;701;901;187;data\trainings_results\models\ZL3_R5\020_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45714;900;639;449;data\trainings_results\models\ZL3_R5\030_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45655;959;612;476;data\trainings_results\models\ZL3_R5\040_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45608;1006;603;485;data\trainings_results\models\ZL3_R5\050_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45435;1179;565;523;data\trainings_results\models\ZL3_R5\060_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45151;1463;469;619;data\trainings_results\models\ZL3_R5\070_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+44841;1773;432;656;data\trainings_results\models\ZL3_R5\080_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+44824;1790;431;657;data\trainings_results\models\ZL3_R5\090_epoch_ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt
+45240;1374;417;671;data\trainings_results\models\ZL3_R5\ZL3_R5_hlc2_hls156_opti_ADAM_lossf_BCEL_lr_0_000100.pt

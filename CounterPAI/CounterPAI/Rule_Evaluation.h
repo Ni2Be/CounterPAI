@@ -32,6 +32,8 @@ namespace Eval
 		friend std::istream& operator>>(std::istream& is, Rule_Evaluation& note);
 	};
 
+
+
 	enum class Fux_Rule
 	{
 		R1,
@@ -174,5 +176,35 @@ namespace Eval
 			rule = Fux_Rule::R9b;
 		return is;
 	}
+	inline int get_main_rule_index(Fux_Rule rule)
+	{
+		switch (rule)
+		{
+		case Fux_Rule::R1: return 1;
+		case Fux_Rule::R2: return 2;
+		case Fux_Rule::R3: return 3;
+		case Fux_Rule::R4: return 4;
+		case Fux_Rule::R5: return 5;
+		case Fux_Rule::R6: return 6;
+		case Fux_Rule::R7: return 7;
+		case Fux_Rule::R8: return 8;
+		case Fux_Rule::R9: return 9;
+		}
+	}
 
+	inline Fux_Rule get_main_rule_from_index(int index)
+	{
+		switch (index)
+		{
+		case 1: return Fux_Rule::R1;
+		case 2: return Fux_Rule::R2;
+		case 3: return Fux_Rule::R3;
+		case 4: return Fux_Rule::R4;
+		case 5: return Fux_Rule::R5;
+		case 6: return Fux_Rule::R6;
+		case 7: return Fux_Rule::R7;
+		case 8: return Fux_Rule::R8;
+		case 9: return Fux_Rule::R9;
+		}
+	}
 }

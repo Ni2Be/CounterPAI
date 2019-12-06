@@ -5,7 +5,7 @@
 
 namespace Eval
 {
-	enum class NN_Type { LSTM, LNN };
+	enum class NN_Type { LSTM, DENSE_NN };
 	
 	enum class Opti { ADAM, SGD };
 
@@ -25,6 +25,7 @@ namespace Eval
 		int hidden_layer_count;
 		int batch_size;
 		int epochs;
+		int sequence_len;
 		double dropout;
 		Opti optimizer;
 		Loss_F loss_func;
@@ -58,7 +59,7 @@ namespace Eval
 		static const std::array<std::string, 2> nn_types
 		{
 		"LSTM",
-		"LNN"
+		"DENSE_NN"
 		};
 
 		os << nn_types[static_cast<int>(nn_type)];
@@ -90,7 +91,7 @@ namespace Eval
 	static NN_Type NN_type_from_string(std::string s)
 	{
 		if (s == "LSTM") return NN_Type::LSTM;
-		if (s == "LNN")  return NN_Type::LNN;
+		if (s == "DENSE_NN")  return NN_Type::DENSE_NN;
 	}
 	static Opti opti_from_string(std::string s)
 	{

@@ -24,8 +24,6 @@ namespace Eval {
 		std::tuple<torch::Tensor, torch::Tensor> get_batch(std::vector<torch::Tensor>& features_vec, std::vector<torch::Tensor>& targets_vec);
 		std::tuple<torch::Tensor, torch::Tensor> get_batch();
 
-
-
 		std::vector<torch::Tensor> features_vec;
 		std::vector<torch::Tensor> targets_vec;
 
@@ -37,14 +35,32 @@ namespace Eval {
 
 		void remember_one_cf(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
 
-		void evaluate_fux_rules_from_one_side_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
-
-		void evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
-		void evaluate_fux_rules_from_two_sides_dense_NN_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule);
-
-		void evaluate_fux_rules_from_two_sides_rule_targets(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule);
-		void evaluate_fux_rules_back_n_forth_rule_targets(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule);
+		void evaluate_fux_rules_from_two_sides_dense_NN(
+			std::vector<Sheet_Music>&   sheets, 
+			std::vector<torch::Tensor>& features, 
+			std::vector<torch::Tensor>& targets, 
+			Learn_Settings              settings);
+		void evaluate_fux_rules_from_two_sides_rule_targets(
+			std::vector<Sheet_Music>&   sheets, 
+			std::vector<torch::Tensor>& features, 
+			std::vector<torch::Tensor>& targets,
+			Learn_Settings              settings);
+		void evaluate_fux_rules_back_n_forth_rule_targets(
+			std::vector<Sheet_Music>&   sheets, 
+			std::vector<torch::Tensor>& features, 
+			std::vector<torch::Tensor>& targets,
+			Learn_Settings              settings);
 		
+		void equality_test(
+			std::vector<Sheet_Music>&   sheets, 
+			std::vector<torch::Tensor>& features, 
+			std::vector<torch::Tensor>& targets,
+			Learn_Settings              settings);
+
+		//attemts with probability targets
+		//void evaluate_fux_rules_from_one_side_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
+		//void evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
+
 	};
 
 
@@ -60,7 +76,6 @@ namespace Eval {
 			type(type),
 			loader(settings, is_training, type)
 		{
-
 		};
 
 		Dataset(Data_Loader& loader)

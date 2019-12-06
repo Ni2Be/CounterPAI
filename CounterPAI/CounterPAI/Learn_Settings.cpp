@@ -58,13 +58,19 @@ void Eval::Learn_Settings::read_parameters(const std::string& parameters_file_na
 		is_bidirectional = parameter["is_bidirectional"].GetBool();
 	else
 		is_bidirectional = false;
+
+	if (parameter.HasMember("sequence_len"))
+		sequence_len = parameter["sequence_len"].GetInt();
+	else
+		sequence_len = 8;
 }
 
 std::ostream& Eval::operator<<(std::ostream& os, Learn_Settings& test)
 {
 	os << "\n"<<  std::setw(21) << "Test name: " << test.test_name
-		<< "\n"<< std::setw(21) << "NN_Type: " << test.nn_type 
-		<< "\n"<< std::setw(21) << "in_size: " << test.in_size << ", hidden_size: " << test.hidden_size << ", out_size: " << test.out_size
+		<< "\n"<< std::setw(21) << "NN_Type: " << test.nn_type
+		<< "\n" << std::setw(21) << "in_size: " << test.in_size << ", hidden_size: " << test.hidden_size << ", out_size: " << test.out_size
+		<< "\n" << std::setw(21) << "sequence_len: " << test.sequence_len
 		<< "\n"<< std::setw(21) << "hidden_layer_count: " << test.hidden_layer_count << ", batch_size: " << test.batch_size << ", epochs: " << test.epochs << ", dropout: " << test.dropout
 		<< "\n"<< std::setw(21) << "optimizer: " << test.optimizer << ", loss_func: " << test.loss_func
 		<< "\n"<< std::setw(21) << "learning_rate: " << test.learning_rate

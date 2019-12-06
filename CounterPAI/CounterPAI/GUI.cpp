@@ -454,7 +454,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		app->m_debug_log.log("load Button");
 
 		std::ifstream fs;
-		std::string file_name = Folder_Dialog::get_load_file_name();
+		std::string file_name = Folder_Dialog::get_load_file_name(Folder_Dialog::get_exe_path() + "/data/sheets");
 		fs.open(file_name.c_str());
 		std::cout << "\nloaded: " << file_name << "\n";
 		if(fs)

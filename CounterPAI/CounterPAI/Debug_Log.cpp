@@ -4,6 +4,7 @@
 #include "date.h"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "Folder_Dialog.h"
 #include "Utility.h"
 
@@ -12,6 +13,12 @@ Debug_Log::Debug_Log()
 	std::string s = Utility::get_time_stamp();
 	std::replace(s.begin(), s.end(), ':', '-');
 	
+
+	if (!std::experimental::filesystem::exists("/logs"))
+	{
+		std::experimental::filesystem::create_directory(Folder_Dialog::get_exe_path() + "/logs");
+	}
+
 	m_file_name = Folder_Dialog::get_exe_path() + "/logs/Log " + s + ".txt";
 	std::replace(m_file_name.begin(), m_file_name.end(), '\\', '/');
 

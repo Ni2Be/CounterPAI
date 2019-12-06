@@ -106,9 +106,6 @@
     <ClCompile Include="Data_Loader.cpp">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClCompile>
-    <ClCompile Include="LNN.cpp">
-      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
-    </ClCompile>
     <ClCompile Include="Learn_Settings.cpp">
       <Filter>Application\Evaluator\AI_Evaluator\Test_Runner</Filter>
     </ClCompile>
@@ -126,6 +123,9 @@
     </ClCompile>
     <ClCompile Include="Rule_Evaluator.cpp">
       <Filter>Application\Evaluator\Rule_Evaluator</Filter>
+    </ClCompile>
+    <ClCompile Include="NN.cpp">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,9 +195,6 @@
     <ClInclude Include="Data_Loader.h">
       <Filter>Application\Evaluator\AI_Evaluator</Filter>
     </ClInclude>
-    <ClInclude Include="LNN.h">
-      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
-    </ClInclude>
     <ClInclude Include="Net.h">
       <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
     </ClInclude>
@@ -222,6 +219,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Defines.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="NN.h">
+      <Filter>Application\Evaluator\AI_Evaluator\Nets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

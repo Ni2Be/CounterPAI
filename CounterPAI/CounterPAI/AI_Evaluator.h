@@ -5,9 +5,12 @@
 
 #include "Learn_Settings.h"
 
+#include <bitset>
+
 namespace Eval
 {
 
+	class Dataset;
 	class AI_Evaluator : public Evaluator_Base
 	{
 	public:
@@ -19,6 +22,8 @@ namespace Eval
 
 		void train_net(Learn_Settings settings);
 		void validate_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path = "do_not_save");
+		void validate_all_rules_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path = "do_not_save");
+		void test_on_equals(Learn_Settings settings);
 		//void generate_cf();
 
 		//void load_data();

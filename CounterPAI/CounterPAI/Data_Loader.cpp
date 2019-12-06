@@ -9,26 +9,6 @@
 #include "Rule_Evaluation.h"
 #include "Utility.h"
 
-//TODO
-#include <windows.h>
-
-bool memory_check(int counter)
-{
-	bool should_continue = true;
-	MEMORYSTATUSEX status;
-	status.dwLength = sizeof(status);
-	GlobalMemoryStatusEx(&status);
-	std::cout << "\r" << counter << " elements, memory " << status.ullAvailPhys << "      ";
-	if (status.ullAvailPhys < 0.1 * status.ullTotalPhys)
-	{
-		std::cerr << "\nnot enought memory\n";
-		std::cout << "continue? y/n ";
-		char con;
-		std::cin >> con;
-		should_continue = (con == 'n'? false : true);
-	}
-	return should_continue;
-}
 
 Eval::Data_Loader::Data_Loader(Learn_Settings settings, bool is_training, Data_Type type)
 	:
@@ -65,7 +45,9 @@ Eval::Data_Loader::Data_Loader(Learn_Settings settings, bool is_training, Data_T
 	if (settings.data_converter == "remember_one_cf")
 	{
 		remember_one_cf(sheets, features_vec, targets_vec);
-	}
+	}/*
+	attempts with probability
+
 	else if (settings.data_converter == "evaluate_fux_rules_from_one_side_1")
 	{
 		evaluate_fux_rules_from_one_side_1(sheets, features_vec, targets_vec);
@@ -73,21 +55,22 @@ Eval::Data_Loader::Data_Loader(Learn_Settings settings, bool is_training, Data_T
 	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_1")
 	{
 		evaluate_fux_rules_from_two_sides_1(sheets, features_vec, targets_vec);
-	}
-	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_dense_NN_1")
+	}*/
+	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_dense_NN")
 	{
-		Fux_Rule rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
-		evaluate_fux_rules_from_two_sides_dense_NN_1(sheets, features_vec, targets_vec, rule);
+		evaluate_fux_rules_from_two_sides_dense_NN(sheets, features_vec, targets_vec, settings);
 	}
 	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_rule_targets")
 	{
-		Fux_Rule rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
-		evaluate_fux_rules_from_two_sides_rule_targets(sheets, features_vec, targets_vec, rule);
+		evaluate_fux_rules_from_two_sides_rule_targets(sheets, features_vec, targets_vec, settings);
 	}
 	else if (settings.data_converter == "evaluate_fux_rules_back_n_forth_rule_targets")
 	{
-		Fux_Rule rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
-		evaluate_fux_rules_back_n_forth_rule_targets(sheets, features_vec, targets_vec, rule);
+		evaluate_fux_rules_back_n_forth_rule_targets(sheets, features_vec, targets_vec, settings);
+	}
+	else if (settings.data_converter == "equality_test")
+	{
+		equality_test(sheets, features_vec, targets_vec, settings);
 	}
 }
 
@@ -139,7 +122,7 @@ std::tuple<torch::Tensor, torch::Tensor> Eval::Data_Loader::get_batch(std::vecto
 					train_target_tensor[s][b][i] = targets_vec[random_order[b2]][s][0][i];
 				}
 	}
-	else if (settings.nn_type == NN_Type::LNN)
+	else if (settings.nn_type == NN_Type::DENSE_NN)
 	{
 		if (settings.in_size != features_vec[0].numel())
 			std::cerr << "\nnet in size is not equal to input feature size, net will be currupted!\n"
@@ -182,7 +165,7 @@ std::vector<Sheet_Music> Eval::Data_Loader::load_sheets(const std::string folder
 	for (auto& entry : std::experimental::filesystem::directory_iterator(folder))
 	{
 		if (ram_counter++ % 100 == 0)
-			if (memory_check(ram_counter) == false)
+			if (Utility::memory_check(ram_counter) == false)
 				break;
 
 		std::ifstream ifs;
@@ -196,7 +179,7 @@ std::vector<Sheet_Music> Eval::Data_Loader::load_sheets(const std::string folder
 		ifs >> temp_sheet;
 		sheets.push_back(temp_sheet);
 	}
-	memory_check(ram_counter);
+	Utility::memory_check(ram_counter);
 	return std::move(sheets);
 }
 
@@ -467,171 +450,58 @@ std::vector<std::vector<float>> Eval::Data_Loader::convert_to_2d_vector(Sheet_Mu
 	return sheet_vec;
 }
 
-void Eval::Data_Loader::evaluate_fux_rules_from_one_side_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets)
+
+std::vector<float> get_targets(
+	std::string converter_info, std::list<Music_Note>::iterator& note_itr, std::vector<int>& rules_broken)
 {
-	try {
-		/*
-		all notes get convertet to eight note slices
-		 12345678
-		|--------|
-		|-----y--|
-		|x-------|
-		 ^
-		 each slice as one input
-		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
-		the target probability is allways the same as for x at 1
-		*/
-
-		//features
-		//cp
-		const int f_cp_c_scale_note_count = 17;
-		const int f_cp_is_sharp = 1;
-		const int f_cp_is_flat = 1;
-		const int f_cp_is_tied = 1;
-		const int f_cp_is_new_note = 1;
-		//cf
-		const int f_cf_c_scale_note_count = 17;
-		const int f_cf_is_new_note = 1;
-		//all
-		const int f_percentage_to_end = 1;
-		const int f_cf_is_bass = 1;
-		int feature_count = f_cp_c_scale_note_count + f_cp_is_sharp + f_cp_is_flat + f_cp_is_tied + f_cp_is_new_note + f_cf_c_scale_note_count + f_cf_is_new_note + f_percentage_to_end + f_cf_is_bass;
-
-		//targets
-		const int t_note_probability = 1;
-		int target_count = t_note_probability;
-
-
-		int ram_counter = 0;
-		for (auto& sheet : sheets)
-		{
-
-
-			auto cf = sheet.get_cf();
-			auto cp = sheet.get_cp();
-
-			Note_Pitch lowest_pitch_cf;
-			Note_Pitch lowest_pitch_cp;
-			Voice cf_voice;
-			Voice cp_voice;
-			bool is_bass_cf = false;
-			if (sheet.bass_is_cf)
+	std::vector<float> sequence_targets;
+	Eval::Rule_Evaluation evaluation(note_itr->get_note_info(Eval::Rule_Evaluation::C_INDEX_NAME));
+	if (converter_info == "ALL_RULES")
+	{
+		auto check_rule = [&evaluation, &sequence_targets, &rules_broken](Eval::Fux_Rule rule) {
+			if (evaluation.was_rule_broken(rule))
 			{
-				cf_voice = Voice::Bass;
-				cp_voice = Voice::Soprano;
-				lowest_pitch_cf = Note_Pitch::C2;
-				lowest_pitch_cp = Note_Pitch::A3;
-				is_bass_cf = true;
+				rules_broken[Eval::get_main_rule_index(rule) - 1]++;
+				sequence_targets.push_back(1.0f);
 			}
 			else
-			{
-				cf_voice = Voice::Soprano;
-				cp_voice = Voice::Bass;
-				lowest_pitch_cf = Note_Pitch::A3;
-				lowest_pitch_cp = Note_Pitch::C2;
-			}
-			float end_percentage = 0.0f;
-			int cf_note_count = cf.size();
-			int eights_count = cf_note_count * 8;
-
-
-			//targets are the probabilitys of the cp notes
-			std::vector<float> target_probabilitys;
-			for (auto& note : cp)
-			{
-				//targets (for a whole note fill in 8, half 4 etc.)
-				for (int i = 0; i < (8 / static_cast<int>(note.m_value)); i++)
-				{
-					Rule_Evaluation temp(note.get_note_info(Rule_Evaluation::C_INDEX_NAME));
-					target_probabilitys.push_back(temp.m_probability);
-				}
-			}
-			assert(target_probabilitys.size() == eights_count);
-
-			//features -----------------------------------
-			int current_cf_note = 0;
-			std::vector<float> feature_vector;
-			//the distance is needed as sixteenth for sheet get_note()
-			for (int sixteenths = 0; sixteenths < eights_count * 2; sixteenths += 2)
-			{
-				bool cp_was_at_note = false;
-				Music_Note cp_note = sheet.get_note(cp_voice, sixteenths, cp_was_at_note);
-				//f_cp_c_scale_note_count = 17;
-				std::vector<float> cp_c_scale_pitches(f_cp_c_scale_note_count, 0.0f);
-
-				cp_c_scale_pitches[Music_Note::get_ACscale_distance(lowest_pitch_cp, cp_note.get_basic_note())] = 1.0f;
-				//f_cp_is_sharp = 1;
-				bool cp_is_sharp = cp_note.m_is_sharp;
-				//f_cp_is_flat = 1;
-				bool cp_is_flat = cp_note.m_is_flat;
-				//f_cp_is_tied = 1;
-				bool cp_is_tied = cp_note.m_is_tied;
-				//f_cp_is_new_note = 1;
-				bool cp_is_new_note = false;
-				if (cp_was_at_note)
-					cp_is_new_note = true;
-
-				bool cf_was_at_note = false;
-				Music_Note cf_note = sheet.get_note(cf_voice, sixteenths, cf_was_at_note);
-				//f_cf_c_scale_note_count = 17;
-				std::vector<float> cf_c_scale_pitches(f_cf_c_scale_note_count, 0.0f);
-				cf_c_scale_pitches[Music_Note::get_ACscale_distance(lowest_pitch_cf, cf_note.get_basic_note())] = 1.0f;
-				//f_cf_is_new_note = 1;
-				bool cf_is_new_note = false;
-				if (cf_was_at_note)
-				{
-					if (ram_counter++ % 100 == 0)
-						if (memory_check(ram_counter) == false)
-							break;
-					current_cf_note++;
-					cf_is_new_note = true;
-				}
-				//f_percentage_to_end = 1;
-				float percentage_to_end = (float)(sixteenths) / (float)(eights_count * 2.0f);
-				//f_cf_is_bass = 1;
-				bool cf_is_bass = is_bass_cf;
-
-				feature_vector.insert(feature_vector.end(), cp_c_scale_pitches.begin(), cp_c_scale_pitches.end());
-				feature_vector.push_back((float)cp_is_sharp);
-				feature_vector.push_back((float)cp_is_flat);
-				feature_vector.push_back((float)cp_is_tied);
-				feature_vector.push_back((float)cp_is_new_note);
-				feature_vector.insert(feature_vector.end(), cf_c_scale_pitches.begin(), cf_c_scale_pitches.end());
-				feature_vector.push_back((float)cf_is_new_note);
-				feature_vector.push_back((float)percentage_to_end);
-				feature_vector.push_back((float)cf_is_bass);
-			}
-
-
-
-
-			//input (sequence, batch, features) 
-			auto feature_tensor = torch::tensor(feature_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ eights_count, 1, feature_count });
-			features.push_back(feature_tensor);
-
-			//targets -----------------------------------
-			std::vector<float> target_vector = target_probabilitys;
-			//for (int i = 0; i < target_probabilitys.size(); i++)
-			//{
-			//	for (auto& one_hot : target_probabilitys[i])
-			//		target_vector.push_back(one_hot);
-			//}
-
-			//output (sequence, batch, target_values) 
-			auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ eights_count, 1, target_count });
-			targets.push_back(taget_tensor);
-		}
+				sequence_targets.push_back(0.0f);
+		};
+		check_rule(Eval::Fux_Rule::R1);
+		check_rule(Eval::Fux_Rule::R2);
+		check_rule(Eval::Fux_Rule::R3);
+		check_rule(Eval::Fux_Rule::R4);
+		check_rule(Eval::Fux_Rule::R5);
+		check_rule(Eval::Fux_Rule::R6);
+		check_rule(Eval::Fux_Rule::R7);
+		check_rule(Eval::Fux_Rule::R8);
+		check_rule(Eval::Fux_Rule::R9);
 	}
-	catch
-		(std::exception& e)
+	else
 	{
-		std::cerr << "\n" << e.what();
+		Eval::Fux_Rule target_rule = Utility::from_str<Eval::Fux_Rule>(converter_info);
+		if (evaluation.was_rule_broken(target_rule))
+		{
+			sequence_targets.push_back(1.0f);
+			rules_broken[Eval::get_main_rule_index(target_rule) - 1]++;
+		}
+		else
+			sequence_targets.push_back(0.0f);
 	}
+	note_itr++;
+	return std::move(sequence_targets);
 }
 
-void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets)
+void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_dense_NN(
+	std::vector<Sheet_Music>&   sheets, 
+	std::vector<torch::Tensor>& features, 
+	std::vector<torch::Tensor>& targets,
+	Learn_Settings              settings)
 {
 	try {
+
+
+		Fux_Rule target_rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
 		/*
 		all notes get convertet to eight note slices
 		 12345678
@@ -644,9 +514,7 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Mu
 			  input is one slice from the left side + one from the right side
 			  input for the note looked at is 2 times the note looked at slice
 
-			  targets are 1.0 for each but the note looked at
-			  (could be interpreted as "allways assume the other notes are right")
-			  target for the note looked at is the probability of that note
+			  target for the note looked at (last in sequence) is 1.0 if the rule was broken an 0.0 else
 
 		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
 		the target probability is allways the same as for x at 1
@@ -654,198 +522,51 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Mu
 
 		//features
 		//cp 
-		//left
 		const int f_cp_c_scale_note_count_l = 17;
 		const int f_cp_is_sharp_l = 1;
 		const int f_cp_is_flat_l = 1;
 		const int f_cp_is_tied_l = 1;
 		const int f_cp_is_new_note_l = 1;
-		//right
-		const int f_cp_c_scale_note_count_r = 17;
-		const int f_cp_is_sharp_r = 1;
-		const int f_cp_is_flat_r = 1;
-		const int f_cp_is_tied_r = 1;
-		const int f_cp_is_new_note_r = 1;
 		//cf
-		//left
 		const int f_cf_c_scale_note_count_l = 17;
 		const int f_cf_is_new_note_l = 1;
-		//right
-		const int f_cf_c_scale_note_count_r = 17;
-		const int f_cf_is_new_note_r = 1;
 		//all
 		//const int f_is_looked_at_note = 1;
 		const int f_cf_is_bass = 1;
-		int feature_count =
+
+		constexpr int feature_count =
 			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-			+ f_cp_c_scale_note_count_r + f_cp_is_sharp_r + f_cp_is_flat_r + f_cp_is_tied_r + f_cp_is_new_note_r
 			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
-			+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
 			+ f_cf_is_bass;
 
-		//targets
-		const int t_note_probability = 1;
-		int target_count = t_note_probability;
+		int sequence_len = settings.sequence_len;
+		if ((sequence_len * 2 + 1) * feature_count != settings.in_size)
+			std::cerr << "\nERROR: in size: " << settings.in_size << ", sequence size: " << (sequence_len * 2 + 1 )* feature_count << "\n";
 
-		int ram_counter = 0;
-		for (auto& sheet : sheets)
-		{
-
-
-			auto sheet_vec = convert_to_2d_vector(sheet);
-			//insert eight 0 vectors to front and back 
-			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
-			for (int i = 0; i < 8; i++)
-				sheet_vec.insert(sheet_vec.begin(), zeros);
-			for (int i = 0; i < 8; i++)
-				sheet_vec.insert(sheet_vec.end(), zeros);
-
-			//for each new note create a sequence
-			for (int i = 0; i < sheet_vec.size(); i++)
-			{
-				if (ram_counter++ % 100 == 0)
-					if (memory_check(ram_counter) == false)
-						break;
-				/*
-				int feature_count =
-				  f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-				+ f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-				+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
-				+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
-				+ f_cf_is_bass;
-				*/
-
-				//at pos 20 the information is saved if it is a new note
-				if (sheet_vec[i][20] == 1.0f)
-				{
-					//convert to sequence
-					std::vector<std::vector<float>> sequence;
-					std::vector<float> sequence_targets;
-					for (int distance = 8; distance >= 0; distance--)
-					{
-						std::vector<float> slice;
-						//from the left
-						sheet_vec[i - distance];
-						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1 - 1);//-1 without cf_is_bass, -1 without the probability
-						//from the right
-						slice.insert(slice.begin(), sheet_vec[i + distance].begin(), sheet_vec[i + distance].end() - 1);//with cf_is_bass, -1 == without the probability
-						sequence.push_back(slice);
-
-						//old version
-						//if (distance != 0)
-						//	sequence_targets.push_back(1.0f);
-						//else
-						//	sequence_targets.push_back(sheet_vec[i].back()); // the probability
-					}
-					//new version
-					sequence_targets.push_back(sheet_vec[i].back()); // the probability
-
-					//convert to tensors
-					std::vector<float> sequence_faltened;
-					for (int i = 0; i < sequence.size(); i++)
-					{
-						for (int h = 0; h < sequence[i].size(); h++)
-						{
-							sequence_faltened.push_back(sequence[i][h]);
-						}
-					}
-					//input (sequence, batch, features) 
-					auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)sequence.size(), 1, feature_count });
-					features.push_back(feature_tensor);
-
-					//targets -----------------------------------
-					std::vector<float> target_vector = sequence_targets;
-					//output (sequence, batch, target_values) 
-					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)target_vector.size(), 1, target_count });
-
-					targets.push_back(taget_tensor);
-				}
-			}
-		}
-	}
-	catch (std::exception& e)
-	{
-		std::cerr << "\n" << e.what();
-	}
-}
-
-void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_dense_NN_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule)
-{
-	try {
-		/*
-		all notes get convertet to eight note slices
-		 12345678
-		|--------|--------|--------|
-		|--------|-xxxxx--|--------|
-		|--------|--------|--------|
-		  |-----------------|
-		   -------> <-------
-			  one sequence:
-			  input is one slice from the left side + one from the right side
-			  input for the note looked at is 2 times the note looked at slice
-
-			  target for the note looked at (last in sequence) is the probability of that note
-
-		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
-		the target probability is allways the same as for x at 1
-		*/
-
-		//features
-		//cp 
-		//left
-		const int f_cp_c_scale_note_count_l = 17;
-		const int f_cp_is_sharp_l = 1;
-		const int f_cp_is_flat_l = 1;
-		const int f_cp_is_tied_l = 1;
-		const int f_cp_is_new_note_l = 1;
-		//right
-		const int f_cp_c_scale_note_count_r = 17;
-		const int f_cp_is_sharp_r = 1;
-		const int f_cp_is_flat_r = 1;
-		const int f_cp_is_tied_r = 1;
-		const int f_cp_is_new_note_r = 1;
-		//cf
-		//left
-		const int f_cf_c_scale_note_count_l = 17;
-		const int f_cf_is_new_note_l = 1;
-		//right
-		const int f_cf_c_scale_note_count_r = 17;
-		const int f_cf_is_new_note_r = 1;
-		//all
-		//const int f_is_looked_at_note = 1;
-		const int f_cf_is_bass = 1;
-		int feature_count =
-			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-			+ f_cp_c_scale_note_count_r + f_cp_is_sharp_r + f_cp_is_flat_r + f_cp_is_tied_r + f_cp_is_new_note_r
-			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
-			+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
-			+ f_cf_is_bass;
-
-		//targets
-		const int t_note_probability = 1;
-		int target_count = t_note_probability;
 
 		int ram_counter = 0;
 
-		int feature_true_counter = 0;
-		int feature_false_counter = 0;
+		std::vector<int> rules_broken(9, 0);
 
 		for (auto& sheet : sheets)
 		{
-
-
 			auto sheet_vec = convert_to_2d_vector(sheet);
+
 			//insert eight 0 vectors to front and back 
 			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < sequence_len; i++)
 				sheet_vec.insert(sheet_vec.begin(), zeros);
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < sequence_len; i++)
 				sheet_vec.insert(sheet_vec.end(), zeros);
+
+			//std::cout << "\nsheet:\n";
+			//print_2d_vector(sheet_vec);
 
 			auto note_itr = sheet.get_cp().begin();
 			//for each new note create a sequence
 			for (int i = 0; i < sheet_vec.size(); i++)
 			{
+
 				/*
 				int feature_count =
 				  f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
@@ -859,61 +580,52 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_dense_NN_1(std::vector
 				if (sheet_vec[i][20] == 1.0f)
 				{
 					if (ram_counter++ % 100 == 0)
-						if (memory_check(ram_counter) == false)
+						if (Utility::memory_check(ram_counter) == false)
 							break;
 					//convert to sequence
 					std::vector<std::vector<float>> sequence;
-					std::vector<float> sequence_targets;
-					for (int distance = 8; distance >= 0; distance--)
+					for (int distance = sequence_len; distance >= -sequence_len; distance--)
 					{
 						std::vector<float> slice;
 						//from the left
-						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1 - 1);//-1 without cf_is_bass, -1 without the probability
-						//from the right
-						slice.insert(slice.begin(), sheet_vec[i + distance].begin(), sheet_vec[i + distance].end() - 1);//with cf_is_bass, -1 == without the probability
+						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1);//-1 without the probability
 						sequence.push_back(slice);
 					}
-
-					Rule_Evaluation evaluation(note_itr->get_note_info(Rule_Evaluation::C_INDEX_NAME));
-					note_itr++;
-
-					if (evaluation.was_rule_broken(target_rule))
-					{
-						sequence_targets.push_back(1.0f);
-						feature_true_counter++;
-					}
-					else
-					{
-						sequence_targets.push_back(0.0f);
-						feature_false_counter++;
-					}
-
-
 					//convert to tensors
 					std::vector<float> sequence_faltened;
-					for (int i = 0; i < sequence.size(); i++)
+					for (int s = 0; s < sequence.size(); s++)
 					{
-						for (int h = 0; h < sequence[i].size(); h++)
+						for (int h = 0; h < sequence[s].size(); h++)
 						{
-							sequence_faltened.push_back(sequence[i][h]);
+							sequence_faltened.push_back(sequence[s][h]);
 						}
 					}
-
 					//input (batch, features) 
 					auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, (int)sequence.size() * feature_count });
 					features.push_back(feature_tensor);
+					//std::cout << "\ntensor:\n";
+					//print_2d_tensor_formatted(feature_tensor, 42);
 
 					//targets -----------------------------------
+					std::vector<float> sequence_targets = get_targets(settings.data_converter_info, note_itr, rules_broken);
 					std::vector<float> target_vector = sequence_targets;
 					//output (batch, target_values) 
-					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, (int)target_vector.size() * target_count });
-
+					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, settings.out_size });
 					targets.push_back(taget_tensor);
 				}
 			}
+		}		
+		Utility::memory_check(ram_counter);
+		if (settings.data_converter_info == "ALL_RULES")
+		{
+			for (int i = 1; i <= 9; i++)
+				std::cout << "\nR" << i << ": " << rules_broken[i - 1] << " features 1.0\n";
 		}
-		memory_check(ram_counter);
-		std::cout << "\n" << feature_true_counter << " features 1.0\n" << feature_false_counter << " features 0.0\n";
+		else
+		{
+			Fux_Rule target_rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
+			std::cout << "\n" << rules_broken[Eval::get_main_rule_index(target_rule) - 1] << " features 1.0\n";
+		}
 	}
 	catch (std::exception& e)
 	{
@@ -922,8 +634,11 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_dense_NN_1(std::vector
 }
 
 
-
-void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule)
+void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(
+	std::vector<Sheet_Music>&   sheets, 
+	std::vector<torch::Tensor>& features, 
+	std::vector<torch::Tensor>& targets,
+	Learn_Settings              settings)
 {
 	try {
 		/*
@@ -968,21 +683,18 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 		//all
 		//const int f_is_looked_at_note = 1;
 		const int f_cf_is_bass = 1;
-		int feature_count =
+		constexpr int feature_count =
 			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
 			+ f_cp_c_scale_note_count_r + f_cp_is_sharp_r + f_cp_is_flat_r + f_cp_is_tied_r + f_cp_is_new_note_r
 			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
 			+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
 			+ f_cf_is_bass;
 
-		//targets
-		const int t_note_probability = 1;
-		int target_count = t_note_probability;
-
 		int ram_counter = 0;
 
-		int feature_true_counter = 0;
-		int feature_false_counter = 0;
+		std::vector<int> rules_broken(9, 0);
+
+		int sequence_len = settings.sequence_len;
 
 		for (auto& sheet : sheets)
 		{
@@ -990,9 +702,9 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 
 			//insert eight 0 vectors to front and back 
 			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < sequence_len; i++)
 				sheet_vec.insert(sheet_vec.begin(), zeros);
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < sequence_len; i++)
 				sheet_vec.insert(sheet_vec.end(), zeros);
 
 			//std::cout << "\nsheet:\n";
@@ -1016,12 +728,11 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 				if (sheet_vec[i][20] == 1.0f)
 				{
 					if (ram_counter++ % 100 == 0)
-						if (memory_check(ram_counter) == false)
+						if (Utility::memory_check(ram_counter) == false)
 							break;
 					//convert to sequence
 					std::vector<std::vector<float>> sequence;
-					std::vector<float> sequence_targets;
-					for (int distance = 8; distance >= 0; distance--)
+					for (int distance = sequence_len; distance >= 0; distance--)
 					{
 						std::vector<float> slice;
 						//from the left
@@ -1031,24 +742,147 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 						sequence.push_back(slice);
 					}
 
-					//std::cout << "\n-------";
-					//std::cout << "\n" << *note_itr;
-					Rule_Evaluation evaluation(note_itr->get_note_info(Rule_Evaluation::C_INDEX_NAME));
-					//std::cout << "\n" << evaluation;					
-					//char ch;
-					//std::cin >> ch;
-					note_itr++;
 
+					//convert to tensors
+					std::vector<float> sequence_faltened;
 
-					if (evaluation.was_rule_broken(target_rule))
+					for (int s = 0; s < sequence.size(); s++)
 					{
-						sequence_targets.push_back(1.0f);
-						feature_true_counter++;
+						for (int h = 0; h < sequence[s].size(); h++)
+						{
+							sequence_faltened.push_back(sequence[s][h]);
+						}
 					}
-					else
+					//input (sequence, batch, features) 
+					auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)sequence.size(), 1, feature_count });
+					features.push_back(feature_tensor);
+
+					//std::cout << "\ntensor:\n";
+					//print_2d_tensor_formatted(feature_tensor, 42);
+
+					//targets -----------------------------------
+					std::vector<float> sequence_targets = get_targets(settings.data_converter_info, note_itr, rules_broken);
+					std::vector<float> target_vector = sequence_targets;
+					//output (sequence, batch, target_values) 
+					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, 1, settings.out_size });
+
+					targets.push_back(taget_tensor);
+
+				}
+			}
+		}
+		Utility::memory_check(ram_counter);
+
+		if (settings.data_converter_info == "ALL_RULES")
+		{
+			for(int i = 1; i <= 9; i++)
+				std::cout << "\nR" << i << ": " << rules_broken[i - 1] << " features 1.0\n";
+		}
+		else
+		{
+			Fux_Rule target_rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
+			std::cout << "\n" << rules_broken[Eval::get_main_rule_index(target_rule) - 1] << " features 1.0\n";
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << "\n" << e.what();
+	}
+}
+
+
+void Eval::Data_Loader::evaluate_fux_rules_back_n_forth_rule_targets(
+	std::vector<Sheet_Music>& sheets, 
+	std::vector<torch::Tensor>& features, 
+	std::vector<torch::Tensor>& targets,
+	Learn_Settings              settings)
+{
+	try {
+		Fux_Rule target_rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
+		/*
+		all notes get convertet to eight note slices
+		 12345678
+		|--------|--------|--------|
+		|--------|-xxxxx--|--------|
+		|--------|--------|--------|
+		  |-----------------|
+		   -------> <-------
+			  one sequence:
+			  input is one slice from the left side + one from the right side
+			  input for the note looked at is 2 times the note looked at slice
+
+			  target for the note looked at (last in sequence) is 1.0 if the rule was broken an 0.0 else
+
+		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
+		the target probability is allways the same as for x at 1
+		*/
+
+		//features
+		//cp 
+		const int f_cp_c_scale_note_count_l = 17;
+		const int f_cp_is_sharp_l = 1;
+		const int f_cp_is_flat_l = 1;
+		const int f_cp_is_tied_l = 1;
+		const int f_cp_is_new_note_l = 1;
+		//cf
+		const int f_cf_c_scale_note_count_l = 17;
+		const int f_cf_is_new_note_l = 1;
+		//all
+		//const int f_is_looked_at_note = 1;
+		const int f_cf_is_bass = 1;
+
+		constexpr int feature_count =
+			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
+			+ f_cf_is_bass;
+
+		int sequence_len = settings.sequence_len;
+		int ram_counter = 0;
+
+		std::vector<int> rules_broken(9, 0);
+
+		for (auto& sheet : sheets)
+		{
+			auto sheet_vec = convert_to_2d_vector(sheet);
+
+			//insert eight 0 vectors to front and back 
+			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
+			for (int i = 0; i < sequence_len; i++)
+				sheet_vec.insert(sheet_vec.begin(), zeros);
+			for (int i = 0; i < sequence_len; i++)
+				sheet_vec.insert(sheet_vec.end(), zeros);
+
+			//std::cout << "\nsheet:\n";
+			//print_2d_vector(sheet_vec);
+
+			auto note_itr = sheet.get_cp().begin();
+			//for each new note create a sequence
+			for (int i = 0; i < sheet_vec.size(); i++)
+			{
+
+				/*
+				int feature_count =
+				  f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+				+ f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+				+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
+				+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
+				+ f_cf_is_bass;
+				*/
+
+				//at pos 20 the information is saved if it is a new note
+				if (sheet_vec[i][20] == 1.0f)
+				{
+					if (ram_counter++ % 100 == 0)
+						if (Utility::memory_check(ram_counter) == false)
+							break;
+					//convert to sequence
+					std::vector<std::vector<float>> sequence;
+					for (int distance = sequence_len; distance >= -sequence_len; distance--)
 					{
-						sequence_targets.push_back(0.0f);
-						feature_false_counter++;
+						std::vector<float> slice;
+						//from the left
+						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1);//-1 without the probability
+						sequence.push_back(slice);
 					}
 
 					//convert to tensors
@@ -1068,20 +902,32 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 
 					//std::cout << "\ntensor:\n";
 					//print_2d_tensor_formatted(feature_tensor, 42);
+					////char ch;
 					//std::cin >> ch;
 
 					//targets -----------------------------------
+					std::vector<float> sequence_targets = get_targets(settings.data_converter_info, note_itr, rules_broken);
 					std::vector<float> target_vector = sequence_targets;
 					//output (sequence, batch, target_values) 
-					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)target_vector.size(), 1, target_count });
+					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, 1, settings.out_size });
 
 					targets.push_back(taget_tensor);
 
 				}
 			}
+
 		}
-		memory_check(ram_counter);
-		std::cout << "\n" << feature_true_counter << " features 1.0\n" << feature_false_counter << " features 0.0\n";
+		Utility::memory_check(ram_counter);
+		if (settings.data_converter_info == "ALL_RULES")
+		{
+			for (int i = 1; i <= 9; i++)
+				std::cout << "\nR" << i << ": " << rules_broken[i - 1] << " features 1.0\n";
+		}
+		else
+		{
+			Fux_Rule target_rule = Utility::from_str<Fux_Rule>(settings.data_converter_info);
+			std::cout << "\n" << rules_broken[Eval::get_main_rule_index(target_rule) - 1] << " features 1.0\n";
+		}
 	}
 	catch (std::exception& e)
 	{
@@ -1090,156 +936,409 @@ void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_rule_targets(std::vect
 }
 
 
-	void Eval::Data_Loader::evaluate_fux_rules_back_n_forth_rule_targets(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets, Eval::Fux_Rule target_rule)
-	{
-		try {
-			/*
-			all notes get convertet to eight note slices
-			 12345678
-			|--------|--------|--------|
-			|--------|-xxxxx--|--------|
-			|--------|--------|--------|
-			  |-----------------|
-			   -------> <-------
-				  one sequence:
-				  input is one slice from the left side + one from the right side
-				  input for the note looked at is 2 times the note looked at slice
+void Eval::Data_Loader::equality_test(
+	std::vector<Sheet_Music>& sheets, 
+	std::vector<torch::Tensor>& features, 
+	std::vector<torch::Tensor>& targets,
+	Learn_Settings              settings)
+{
+	int sequence_length = settings.sequence_len;
+	if(!settings.data_converter_info.empty())
+		sequence_length = Utility::from_str<int>(settings.data_converter_info);
+	try {
+		//features
+		//cp 
+		const int f_cp_c_scale_note_count_l = 17;
+		const int f_cp_is_sharp_l = 1;
+		const int f_cp_is_flat_l = 1;
+		const int f_cp_is_tied_l = 1;
+		const int f_cp_is_new_note_l = 1;
+		//cf
+		const int f_cf_c_scale_note_count_l = 17;
+		const int f_cf_is_new_note_l = 1;
 
-				  target for the note looked at (last in sequence) is 1.0 if the rule was broken an 0.0 else
+		int feature_count =
+			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l;
 
-			if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
-			the target probability is allways the same as for x at 1
-			*/
+		int ram_counter = 0;
 
-			//features
-			//cp 
-			const int f_cp_c_scale_note_count_l = 17;
-			const int f_cp_is_sharp_l = 1;
-			const int f_cp_is_flat_l = 1;
-			const int f_cp_is_tied_l = 1;
-			const int f_cp_is_new_note_l = 1;
-			//cf
-			const int f_cf_c_scale_note_count_l = 17;
-			const int f_cf_is_new_note_l = 1;
-			//all
-			//const int f_is_looked_at_note = 1;
-			const int f_cf_is_bass = 1;
+		std::vector<int> rules_broken(9, 0);
 
-			int feature_count =
-				f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-				+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
-				+ f_cf_is_bass;
-
-			//targets
-			const int t_note_probability = 1;
-			int target_count = t_note_probability;
-
-			int ram_counter = 0;
-
-			int feature_true_counter = 0;
-			int feature_false_counter = 0;
-
-			for (auto& sheet : sheets)
-			{
-				auto sheet_vec = convert_to_2d_vector(sheet);
-
-				//insert eight 0 vectors to front and back 
-				std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
-				for (int i = 0; i < 8; i++)
-					sheet_vec.insert(sheet_vec.begin(), zeros);
-				for (int i = 0; i < 8; i++)
-					sheet_vec.insert(sheet_vec.end(), zeros);
-
-				//std::cout << "\nsheet:\n";
-				//print_2d_vector(sheet_vec);
-
-				auto note_itr = sheet.get_cp().begin();
-				//for each new note create a sequence
-				for (int i = 0; i < sheet_vec.size(); i++)
-				{
-
-					/*
-					int feature_count =
-					  f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-					+ f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
-					+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
-					+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
-					+ f_cf_is_bass;
-					*/
-
-					//at pos 20 the information is saved if it is a new note
-					if (sheet_vec[i][20] == 1.0f)
-					{
-						if (ram_counter++ % 100 == 0)
-							if (memory_check(ram_counter) == false)
-								break;
-						//convert to sequence
-						std::vector<std::vector<float>> sequence;
-						std::vector<float> sequence_targets;
-						for (int distance = 8; distance >= -8; distance--)
-						{
-							std::vector<float> slice;
-							//from the left
-							slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end()- 1);//-1 without the probability
-							sequence.push_back(slice);
-						}
-
-						//std::cout << "\n-------";
-						//std::cout << "\n" << *note_itr;
-						Rule_Evaluation evaluation(note_itr->get_note_info(Rule_Evaluation::C_INDEX_NAME));
-						//std::cout << "\n" << evaluation;					
-						//char ch;
-						//std::cin >> ch;
-						note_itr++;
-
-
-						if (evaluation.was_rule_broken(target_rule))
-						{
-							sequence_targets.push_back(1.0f);
-							feature_true_counter++;
-						}
-						else
-						{
-							sequence_targets.push_back(0.0f);
-							feature_false_counter++;
-						}
-
-						//convert to tensors
-						std::vector<float> sequence_faltened;
-
-						for (int s = 0; s < sequence.size(); s++)
-						{
-							for (int h = 0; h < sequence[s].size(); h++)
-							{
-								sequence_faltened.push_back(sequence[s][h]);
-							}
-						}
-						//input (sequence, batch, features) 
-						auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)sequence.size(), 1, feature_count });
-						features.push_back(feature_tensor);
-
-
-						//std::cout << "\ntensor:\n";
-						//print_2d_tensor_formatted(feature_tensor, 42);
-						////char ch;
-						//std::cin >> ch;
-
-						//targets -----------------------------------
-						std::vector<float> target_vector = sequence_targets;
-						//output (sequence, batch, target_values) 
-						auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)target_vector.size(), 1, target_count });
-
-						targets.push_back(taget_tensor);
-
-					}
-				}
-
-			}
-			memory_check(ram_counter);
-			std::cout << "\n" << feature_true_counter << " features 1.0\n" << feature_false_counter << " features 0.0\n";
-		}
-		catch (std::exception& e)
+		for (auto& sheet : sheets)
 		{
-			std::cerr << "\n" << e.what();
+			auto sheet_vec = convert_to_2d_vector(sheet);
+
+			//insert sequence_length 0 vectors to front and back 
+			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
+			for (int i = 0; i < sequence_length; i++)
+				sheet_vec.insert(sheet_vec.begin(), zeros);
+			for (int i = 0; i < sequence_length; i++)
+				sheet_vec.insert(sheet_vec.end(), zeros);
+
+
+			auto note_itr = sheet.get_cp().begin();
+			//for each new note create a sequence
+			for (int i = 0; i < sheet_vec.size(); i++)
+			{
+				//at pos 20 the information is saved if it is a new note
+				if (sheet_vec[i][20] == 1.0f)
+				{
+					if (ram_counter++ % 100 == 0)
+						if (Utility::memory_check(ram_counter) == false)
+							break;
+					//convert to sequence
+					std::vector<std::vector<float>> sequence;
+					for (int distance = sequence_length; distance >= -sequence_length; distance--)
+					{
+						std::vector<float> slice;
+						//from the left
+						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1 - 1);//-1 without the probability / -1 without cf is bass
+						sequence.push_back(slice);
+					}
+
+					//convert to tensors
+					std::vector<float> sequence_faltened;
+
+					for (int s = 0; s < sequence.size(); s++)
+					{
+						for (int h = 0; h < sequence[s].size(); h++)
+						{
+							sequence_faltened.push_back(sequence[s][h]);
+						}
+					}
+					//input (sequence, batch, features) 
+					auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)sequence.size(), 1, feature_count });
+					features.push_back(feature_tensor);
+
+
+
+
+					//targets -----------------------------------
+					std::vector<float> sequence_targets = get_targets("ALL_RULES", note_itr, rules_broken);
+					std::vector<float> target_vector = sequence_targets;
+					//output (sequence, batch, target_values) 
+					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ 1, 1, settings.out_size });
+
+					targets.push_back(taget_tensor);
+				}
+			}
+
 		}
+
+
+		for (int i = 1; i <= 9; i++)
+			std::cout << "\nR" << i << ": " << rules_broken[i - 1] << " features 1.0\n";
+
+		Utility::memory_check(ram_counter);
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << "\n" << e.what();
+	}
 }
+
+
+
+//attempts with probability
+//
+//void Eval::Data_Loader::evaluate_fux_rules_from_one_side_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets)
+//{
+//	try {
+//		/*
+//		all notes get convertet to eight note slices
+//		 12345678
+//		|--------|
+//		|-----y--|
+//		|x-------|
+//		 ^
+//		 each slice as one input
+//		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
+//		the target probability is allways the same as for x at 1
+//		*/
+//
+//		//features
+//		//cp
+//		const int f_cp_c_scale_note_count = 17;
+//		const int f_cp_is_sharp = 1;
+//		const int f_cp_is_flat = 1;
+//		const int f_cp_is_tied = 1;
+//		const int f_cp_is_new_note = 1;
+//		//cf
+//		const int f_cf_c_scale_note_count = 17;
+//		const int f_cf_is_new_note = 1;
+//		//all
+//		const int f_percentage_to_end = 1;
+//		const int f_cf_is_bass = 1;
+//		int feature_count = f_cp_c_scale_note_count + f_cp_is_sharp + f_cp_is_flat + f_cp_is_tied + f_cp_is_new_note + f_cf_c_scale_note_count + f_cf_is_new_note + f_percentage_to_end + f_cf_is_bass;
+//
+//		//targets
+//		const int t_note_probability = 1;
+//		int target_count = t_note_probability;
+//
+//
+//		int ram_counter = 0;
+//		for (auto& sheet : sheets)
+//		{
+//
+//
+//			auto cf = sheet.get_cf();
+//			auto cp = sheet.get_cp();
+//
+//			Note_Pitch lowest_pitch_cf;
+//			Note_Pitch lowest_pitch_cp;
+//			Voice cf_voice;
+//			Voice cp_voice;
+//			bool is_bass_cf = false;
+//			if (sheet.bass_is_cf)
+//			{
+//				cf_voice = Voice::Bass;
+//				cp_voice = Voice::Soprano;
+//				lowest_pitch_cf = Note_Pitch::C2;
+//				lowest_pitch_cp = Note_Pitch::A3;
+//				is_bass_cf = true;
+//			}
+//			else
+//			{
+//				cf_voice = Voice::Soprano;
+//				cp_voice = Voice::Bass;
+//				lowest_pitch_cf = Note_Pitch::A3;
+//				lowest_pitch_cp = Note_Pitch::C2;
+//			}
+//			float end_percentage = 0.0f;
+//			int cf_note_count = cf.size();
+//			int eights_count = cf_note_count * 8;
+//
+//
+//			//targets are the probabilitys of the cp notes
+//			std::vector<float> target_probabilitys;
+//			for (auto& note : cp)
+//			{
+//				//targets (for a whole note fill in 8, half 4 etc.)
+//				for (int i = 0; i < (8 / static_cast<int>(note.m_value)); i++)
+//				{
+//					Rule_Evaluation temp(note.get_note_info(Rule_Evaluation::C_INDEX_NAME));
+//					target_probabilitys.push_back(temp.m_probability);
+//				}
+//			}
+//
+//			//features -----------------------------------
+//			int current_cf_note = 0;
+//			std::vector<float> feature_vector;
+//			//the distance is needed as sixteenth for sheet get_note()
+//			for (int sixteenths = 0; sixteenths < eights_count * 2; sixteenths += 2)
+//			{
+//				bool cp_was_at_note = false;
+//				Music_Note cp_note = sheet.get_note(cp_voice, sixteenths, cp_was_at_note);
+//				//f_cp_c_scale_note_count = 17;
+//				std::vector<float> cp_c_scale_pitches(f_cp_c_scale_note_count, 0.0f);
+//
+//				cp_c_scale_pitches[Music_Note::get_ACscale_distance(lowest_pitch_cp, cp_note.get_basic_note())] = 1.0f;
+//				//f_cp_is_sharp = 1;
+//				bool cp_is_sharp = cp_note.m_is_sharp;
+//				//f_cp_is_flat = 1;
+//				bool cp_is_flat = cp_note.m_is_flat;
+//				//f_cp_is_tied = 1;
+//				bool cp_is_tied = cp_note.m_is_tied;
+//				//f_cp_is_new_note = 1;
+//				bool cp_is_new_note = false;
+//				if (cp_was_at_note)
+//					cp_is_new_note = true;
+//
+//				bool cf_was_at_note = false;
+//				Music_Note cf_note = sheet.get_note(cf_voice, sixteenths, cf_was_at_note);
+//				//f_cf_c_scale_note_count = 17;
+//				std::vector<float> cf_c_scale_pitches(f_cf_c_scale_note_count, 0.0f);
+//				cf_c_scale_pitches[Music_Note::get_ACscale_distance(lowest_pitch_cf, cf_note.get_basic_note())] = 1.0f;
+//				//f_cf_is_new_note = 1;
+//				bool cf_is_new_note = false;
+//				if (cf_was_at_note)
+//				{
+//					if (ram_counter++ % 100 == 0)
+//						if (Utility::memory_check(ram_counter) == false)
+//							break;
+//					current_cf_note++;
+//					cf_is_new_note = true;
+//				}
+//				//f_percentage_to_end = 1;
+//				float percentage_to_end = (float)(sixteenths) / (float)(eights_count * 2.0f);
+//				//f_cf_is_bass = 1;
+//				bool cf_is_bass = is_bass_cf;
+//
+//				feature_vector.insert(feature_vector.end(), cp_c_scale_pitches.begin(), cp_c_scale_pitches.end());
+//				feature_vector.push_back((float)cp_is_sharp);
+//				feature_vector.push_back((float)cp_is_flat);
+//				feature_vector.push_back((float)cp_is_tied);
+//				feature_vector.push_back((float)cp_is_new_note);
+//				feature_vector.insert(feature_vector.end(), cf_c_scale_pitches.begin(), cf_c_scale_pitches.end());
+//				feature_vector.push_back((float)cf_is_new_note);
+//				feature_vector.push_back((float)percentage_to_end);
+//				feature_vector.push_back((float)cf_is_bass);
+//			}
+//
+//
+//
+//
+//			//input (sequence, batch, features) 
+//			auto feature_tensor = torch::tensor(feature_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ eights_count, 1, feature_count });
+//			features.push_back(feature_tensor);
+//
+//			//targets -----------------------------------
+//			std::vector<float> target_vector = target_probabilitys;
+//			//for (int i = 0; i < target_probabilitys.size(); i++)
+//			//{
+//			//	for (auto& one_hot : target_probabilitys[i])
+//			//		target_vector.push_back(one_hot);
+//			//}
+//
+//			//output (sequence, batch, target_values) 
+//			auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ eights_count, 1, target_count });
+//			targets.push_back(taget_tensor);
+//		}
+//	}
+//	catch
+//		(std::exception& e)
+//	{
+//		std::cerr << "\n" << e.what();
+//	}
+//}
+//
+//void Eval::Data_Loader::evaluate_fux_rules_from_two_sides_1(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets)
+//{
+//	try {
+//		/*
+//		all notes get convertet to eight note slices
+//		 12345678
+//		|--------|--------|--------|
+//		|--------|-xxxxx--|--------|
+//		|--------|--------|--------|
+//		  |-----------------|
+//		   -------> <-------
+//			  one sequence:
+//			  input is one slice from the left side + one from the right side
+//			  input for the note looked at is 2 times the note looked at slice
+//
+//			  targets are 1.0 for each but the note looked at
+//			  (could be interpreted as "allways assume the other notes are right")
+//			  target for the note looked at is the probability of that note
+//
+//		if x is played on 1 (f_cp_is_new_note input == false) it would also be played at 2 3 4 5 (f_cp_is_new_note input == false)
+//		the target probability is allways the same as for x at 1
+//		*/
+//
+//		//features
+//		//cp 
+//		//left
+//		const int f_cp_c_scale_note_count_l = 17;
+//		const int f_cp_is_sharp_l = 1;
+//		const int f_cp_is_flat_l = 1;
+//		const int f_cp_is_tied_l = 1;
+//		const int f_cp_is_new_note_l = 1;
+//		//right
+//		const int f_cp_c_scale_note_count_r = 17;
+//		const int f_cp_is_sharp_r = 1;
+//		const int f_cp_is_flat_r = 1;
+//		const int f_cp_is_tied_r = 1;
+//		const int f_cp_is_new_note_r = 1;
+//		//cf
+//		//left
+//		const int f_cf_c_scale_note_count_l = 17;
+//		const int f_cf_is_new_note_l = 1;
+//		//right
+//		const int f_cf_c_scale_note_count_r = 17;
+//		const int f_cf_is_new_note_r = 1;
+//		//all
+//		//const int f_is_looked_at_note = 1;
+//		const int f_cf_is_bass = 1;
+//		int feature_count =
+//			f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+//			+ f_cp_c_scale_note_count_r + f_cp_is_sharp_r + f_cp_is_flat_r + f_cp_is_tied_r + f_cp_is_new_note_r
+//			+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
+//			+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
+//			+ f_cf_is_bass;
+//
+//		//targets
+//		const int t_note_probability = 1;
+//		int target_count = t_note_probability;
+//
+//		int ram_counter = 0;
+//		for (auto& sheet : sheets)
+//		{
+//
+//
+//			auto sheet_vec = convert_to_2d_vector(sheet);
+//			//insert eight 0 vectors to front and back 
+//			std::vector<float> zeros(sheet_vec.front().size(), 0.0f);
+//			for (int i = 0; i < 8; i++)
+//				sheet_vec.insert(sheet_vec.begin(), zeros);
+//			for (int i = 0; i < 8; i++)
+//				sheet_vec.insert(sheet_vec.end(), zeros);
+//
+//			//for each new note create a sequence
+//			for (int i = 0; i < sheet_vec.size(); i++)
+//			{
+//				if (ram_counter++ % 100 == 0)
+//					if (Utility::memory_check(ram_counter) == false)
+//						break;
+//				/*
+//				int feature_count =
+//				  f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+//				+ f_cp_c_scale_note_count_l + f_cp_is_sharp_l + f_cp_is_flat_l + f_cp_is_tied_l + f_cp_is_new_note_l
+//				+ f_cf_c_scale_note_count_l + f_cf_is_new_note_l
+//				+ f_cf_c_scale_note_count_r + f_cf_is_new_note_r
+//				+ f_cf_is_bass;
+//				*/
+//
+//				//at pos 20 the information is saved if it is a new note
+//				if (sheet_vec[i][20] == 1.0f)
+//				{
+//					//convert to sequence
+//					std::vector<std::vector<float>> sequence;
+//					std::vector<float> sequence_targets;
+//					for (int distance = 8; distance >= 0; distance--)
+//					{
+//						std::vector<float> slice;
+//						//from the left
+//						sheet_vec[i - distance];
+//						slice.insert(slice.begin(), sheet_vec[i - distance].begin(), sheet_vec[i - distance].end() - 1 - 1);//-1 without cf_is_bass, -1 without the probability
+//						//from the right
+//						slice.insert(slice.begin(), sheet_vec[i + distance].begin(), sheet_vec[i + distance].end() - 1);//with cf_is_bass, -1 == without the probability
+//						sequence.push_back(slice);
+//
+//						//old version
+//						//if (distance != 0)
+//						//	sequence_targets.push_back(1.0f);
+//						//else
+//						//	sequence_targets.push_back(sheet_vec[i].back()); // the probability
+//					}
+//					//new version
+//					sequence_targets.push_back(sheet_vec[i].back()); // the probability
+//
+//					//convert to tensors
+//					std::vector<float> sequence_faltened;
+//					for (int i = 0; i < sequence.size(); i++)
+//					{
+//						for (int h = 0; h < sequence[i].size(); h++)
+//						{
+//							sequence_faltened.push_back(sequence[i][h]);
+//						}
+//					}
+//					//input (sequence, batch, features) 
+//					auto feature_tensor = torch::tensor(sequence_faltened, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)sequence.size(), 1, feature_count });
+//					features.push_back(feature_tensor);
+//
+//					//targets -----------------------------------
+//					std::vector<float> target_vector = sequence_targets;
+//					//output (sequence, batch, target_values) 
+//					auto taget_tensor = torch::tensor(target_vector, at::requires_grad(false).dtype(torch::kFloat32)).view({ (int)target_vector.size(), 1, target_count });
+//
+//					targets.push_back(taget_tensor);
+//				}
+//			}
+//		}
+//	}
+//	catch (std::exception& e)
+//	{
+//		std::cerr << "\n" << e.what();
+//	}
+//}

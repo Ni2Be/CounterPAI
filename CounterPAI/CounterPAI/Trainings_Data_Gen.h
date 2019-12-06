@@ -17,8 +17,9 @@ namespace Eval
 	public:
 		enum class Settings
 		{
-			Random,
-			Mutate
+			Stochastic,
+			Post_Sep,
+			Pre_Sep
 		};
 
 		Trainings_Data_Gen();
@@ -28,6 +29,7 @@ namespace Eval
 		void generate_rule_cf(std::list<Music_Note>& voice_line, Note_Pitch min, Voice voice);
 		void generate_random_cp(Sheet_Music& sheet, Note_Pitch min, Voice voice);
 
+		void select_sheets_subset(const std::string& sorce_folder, const std::string& target_folder, int count, Fux_Rule rule);
 
 		void analyse_sheets(const std::string& folder);
 
@@ -72,6 +74,7 @@ namespace Eval
 		std::map<Beat_Position, int> beat_postions;
 
 		std::map<Fux_Rule, int> broken_rules;
+		std::array<int, 9> broken_main_rules;
 
 		Sheet_Statistic operator+(const Sheet_Statistic &b) const;
 		Sheet_Statistic operator+=(const Sheet_Statistic &b);

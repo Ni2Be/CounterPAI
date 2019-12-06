@@ -11,8 +11,9 @@
 
 //TODO understand why std::ofstream(file_name, std::ofstream::app); 
 //trys to open files in the same directory after calling this
-std::string Folder_Dialog::get_load_file_name()
+std::string Folder_Dialog::get_load_file_name(std::string folder_location)
 {
+	std::replace(folder_location.begin(), folder_location.end(), '/', '\\');
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -21,6 +22,7 @@ std::string Folder_Dialog::get_load_file_name()
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
 	ofn.lpstrFilter = "Sheet Files\0*.sheet\0Any File\0*.*\0";
+	ofn.lpstrInitialDir = folder_location.c_str();
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Select your Sheet";
@@ -59,8 +61,9 @@ std::string Folder_Dialog::get_load_file_name()
 }
 
 
-std::string Folder_Dialog::get_save_file_name()
+std::string Folder_Dialog::get_save_file_name(std::string folder_location)
 {
+	std::replace(folder_location.begin(), folder_location.end(), '/', '\\');
 	char filename[MAX_PATH];
 
 	OPENFILENAME ofn;
@@ -69,6 +72,7 @@ std::string Folder_Dialog::get_save_file_name()
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
 	ofn.lpstrFilter = "Sheet Files\0*.sheet\0Any File\0*.*\0";
+	ofn.lpstrInitialDir = folder_location.c_str();
 	ofn.lpstrFile = filename;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrTitle = "Select your Sheet";

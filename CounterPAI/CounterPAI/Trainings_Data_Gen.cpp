@@ -30,8 +30,7 @@ void Eval::Trainings_Data_Gen::generate_data(int count, const std::string& targe
 {
 	std::cout << "\nGenerating " + std::to_string(count) + " sheets\n";
 	std::cout << "Target: " + target_folder + "\n";
-	if (settings == Settings::Mutate)
-		std::cout << "Sorce: " + sorce_folder + "\n";
+	std::cout << "Sorce: " + sorce_folder + "\n";
 	std::vector<Sheet_Music> sheets;
 	for (auto& entry : std::experimental::filesystem::directory_iterator(sorce_folder))
 	{
@@ -56,9 +55,10 @@ void Eval::Trainings_Data_Gen::generate_data(int count, const std::string& targe
 		if(i % 100 == 0)
 			std::cout << "\r" + std::to_string(i);
 		Sheet_Music sheet;
-		if (settings == Settings::Random)
+		if (settings == Settings::Stochastic)
 			sheet = generate_random_sheet();
-		else if (settings == Settings::Mutate)
+		else if (settings == Settings::Post_Sep
+			|| settings == Settings::Pre_Sep)
 		{
 			sheet = generate_mutated_sheet(sheets);
 		}
@@ -228,9 +228,9 @@ void Eval::Trainings_Data_Gen::generate_random_cp(Sheet_Music& sheet, Note_Pitch
 
 	//use less eights
 	Note_Value note_values[10] = { Note_Value::Whole, Note_Value::Halfe, Note_Value::Quarter, 
-		Note_Value::Whole, Note_Value::Halfe, Note_Value::Quarter,
-		Note_Value::Whole, Note_Value::Halfe, Note_Value::Quarter,
-		Note_Value::Eighth };
+		                           Note_Value::Whole, Note_Value::Halfe, Note_Value::Quarter,
+		                           Note_Value::Whole, Note_Value::Halfe, Note_Value::Quarter,
+		                           Note_Value::Eighth };
 
 	std::uniform_int_distribution<> pitch_dist(0, 16);
 	std::uniform_int_distribution<> flat_sharp_dist(0, 40);
@@ -247,7 +247,6 @@ void Eval::Trainings_Data_Gen::generate_random_cp(Sheet_Music& sheet, Note_Pitch
 			flat_sharp = 0;
 		if (pitch > Music_Note::get_ACscale_pitch(min, 16))
 			flat_sharp = 0;
-
 		bool is_tied = !tied_dist(gen);
 		if (flat_sharp == 39)
 			sheet.add_note(Music_Note(static_cast<Note_Pitch>((int)pitch + 1), val, voice, is_tied, true, false));
@@ -290,6 +289,62 @@ void Eval::Trainings_Data_Gen::generate_random_cp(Sheet_Music& sheet, Note_Pitch
 	add_note(m_gen);
 }
 
+
+void Eval::Trainings_Data_Gen::select_sheets_subset(const std::string& sorce_folder, const std::string& target_folder, int count, Fux_Rule rule)
+{
+	std::cout << "\nSearching for subset";
+	std::cout << "\nsorce: " << sorce_folder;
+	std::cout << "\ntarget: " << target_folder;
+	std::cout << "\ncount: " << count;
+	std::cout << "\nrule: " << rule;
+	int counter = 0;
+	for (auto& entry : std::experimental::filesystem::directory_iterator(sorce_folder))
+	{
+		if (!is_directory(entry.path()))
+		{
+			//load sheet
+			std::ifstream ifs;
+			ifs.open(entry.path().c_str());
+			if (!ifs)
+			{
+				std::cerr << "could not open " << entry.path() << "\n";
+				break;
+			}
+			Sheet_Music sheet;
+			ifs >> sheet;
+
+			//search for rule
+			bool rule_is_broken = false;
+			for (const auto& n : sheet.get_cp())
+			{
+				Rule_Evaluation rule_evaluation(n.get_note_info(Rule_Evaluation::C_INDEX_NAME));
+				if (rule_evaluation.was_rule_broken(rule))
+				{
+					rule_is_broken = true;
+					break;
+				}
+			}
+
+			if (rule_is_broken)
+			{
+				//save sheet
+				std::ofstream ofs;
+				ofs.open((target_folder + "/" + entry.path().filename().string()).c_str());
+				if (!ofs)
+				{
+					std::cerr << "could not open " << target_folder.c_str() << "\n";
+					continue;
+				}
+				ofs << sheet;
+				if (++counter >= count)
+					break;
+			}
+		}
+	}
+
+	std::cout << "\ndone: Subset with " << counter << " / " << count << " sheets";
+	std::cout << "\nlocation: " + target_folder + "\n";
+}
 
 void Eval::Trainings_Data_Gen::analyse_sheets(const std::string& folder)
 {
@@ -361,6 +416,11 @@ Eval::Sheet_Statistic::Sheet_Statistic(const Sheet_Music& sheet, const std::stri
 		Rule_Evaluation rule_evaluation(n.get_note_info(Rule_Evaluation::C_INDEX_NAME));
 		for(auto r : rule_evaluation.broken_rules)
 			broken_rules[r]++;
+		for (int i = 1; i <= 9; i++)
+		{
+			if (rule_evaluation.was_rule_broken(get_main_rule_from_index(i)))
+				broken_main_rules[i - 1]++;
+		}
 	}
 }
 
@@ -412,6 +472,9 @@ std::ostream& Eval::operator<<(std::ostream& os, const Sheet_Statistic& stat)
 	os << "\nRules Broken:\n";
 	for (auto i : stat.broken_rules)
 		os << std::setw(11) << i.first << ": " << i.second << "\n";
+	os << "\nMain Rules Broken:\n";
+	for (int i = 0; i < stat.broken_main_rules.size(); i++)
+		os << std::setw(11) << get_main_rule_from_index(i + 1) << ": " << stat.broken_main_rules[i] << "\n";
 
 	os << "\n";
 	return os;
@@ -459,6 +522,8 @@ Eval::Sheet_Statistic Eval::Sheet_Statistic::operator+=(const Sheet_Statistic &b
 
 	for (auto i : b.broken_rules)
 		broken_rules[i.first] += i.second;
+	for (int i = 0; i < b.broken_main_rules.size(); i++)
+		broken_main_rules[i] += b.broken_main_rules[i];
 
 	return *this;
 }
@@ -467,10 +532,11 @@ Eval::Sheet_Statistic Eval::Sheet_Statistic::operator+=(const Sheet_Statistic &b
 
 std::ostream& Eval::operator<<(std::ostream& os, const Eval::Trainings_Data_Gen::Settings& settings)
 {
-	static const std::array<std::string, 2> settings_vec
+	static const std::array<std::string, 3> settings_vec
 	{
-		"Random",
-		"Mutate"
+		"Stochastic",
+		"Post_Sep",
+		"Pre_Sep"
 	};
 	os << settings_vec[static_cast<int>(settings)];
 	return os;
@@ -479,9 +545,11 @@ std::istream& Eval::operator>>(std::istream& is, Eval::Trainings_Data_Gen::Setti
 {
 	std::string s;
 	is >> s;
-	if (s == "Random")
-		rule = Eval::Trainings_Data_Gen::Settings::Random;
-	else if (s == "Mutate")
-		rule = Eval::Trainings_Data_Gen::Settings::Mutate;
+	if (s == "Stochastic")
+		rule = Eval::Trainings_Data_Gen::Settings::Stochastic;
+	else if (s == "Post_Sep")
+		rule = Eval::Trainings_Data_Gen::Settings::Post_Sep;
+	else if (s == "Pre_Sep")
+		rule = Eval::Trainings_Data_Gen::Settings::Pre_Sep;
 	return is;
 }

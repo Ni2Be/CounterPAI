@@ -26,13 +26,14 @@ namespace Eval
 		int test_sheets_count = 2000;
 		int valid_sheets_count = 2000;
 
-		Eval::Trainings_Data_Gen::Settings train_settings = Eval::Trainings_Data_Gen::Settings::Random;
-		Eval::Trainings_Data_Gen::Settings test_settings = Eval::Trainings_Data_Gen::Settings::Mutate;
-		Eval::Trainings_Data_Gen::Settings valid_settings = Eval::Trainings_Data_Gen::Settings::Mutate;
+		Eval::Trainings_Data_Gen::Settings train_settings = Eval::Trainings_Data_Gen::Settings::Stochastic;
+		Eval::Trainings_Data_Gen::Settings test_settings = Eval::Trainings_Data_Gen::Settings::Post_Sep;
+		Eval::Trainings_Data_Gen::Settings valid_settings = Eval::Trainings_Data_Gen::Settings::Post_Sep;
 
 		std::string train_data_folder = "data/trainings_data/train";
 		std::string test_data_folder = "data/trainings_data/test";
 		std::string valid_data_folder = "data/trainings_data/valid";
+		std::string selected_data_folder = "data/trainings_data/selected";
 		Eval::Trainings_Data_Gen generator;
 
 

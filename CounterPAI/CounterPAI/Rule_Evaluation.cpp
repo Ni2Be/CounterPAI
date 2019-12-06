@@ -69,7 +69,7 @@ bool is_sub_rule(Eval::Fux_Rule main_rule, Eval::Fux_Rule sub_rule)
 	return false;
 }
 
-//R1 kommt rein
+//R1 as input
 bool Eval::Rule_Evaluation::was_rule_broken(Fux_Rule rule)
 {
 	for (const auto& r : broken_rules)

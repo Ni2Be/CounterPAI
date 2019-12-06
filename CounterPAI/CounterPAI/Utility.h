@@ -27,4 +27,6 @@ namespace Utility
 
 	std::string get_time_stamp();
 
+
+	bool memory_check(int counter);
 }

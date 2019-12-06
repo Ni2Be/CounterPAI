@@ -55,6 +55,7 @@ void Eval::AI_Config_CLI::run_tests()
 	{
 		if (!is_directory(entry.path()))
 		{
+
 			test_runner.run_test(entry.path().string());
 
 			//ensure libtorch python parts have cleaned up their memory mess
@@ -71,10 +72,14 @@ void Eval::AI_Config_CLI::generate_trainings_sheets_dialog()
 		<< "\n\"s\": [s]witch generators"
 		<< "\n\"c\": [c]hange folder names"
 		<< "\n\"g\": [g]enerate sheets"
+		<< "\n\"o\": [o]ne rule subset"
 		<< "\n\"e\": [e]xit generate trainings sheets dialog"
 		<< "\n";
 
 	char ch = get_user_input();
+
+	int rule_num = 0;
+	int count = 0;
 
 	switch (ch)
 	{
@@ -104,21 +109,25 @@ void Eval::AI_Config_CLI::generate_trainings_sheets_dialog()
 				<< "\ntest: " << test_settings
 				<< "\nvalid: " << valid_settings
 				<< "\n\nSettings:"
-				<< "\n[0]: " << Eval::Trainings_Data_Gen::Settings::Random
-				<< "\n[1]: " << Eval::Trainings_Data_Gen::Settings::Mutate
+				<< "\n[0]: " << Eval::Trainings_Data_Gen::Settings::Stochastic
+				<< "\n[1]: " << Eval::Trainings_Data_Gen::Settings::Post_Sep
+				<< "\n[2]: " << Eval::Trainings_Data_Gen::Settings::Pre_Sep
 				<< "\nnew train generator: ";
 			int temp;
 			std::cin >> temp;
-			if(temp == 0) train_settings = Eval::Trainings_Data_Gen::Settings::Random;
-			else if (temp == 1) train_settings = Eval::Trainings_Data_Gen::Settings::Mutate;
+			if(temp == 0) train_settings = Eval::Trainings_Data_Gen::Settings::Stochastic;
+			else if (temp == 1) train_settings = Eval::Trainings_Data_Gen::Settings::Post_Sep;
+			else if (temp == 2) train_settings = Eval::Trainings_Data_Gen::Settings::Pre_Sep;
 			std::cout << "\nnew test generator: ";
 			std::cin >> temp;
-			if (temp == 0) test_settings = Eval::Trainings_Data_Gen::Settings::Random;
-			else if (temp == 1) test_settings = Eval::Trainings_Data_Gen::Settings::Mutate;
+			if (temp == 0) test_settings = Eval::Trainings_Data_Gen::Settings::Stochastic;
+			else if (temp == 1) test_settings = Eval::Trainings_Data_Gen::Settings::Post_Sep;
+			else if (temp == 2) test_settings = Eval::Trainings_Data_Gen::Settings::Pre_Sep;
 			std::cout << "\nnew valid generator: ";
 			std::cin >> temp;
-			if (temp == 0) valid_settings = Eval::Trainings_Data_Gen::Settings::Random;
-			else if (temp == 1) valid_settings = Eval::Trainings_Data_Gen::Settings::Mutate;
+			if (temp == 0) valid_settings = Eval::Trainings_Data_Gen::Settings::Stochastic;
+			else if (temp == 1) valid_settings = Eval::Trainings_Data_Gen::Settings::Post_Sep;
+			else if (temp == 2) valid_settings = Eval::Trainings_Data_Gen::Settings::Pre_Sep;
 			clear_cin();
 
 			std::cout << "\nGenerator:"
@@ -148,6 +157,14 @@ void Eval::AI_Config_CLI::generate_trainings_sheets_dialog()
 			<< "\n";
 		 generate_trainings_sheets_dialog(); return;
 	case 'g': generate_trainings_sheets(); return;
+	case 'o':
+		std::cout << "\nwhich rule (1-9): ";
+		std::cin >> rule_num;
+		clear_cin();
+		std::cout << "\nhow many: ";
+		std::cin >> count;
+		clear_cin();
+		generator.select_sheets_subset(train_data_folder, selected_data_folder, count, Eval::get_main_rule_from_index(rule_num)); return;
 	case 'e': return;
 	default: generate_trainings_sheets_dialog(); return;
 	}
@@ -157,15 +174,25 @@ void Eval::AI_Config_CLI::generate_trainings_sheets()
 {
 	for (auto& entry : std::experimental::filesystem::directory_iterator(train_data_folder))
 		std::experimental::filesystem::remove(entry.path());
-	generator.generate_data(train_sheets_count, train_data_folder, train_settings); //"data/sheets/train"
+	if(train_settings == Eval::Trainings_Data_Gen::Settings::Post_Sep 
+		|| train_settings == Eval::Trainings_Data_Gen::Settings::Stochastic)
+		generator.generate_data(train_sheets_count, train_data_folder, train_settings);
+	else if(train_settings == Eval::Trainings_Data_Gen::Settings::Pre_Sep)
+		generator.generate_data(train_sheets_count, train_data_folder, train_settings, "data/sheets/train"); 
 
-	for (auto& entry : std::experimental::filesystem::directory_iterator(test_data_folder))
-		std::experimental::filesystem::remove(entry.path()); 
-	generator.generate_data(test_sheets_count, test_data_folder, test_settings); //"data/sheets/test"
 
-	for (auto& entry : std::experimental::filesystem::directory_iterator(valid_data_folder))
-		std::experimental::filesystem::remove(entry.path());
-	generator.generate_data(valid_sheets_count, valid_data_folder, valid_settings); //"data/sheets/valid"
+	if (test_settings == Eval::Trainings_Data_Gen::Settings::Post_Sep
+		|| test_settings == Eval::Trainings_Data_Gen::Settings::Stochastic)
+		generator.generate_data(test_sheets_count, test_data_folder, test_settings);
+	else if (test_settings == Eval::Trainings_Data_Gen::Settings::Pre_Sep)
+		generator.generate_data(test_sheets_count, test_data_folder, test_settings, "data/sheets/test_valid");
+
+
+	if (valid_settings == Eval::Trainings_Data_Gen::Settings::Post_Sep
+		|| valid_settings == Eval::Trainings_Data_Gen::Settings::Stochastic)
+		generator.generate_data(valid_sheets_count, valid_data_folder, valid_settings);
+	else if (valid_settings == Eval::Trainings_Data_Gen::Settings::Pre_Sep)
+		generator.generate_data(valid_sheets_count, valid_data_folder, valid_settings, "data/sheets/test_valid");
 }
 
 
@@ -418,7 +445,7 @@ void Eval::AI_Config_CLI::validate_one_net()
 	std::cout << "\nNet " << net_paths[net_number];
 	std::cout << "\nwith settings " << settings_paths[settings_number] << "\n";
 
-	ai_evaluator.validate_net(net_paths[net_number], settings_paths[settings_number]);
+	ai_evaluator.validate_net(net_paths[net_number], settings_paths[settings_number], settings_paths[settings_number]);
 }
 
 void Eval::AI_Config_CLI::analyse_sheets_dialog()
