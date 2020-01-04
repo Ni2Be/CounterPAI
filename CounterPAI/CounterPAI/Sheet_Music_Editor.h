@@ -133,6 +133,7 @@ namespace UI {
 		Note_Value selected_value = Note_Value::Whole;
 		bool is_deleting = false;
 		bool is_tying = false;
+		bool m_ai_color = false;
 		bool m_draw_grid = true;
 		bool draw_overlay = false;
 		bool wants_info = false;

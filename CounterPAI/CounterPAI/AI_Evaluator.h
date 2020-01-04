@@ -6,6 +6,8 @@
 #include "Learn_Settings.h"
 
 #include <bitset>
+#include <vector>
+#include "Net.h"
 
 namespace Eval
 {
@@ -18,15 +20,15 @@ namespace Eval
 
 		Sheet_Music testing();
 
-		//void train();
+
+		std::vector<std::pair<std::shared_ptr<Eval::Net>, Learn_Settings>> models;
+		void load_nets();
 
 		void train_net(Learn_Settings settings);
 		void validate_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path = "do_not_save");
 		void validate_all_rules_net(const std::string& model_path, const std::string& settings_path, const std::string& save_path = "do_not_save");
 		void test_on_equals(Learn_Settings settings);
-		//void generate_cf();
-
-		//void load_data();
+		
 
 		torch::Device device;
 

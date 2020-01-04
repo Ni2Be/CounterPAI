@@ -81,6 +81,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_200_bpm_button(parent, { { 220, 533 }, { 60, 33 } }, "m"),
 	m_300_bpm_button(parent, { { 220, 566 }, { 60, 33 } }, "f"),
 	m_grid_button(parent, { { 1570, 570 }, { 20, 20 } }, ""),
+	m_ai_color_button(parent, { { 1570, 540 }, { 20, 20 } }, ""),
 	m_sheet_editor(parent->m_sheet, this),
 	m_undo_button(parent, { {330,500},{60,50} }, "undo"),
 	m_redo_button(parent, { {330,550},{60,50} }, "redo"),
@@ -326,8 +327,6 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 
 		if (app->gui.m_sheet_editor.wants_info)
 		{
-			app->m_sheet.clear_note_infos();
-			app->m_evaluator->evaluate_notes(app->m_sheet);
 			app->gui.m_info_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
 		else
@@ -389,18 +388,6 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		else
 			app->gui.m_grid_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 
-		auto sheet_vec = Eval::Data_Loader::convert_to_2d_vector(app->m_sheet);
-
-		if (sheet_vec.size() > 0)
-		{
-			std::cout << "\n\nSheet:\n";
-			Eval::Data_Loader::print_2d_vector(sheet_vec);
-
-			app->m_sheet.clear_note_infos();
-			app->m_evaluator->evaluate_notes(app->m_sheet);
-			Eval::Sheet_Statistic stat(app->m_sheet);
-			std::cout << stat;
-		}
 	};
 	m_grid_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 	attach_drawable(m_grid_button);
@@ -408,8 +395,30 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 	m_grid_marker.setFont(m_times_new_roman);
 	m_grid_marker.setString("grid");
 	m_grid_marker.setFillColor(sf::Color::Black);
-	m_grid_marker.setPosition({ 1510, 560 });
+	m_grid_marker.setPosition({ 1515, 560 });
 	attach_drawable(m_grid_marker);
+
+
+	
+	m_ai_color_button.func = [](Application* app) {
+		app->m_debug_log.log("grid Button");
+
+		app->gui.m_sheet_editor.m_ai_color = !app->gui.m_sheet_editor.m_ai_color;
+		if (app->gui.m_sheet_editor.m_ai_color)
+			app->gui.m_ai_color_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
+		else
+			app->gui.m_ai_color_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+
+	};
+	m_ai_color_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
+	attach_drawable(m_ai_color_button);
+
+	m_ai_color_marker.setFont(m_times_new_roman);
+	m_ai_color_marker.setString("ai color");
+	m_ai_color_marker.setFillColor(sf::Color::Black);
+	m_ai_color_marker.setPosition({ 1475, 530 });
+	attach_drawable(m_ai_color_marker);
+
 
 
 
@@ -429,7 +438,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 		}
-		app->m_evaluator->evaluate_notes(app->m_sheet);
+		app->m_sheet.clear_note_infos();
 	};
 	m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 });
 	attach_drawable(m_soprano_cf_button);
@@ -444,7 +453,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 			app->gui.m_soprano_cf_button.draw_rect.setFillColor({ 0x33,0x33,0x33 }); 
 			app->gui.m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
 		}
-		app->m_evaluator->evaluate_notes(app->m_sheet);
+		app->m_sheet.clear_note_infos();
 	};
 	m_cf_marker.setPosition({ 1570, 260 });
 	m_bass_cf_button.draw_rect.setFillColor({ 0x00,0x00,0x00 });
@@ -470,7 +479,7 @@ UI::GUI::GUI(int width, int height, const std::string& title, Application* paren
 		else
 			app->gui.m_300_bpm_button.func(app);
 
-		app->m_evaluator->evaluate_notes(app->m_sheet);
+		app->m_sheet.clear_note_infos();
 		//ensure no buttens are pressed when the "okay" button is pressed
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	};

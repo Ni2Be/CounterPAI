@@ -32,6 +32,7 @@ namespace Eval {
 		static void print_2d_vector(const std::vector<std::vector<float>>& sheet_vec);
 		static std::vector<std::vector<float>> convert_to_2d_vector(Sheet_Music& sheet);
 
+		void convert_data(const Sheet_Music& sheet);
 
 		void remember_one_cf(std::vector<Sheet_Music>& sheets, std::vector<torch::Tensor>& features, std::vector<torch::Tensor>& targets);
 

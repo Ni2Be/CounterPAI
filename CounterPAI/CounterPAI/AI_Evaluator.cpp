@@ -45,32 +45,17 @@ Eval::AI_Evaluator::AI_Evaluator()
 	}
 }
 
+void Eval::AI_Evaluator::load_nets()
+{
+	////LOAD
+	std::string model_save_folder = Folder_Dialog::get_exe_path() + "/data/trained/";
 
-int get_sixteenth_length(std::list<Music_Note> voice);
-
-void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
-{		
-	try
+	for (int i = 0; i < 9; i++)
 	{
-		if (get_sixteenth_length(sheet.get_cf()) != get_sixteenth_length(sheet.get_cp()))
-		{
-			std::cerr << "\nCounter Point and Cantus Firmus must be the same length";
-			return;
-		}
-		else if (sheet.get_cf().size() == 0)
-		{
-			std::cerr << "\nThe voices are empty";
-			return;
-		}
-
-		////LOAD
-		std::string model_save_folder = Folder_Dialog::get_exe_path() + "/data/trained/";
-		//std::string model_name = "R2_from_two_sides_rule_targets";
-		std::string model_name = "R2_back_n_forth_rule_targets";
-		std::cout << "Evaluating with: " + model_save_folder + model_name + ".pt";
+		std::string model_name = "R" + std::to_string(i + 1);
 		Learn_Settings settings(model_save_folder + model_name + ".json");
 		settings.batch_size = 1;
-		std::cout << settings;
+		std::cout << "\nLoading " + model_name + ":\n" << settings;
 		std::shared_ptr<Eval::Net> model;
 		if (settings.nn_type == NN_Type::LSTM)
 		{
@@ -86,33 +71,105 @@ void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 		model->to(device);
 		model->eval();
 
+		models.push_back({ model , settings});
+	}
+}
 
-		std::vector<torch::Tensor> features;
-		std::vector<torch::Tensor> targets_dummy;
+int get_sixteenth_length(std::list<Music_Note> voice);
 
 
+void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
+{		
+	try
+	{
+		for (const auto& note : sheet.get_cf())
+		{
+			if (note.m_value != Note_Value::Whole)
+			{
+				std::cerr << "\ncantus firmus must only consist of whole notes!\n"; return;
+			}
+		}
+		std::cout.setstate(std::ios_base::failbit);
+		std::list<Music_Note>& cantus_firmus = sheet.get_cf();
+		std::list<Music_Note>& counter_point = sheet.get_cp();
+
+		sheet.clear_note_infos();
+		m_evaluation.clear();
+
+		int length_cf = get_sixteenth_length(cantus_firmus);
+		int length_CP = get_sixteenth_length(counter_point);
+
+		if (cantus_firmus.size() == 0)
+			return;
+
+		//add filler notes if cf and cp are of different lenght
+		if (length_cf < length_CP)
+			for (int i = 0; i < (length_CP - length_cf) / 2; i++)
+				cantus_firmus.push_back(Music_Note(Note_Pitch::C4, Note_Value::Eighth, cantus_firmus.front().m_voice, true));
+		else if (length_cf > length_CP)
+			for (int i = 0; i < (length_cf - length_CP) / 2; i++)
+				counter_point.push_back(Music_Note(Note_Pitch::C4, Note_Value::Eighth, counter_point.front().m_voice, true));
+
+
+
+		//Evaluate
+
+
+		//Rule Eval
 		Rule_Evaluator evaluator;
 		evaluator.evaluate_notes(sheet);
 
-		std::vector<Sheet_Music> sheet_vec = { sheet };
-		Data_Loader loader(settings, false);
-		if (model_name == "R2_from_two_sides_rule_targets")
-			loader.evaluate_fux_rules_from_two_sides_rule_targets(sheet_vec, features, targets_dummy, settings.data_converter_info);
-		else if (model_name == "R2_back_n_forth_rule_targets")
-			loader.evaluate_fux_rules_back_n_forth_rule_targets(sheet_vec, features, targets_dummy, settings.data_converter_info);
-
-		std::cout << "result: ";
-		auto itr = sheet.get_cp().begin();
-		for (auto& f : features)
+		//Ai Eval
+		std::vector<Rule_Evaluation> ai_evaluation(sheet.get_cp().size());
+		for (int rule_index = 0; rule_index < 9; rule_index++)
 		{
-			auto t = model->forward(f.clone());
-			Rule_Evaluation temp;
-			if (t[-1].item<float>() > 0.5f)
-				temp.broken_rules.push_back(Fux_Rule::R2);
-			itr->add_note_info("AI_EVAL", Utility::to_str(temp));
-			itr++;
+			std::shared_ptr<Eval::Net> model = models[rule_index].first;
+			Learn_Settings settings = models[rule_index].second;
+
+			Data_Loader loader(settings, false);
+			loader.convert_data(sheet);
+
+			for (int i = 0; i < loader.features_vec.size(); i++)
+			{
+				bool is_all_rule_net = true;
+				auto output_tensor = model->forward(loader.features_vec[i].clone());
+				auto output = output_tensor[-1];
+				//Net that evaluates all rules
+				//last sequence element should be a 9 element tensor
+				if (output.numel() == 9)
+				{
+					std::vector<float> prediction;
+					for (int output_index = 0; output_index < output.numel(); output_index++)
+						prediction.push_back(output[output_index].item<float>());
+
+					if (prediction[rule_index] > 0.5f)
+						ai_evaluation[i].broken_rules.push_back(Eval::get_main_rule_from_index(rule_index + 1));
+				}
+				//Net that evaluates a single rule
+				//last sequence element should be a 1 element tensor
+				else if (output.numel() == 1)
+				{
+					if (output.item<float>() > 0.5f)
+						ai_evaluation[i].broken_rules.push_back(Eval::get_main_rule_from_index(rule_index + 1));
+				}
+			}
+
+			int note_counter = 0;
+			for (auto& note : sheet.get_cp())
+				note.add_note_info("AI_EVAL", Utility::to_str(ai_evaluation[note_counter++]));
+			
 		}
-		std::cout << std::endl;
+		std::cout << std::endl; 
+
+		//delete filler Notes
+		if (length_cf < length_CP)
+			for (int i = 0; i < (length_CP - length_cf) / 2; i++)
+				cantus_firmus.pop_back();
+		else if (length_cf > length_CP)
+			for (int i = 0; i < (length_cf - length_CP) / 2; i++)
+				counter_point.pop_back();
+
+		std::cout.clear();
 
 	} catch(std::exception& e)
 	{
@@ -120,7 +177,6 @@ void Eval::AI_Evaluator::evaluate_notes(Sheet_Music& sheet)
 	}
 	return;
 }
-
 
 
 void log_results(const std::string file_name, const std::vector<std::string>& times, const std::vector<int>& epochs, const std::vector<float>& test_losses, const std::vector<float>& train_losses)

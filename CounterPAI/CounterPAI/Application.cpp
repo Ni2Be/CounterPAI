@@ -19,6 +19,7 @@ Application::Application(bool start_ai_cli)
 
 #ifdef AI_EVALUATOR
 		m_evaluator.reset(new Eval::AI_Evaluator());
+		static_cast<Eval::AI_Evaluator&>(*m_evaluator).load_nets();
 #endif
 	//!!!!!!!!!update .sheet-data!!!!!!!!!
 	//for (auto& entry : std::experimental::filesystem::directory_iterator("data/sheets"))

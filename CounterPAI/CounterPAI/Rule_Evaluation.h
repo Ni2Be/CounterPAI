@@ -23,7 +23,7 @@ namespace Eval
 
 		std::vector<Fux_Rule> broken_rules;
 
-		bool was_rule_broken(Fux_Rule rule);
+		bool was_rule_broken(Fux_Rule rule, bool with_subrules = false);
 
 		/*Probability that the CP note is a good note.*/
 		float m_probability = 1.0f;

@@ -70,7 +70,7 @@ bool is_sub_rule(Eval::Fux_Rule main_rule, Eval::Fux_Rule sub_rule)
 }
 
 //R1 as input
-bool Eval::Rule_Evaluation::was_rule_broken(Fux_Rule rule)
+bool Eval::Rule_Evaluation::was_rule_broken(Fux_Rule rule, bool with_subrules)
 {
 	for (const auto& r : broken_rules)
 	{
@@ -82,6 +82,12 @@ bool Eval::Rule_Evaluation::was_rule_broken(Fux_Rule rule)
 		if (is_main_rule(rule))
 			if (is_sub_rule(rule, r))
 				return true;
+
+		if (with_subrules)
+		{
+			if (is_sub_rule(r, rule))
+				return true;
+		}
 	}
 	return false;
 }

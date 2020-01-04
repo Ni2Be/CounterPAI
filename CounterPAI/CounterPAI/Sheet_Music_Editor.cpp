@@ -286,13 +286,57 @@ void UI::Cleff_Grid::draw(sf::RenderTarget& target, sf::RenderStates states) con
 		if (note_info != "null")
 			note_evaluation = Eval::Rule_Evaluation(note_info);
 
-		if (m_parent->m_parent->draw_overlay)
+		
+		if(m_parent->m_parent->draw_overlay)
 			target.draw(ui_note.get_sprite(offset, 
 				{ (sf::Uint8)(255 * (1.0f - note_evaluation.m_probability)),
 					(sf::Uint8)(255 * note_evaluation.m_probability),
 						(sf::Uint8)0 }), states);
 		else
 			target.draw(ui_note.get_sprite(offset), states);
+		if ((m_parent->m_parent->m_parent->m_parent->m_sheet.get_cp().size() > 0) 
+			&& (note.m_voice == m_parent->m_parent->m_parent->m_parent->m_sheet.get_cp().back().m_voice)
+			&& m_parent->m_parent->m_ai_color)
+		{
+			Eval::Rule_Evaluation note_evaluation_rule_eval;
+			Eval::Rule_Evaluation note_evaluation_ai_eval;
+			if (note_info != "null")
+			{
+				note_evaluation_rule_eval = Eval::Rule_Evaluation(note_info);
+				note_evaluation_ai_eval = ui_note.m_note.get_note_info("AI_EVAL");
+			}
+			bool got_all_right = true;
+			bool got_some_right = false;
+
+			for (auto rule : note_evaluation_ai_eval.broken_rules)
+			{
+				if (note_evaluation_rule_eval.was_rule_broken(rule, true))
+					got_some_right = true;
+				else
+					got_all_right = false;
+			}
+			for (auto rule : note_evaluation_rule_eval.broken_rules)
+			{
+				if (note_evaluation_ai_eval.was_rule_broken(rule, true))
+					got_some_right = true;
+				else
+					got_all_right = false;
+			}
+
+			auto color = sf::Color::Red;
+			if (got_all_right)
+				color = sf::Color::Green;
+			else if (got_some_right)
+				color = sf::Color::Yellow;
+
+			auto sprite = sf::CircleShape(15, 30); 
+			sprite.setFillColor(sf::Color::Transparent);
+			sprite.setPosition(offset);
+			sprite.move({ 17, 45 });
+			sprite.setOutlineThickness(2);
+			sprite.setOutlineColor(color);
+			target.draw(sprite, states);
+		}
 
 		sf::Text symbol;
 		symbol.setFont(m_parent->m_parent->m_parent->times_new_roman());
@@ -455,17 +499,17 @@ std::string generate_info_text(Music_Note note)
 	ss2 >> rule_evaluation;
 	for (const auto& r : rule_evaluation.broken_rules)
 		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
-	info_text += "\nProbability: " + std::to_string(rule_evaluation.m_probability);
+	info_text += "Probability: " + std::to_string(rule_evaluation.m_probability);
 
 #ifdef AI_EVALUATOR
 	//Fux Rule Evaluation
-	info_text += "\n\nAI:\n";
+	info_text += "\nAI: ";
 	std::stringstream ss3;
 	ss3 << note.get_note_info("AI_EVAL");
 	Eval::Rule_Evaluation rule_evaluation_ai;
 	ss3 >> rule_evaluation_ai;
 	for (const auto& r : rule_evaluation_ai.broken_rules)
-		info_text += Eval::Rule_Evaluation::get_rule_text(r) + "\n";
+		info_text += Utility::to_str(r) + " ";
 #endif
 
 	return info_text;
@@ -489,6 +533,9 @@ void UI::Sheet_Grid_Button::on_clicked()
 	}
 	else
 	{
+
+		m_parent->m_parent->m_sheet.clear_note_infos();
+
 		m_parent->m_parent->m_parent->m_parent->m_parent->log_undo_sheet();
 
 		if (m_parent->m_parent->m_parent->is_deleting)
@@ -538,5 +585,9 @@ void UI::Sheet_Grid_Button::on_clicked()
 			m_parent->m_parent->m_parent->m_parent->m_parent->m_feedback_piano.play(m_parent->m_parent->m_sheet.get_note(m_parent->m_voice, m_sixteenth_distance));
 		}
 	}
+
+#ifndef AI_EVALUATOR
 	m_parent->m_parent->m_parent->m_parent->m_parent->m_evaluator->evaluate_notes(m_parent->m_parent->m_parent->m_parent->m_parent->m_sheet);
+#endif
+
 }

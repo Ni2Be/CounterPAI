@@ -33,6 +33,13 @@ bool is_dissonant(Eval::Interval interval)
 }
 void Eval::Rule_Evaluator::evaluate_notes(Sheet_Music& sheet)
 {
+	for (const auto& note : sheet.get_cf())
+	{
+		if (note.m_value != Note_Value::Whole)
+		{
+			std::cerr << "\ncantus firmus must only consist of whole notes!\n"; return;
+		}
+	}
 	Evaluator_Base::evaluate_notes(sheet);
 
 	std::list<Music_Note>& cantus_firmus = sheet.get_cf();

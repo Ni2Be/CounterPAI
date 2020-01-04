@@ -1,0 +1,20 @@
+{
+  "name": "R4_evaluate_fux_rules_from_two_sides_rule_targets",
+  "in_size": 79,
+  "hidden_size": 312,
+  "out_size": 1,
+  "hidden_layer_count": 2,
+  "batch_size": 50,
+  "epochs": 30,
+  "dropout": 0.3,
+  "optimizer": "ADAM",
+  "loss_func": "BCEL",
+  "learning_rate": 0.0001,
+  "train_data_folder": "data/trainings_data/train",
+  "test_data_folder": "data/trainings_data/test",
+  "valid_data_folder": "data/trainings_data/valid",
+  "data_converter": "evaluate_fux_rules_from_two_sides_rule_targets",
+  "data_converter_info": "R4",
+  "Possible Optis": [ "ADAM", "SGD" ],
+  "Possible Loss_F": [ "MSL", "BCEL" ]
+}

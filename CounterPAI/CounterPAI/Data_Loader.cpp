@@ -74,6 +74,33 @@ Eval::Data_Loader::Data_Loader(Learn_Settings settings, bool is_training, Data_T
 	}
 }
 
+void Eval::Data_Loader::convert_data(const Sheet_Music& sheet)
+{
+	std::vector<Sheet_Music> sheets = { sheet };
+	std::vector<torch::Tensor> targets_vec;
+
+	if (settings.data_converter == "remember_one_cf")
+	{
+		remember_one_cf(sheets, features_vec, targets_vec);
+	}
+	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_dense_NN")
+	{
+		evaluate_fux_rules_from_two_sides_dense_NN(sheets, features_vec, targets_vec, settings);
+	}
+	else if (settings.data_converter == "evaluate_fux_rules_from_two_sides_rule_targets")
+	{
+		evaluate_fux_rules_from_two_sides_rule_targets(sheets, features_vec, targets_vec, settings);
+	}
+	else if (settings.data_converter == "evaluate_fux_rules_back_n_forth_rule_targets")
+	{
+		evaluate_fux_rules_back_n_forth_rule_targets(sheets, features_vec, targets_vec, settings);
+	}
+	else if (settings.data_converter == "equality_test")
+	{
+		equality_test(sheets, features_vec, targets_vec, settings);
+	}
+}
+
 
 std::tuple<torch::Tensor, torch::Tensor> Eval::Data_Loader::get_batch(std::vector<torch::Tensor>& features_vec, std::vector<torch::Tensor>& targets_vec)
 {	
