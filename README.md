@@ -9,7 +9,8 @@ A learn application aimed to teach Fux Gradus ad Parnassum Species Counterpoint.
 
 
 
-![Classes](https://github.com/Ni2Be/CounterPAI/blob/master/Classes.PNG)
+![Classes](https://raw.githubusercontent.com/Ni2Be/CounterPAI/master/Class.PNG)
+![Evaluator](https://raw.githubusercontent.com/Ni2Be/CounterPAI/master/Evaluator.PNG)
 
 
 lib and dlls
