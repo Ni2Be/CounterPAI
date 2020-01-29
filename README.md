@@ -1,11 +1,11 @@
-![Application](https://raw.githubusercontent.com/Ni2Be/CounterPAI/blob/master/Counterpai-Logo.png)
+![Application](https://raw.githubusercontent.com/Ni2Be/CounterPAI/master/Counterpai-Logo.png)
 
 A learn application aimed to teach Fux Gradus ad Parnassum Species Counterpoint.
 
 
 
 
-![Application](https://raw.githubusercontent.com/Ni2Be/CounterPAI/blob/master/beta_pic.PNG)
+![Application](https://raw.githubusercontent.com/Ni2Be/CounterPAI/master/beta_pic.PNG)
 
 
 
